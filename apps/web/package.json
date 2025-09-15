@@ -2,6 +2,7 @@
   "name": "@handoverkey/web",
   "version": "0.1.0",
   "description": "React web application for HandoverKey",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",

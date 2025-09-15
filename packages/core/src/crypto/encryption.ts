@@ -21,7 +21,7 @@ export class Encryption {
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encodedData as BufferSource,
+      encodedData,
     );
 
     return {
@@ -38,11 +38,11 @@ export class Encryption {
     const decryptedData = await crypto.subtle.decrypt(
       {
         name: this.ALGORITHM,
-        iv: encryptedData.iv as BufferSource,
+        iv: encryptedData.iv,
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encryptedData.data as BufferSource,
+      encryptedData.data,
     );
 
     return new TextDecoder().decode(decryptedData);
@@ -65,11 +65,11 @@ export class Encryption {
     const decryptedData = await crypto.subtle.decrypt(
       {
         name: this.ALGORITHM,
-        iv: encryptedData.iv as BufferSource,
+        iv: encryptedData.iv,
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encryptedData.data as BufferSource,
+      encryptedData.data,
     );
 
     return new Uint8Array(decryptedData);
@@ -100,7 +100,7 @@ export class Encryption {
       ? new TextEncoder().encode(data) 
       : data as Uint8Array;
 
-    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData as BufferSource);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
