@@ -10,8 +10,9 @@ export class Encryption {
     key: CryptoKey,
   ): Promise<EncryptedData> {
     const iv = crypto.getRandomValues(new Uint8Array(this.IV_LENGTH));
-    const encodedData =
-      typeof data === "string" ? new TextEncoder().encode(data) : data;
+    const encodedData = typeof data === "string" 
+      ? new TextEncoder().encode(data) 
+      : data as Uint8Array;
 
     const encryptedData = await crypto.subtle.encrypt(
       {
@@ -20,7 +21,7 @@ export class Encryption {
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encodedData,
+      encodedData as BufferSource,
     );
 
     return {
@@ -37,11 +38,11 @@ export class Encryption {
     const decryptedData = await crypto.subtle.decrypt(
       {
         name: this.ALGORITHM,
-        iv: encryptedData.iv,
+        iv: encryptedData.iv as BufferSource,
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encryptedData.data,
+      encryptedData.data as BufferSource,
     );
 
     return new TextDecoder().decode(decryptedData);
@@ -64,11 +65,11 @@ export class Encryption {
     const decryptedData = await crypto.subtle.decrypt(
       {
         name: this.ALGORITHM,
-        iv: encryptedData.iv,
+        iv: encryptedData.iv as BufferSource,
         tagLength: this.TAG_LENGTH,
       },
       key,
-      encryptedData.data,
+      encryptedData.data as BufferSource,
     );
 
     return new Uint8Array(decryptedData);
@@ -95,10 +96,11 @@ export class Encryption {
   }
 
   static async hash(data: string | Uint8Array): Promise<string> {
-    const encodedData =
-      typeof data === "string" ? new TextEncoder().encode(data) : data;
+    const encodedData = typeof data === "string" 
+      ? new TextEncoder().encode(data) 
+      : data as Uint8Array;
 
-    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData as BufferSource);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
