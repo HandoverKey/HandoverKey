@@ -59,7 +59,7 @@ app.get("/health", async (req, res) => {
       },
       jobs: jobHealth.jobs,
     });
-  } catch (error) {
+  } catch {
     res.status(503).json({
       status: "error",
       timestamp: new Date().toISOString(),
