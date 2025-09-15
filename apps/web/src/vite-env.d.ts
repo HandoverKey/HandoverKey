@@ -1,14 +1,5 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-  readonly VITE_API_URL: string;
-  // more env variables...
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
-
 // Global types for browser APIs and Jest
 declare global {
   interface Window {
@@ -28,10 +19,19 @@ declare global {
   // Jest globals
   const jest: typeof import("jest");
 
-  // HTML Element types
-  interface HTMLInputElement extends globalThis.HTMLInputElement {}
-  interface HTMLDivElement extends globalThis.HTMLDivElement {}
-  interface HTMLSelectElement extends globalThis.HTMLSelectElement {}
+  // HTML Element types - extending globals with additional properties
+  interface HTMLInputElement {
+    // Add any additional input element properties if needed
+    placeholder?: string;
+  }
+  interface HTMLDivElement {
+    // Add any additional div element properties if needed  
+    role?: string;
+  }
+  interface HTMLSelectElement {
+    // Add any additional select element properties if needed
+    multiple?: boolean;
+  }
 }
 
 export {};
