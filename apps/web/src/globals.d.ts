@@ -8,7 +8,7 @@ declare const atob: typeof globalThis.atob;
 declare const crypto: typeof globalThis.crypto;
 
 // Jest globals
-declare const jest: any;
+declare const jest: typeof import("jest");
 
 // HTML Element types
 declare const HTMLInputElement: typeof globalThis.HTMLInputElement;

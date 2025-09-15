@@ -30,9 +30,9 @@ const Register: React.FC = () => {
     try {
       await register(email, password, confirmPassword);
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(
-        error.response?.data?.error || "Registration failed. Please try again.",
+        (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Registration failed. Please try again.",
       );
     } finally {
       setIsLoading(false);

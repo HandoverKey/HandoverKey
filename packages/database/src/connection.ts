@@ -35,7 +35,7 @@ export class DatabaseConnection {
     return this.pool.connect();
   }
 
-  static async query(text: string, params?: any[]): Promise<any> {
+  static async query(text: string, params?: unknown[]): Promise<unknown> {
     const client = await this.getClient();
     try {
       const result = await client.query(text, params);

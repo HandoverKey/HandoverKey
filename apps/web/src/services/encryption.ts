@@ -137,7 +137,7 @@ export async function decryptData(params: DecryptionParams): Promise<string> {
         ciphertext: CryptoJS.enc.Hex.parse(ciphertext),
         salt: saltWordArray,
         iv: ivWordArray,
-      } as any,
+      } as CryptoJS.lib.CipherParams,
       key,
       {
         iv: ivWordArray,
@@ -211,7 +211,7 @@ export function validateDecryptionParams(params: DecryptionParams): void {
     }
     CryptoJS.enc.Base64.parse(iv);
     CryptoJS.enc.Base64.parse(salt);
-  } catch (error) {
+  } catch {
     throw new Error("Invalid IV or salt format - must be valid base64");
   }
 }
@@ -225,6 +225,6 @@ export function clearSensitiveData(data: string): void {
   // JavaScript doesn't provide direct memory management, so this is symbolic
   if (data && typeof data === "string") {
     // Force garbage collection hint (not guaranteed)
-    (data as any) = null;
+    (data as string | null) = null;
   }
 }
