@@ -19,11 +19,15 @@ const ForgotPassword: React.FC = () => {
       setMessage(
         "If an account exists with this email, a password reset link has been sent.",
       );
-    } catch (err: any) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err) {
+      const error = err as {
+        response?: {
+          data?: { error?: { message?: string }; message?: string };
+        };
+      };
       setError(
-        err.response?.data?.error?.message ||
-          err.response?.data?.message ||
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
           "Failed to request password reset",
       );
     } finally {

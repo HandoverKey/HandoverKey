@@ -56,7 +56,7 @@ const Vault: React.FC = () => {
               iv: bufferToBase64(entry.iv),
             });
 
-            const data = decrypted as any;
+            const data = decrypted as { name: string; secret: string };
             return {
               ...entry,
               name: data.name,

@@ -40,14 +40,21 @@ const Register: React.FC = () => {
       // res.status(201).json({ ..., tokens: { accessToken, ... }, ... })
       login(response.data.tokens.accessToken, response.data.user);
       navigate("/dashboard");
-    } catch (err: any) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err) {
+      const error = err as {
+        response?: {
+          data?: {
+            error?: { message?: string; details?: Array<{ message?: string }> };
+            message?: string;
+          };
+        };
+      };
       // Handle Zod validation errors which might be an array
       const message =
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
         "Failed to register";
-      const details = err.response?.data?.error?.details?.[0]?.message;
+      const details = error.response?.data?.error?.details?.[0]?.message;
       setError(details ? `${message}: ${details}` : message);
     } finally {
       setLoading(false);

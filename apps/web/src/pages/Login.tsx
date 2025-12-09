@@ -22,11 +22,15 @@ const Login: React.FC = () => {
       // res.json({ message: "...", user: {...}, tokens: { accessToken, ... } })
       login(response.data.tokens.accessToken, response.data.user);
       navigate("/dashboard");
-    } catch (err: any) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err) {
+      const error = err as {
+        response?: {
+          data?: { error?: { message?: string }; message?: string };
+        };
+      };
       setError(
-        err.response?.data?.error?.message ||
-          err.response?.data?.message ||
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
           "Failed to login",
       );
     } finally {

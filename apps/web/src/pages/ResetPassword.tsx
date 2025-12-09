@@ -42,11 +42,15 @@ const ResetPassword: React.FC = () => {
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-    } catch (err: any) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err) {
+      const error = err as {
+        response?: {
+          data?: { error?: { message?: string }; message?: string };
+        };
+      };
       setError(
-        err.response?.data?.error?.message ||
-          err.response?.data?.message ||
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
           "Failed to reset password",
       );
     } finally {

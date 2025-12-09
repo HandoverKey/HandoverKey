@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import request from "supertest";
+import { AuthenticationError } from "../../errors";
 
 // Mocks must be defined before imports
 const mockDbClient = {
@@ -40,7 +41,6 @@ jest.mock("../../services/user-service", () => ({
     ),
     authenticateUser: jest.fn().mockImplementation((login) => {
       if (login.password === "WrongPassword123!") {
-        const { AuthenticationError } = require("../../errors");
         return Promise.reject(
           new AuthenticationError("Invalid email or password"),
         );

@@ -32,8 +32,12 @@ const VerifySuccessor: React.FC = () => {
         response.data.message ||
           "Your successor status has been verified successfully!",
       );
-    } catch (error: any) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err) {
+      const error = err as {
+        response?: {
+          data?: { error?: { message?: string }; message?: string };
+        };
+      };
       setStatus("error");
       setMessage(
         error.response?.data?.error?.message ||
