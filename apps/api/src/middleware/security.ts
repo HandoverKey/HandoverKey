@@ -259,11 +259,11 @@ export const sanitizeInput = (
     const suspiciousPatterns = [
       "javascript:",
       "vbscript:",
-      "__proto__",
-      "constructor",
+      // "__proto__", // Removed as it triggers false positives in stringified JSON
+      // "constructor", // Removed as it triggers false positives in stringified JSON
       "eval(",
       "function(",
-      "script",
+      "<script",
     ];
 
     // Check patterns in stringified content

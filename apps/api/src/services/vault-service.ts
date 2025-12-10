@@ -119,7 +119,8 @@ export class VaultService {
     try {
       await vaultRepo.delete(entryId, userId);
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[VaultService] Failed to delete entry ${entryId}:`, error);
       return false;
     }
   }
