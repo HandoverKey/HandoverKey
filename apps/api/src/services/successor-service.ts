@@ -50,9 +50,10 @@ export class SuccessorService {
         verified: false,
         handover_delay_days: data.handoverDelayDays ?? 90,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Check for unique constraint violation (Postgres code 23505)
-      if (error.originalError?.code === "23505") {
+      const dbError = error as { originalError?: { code?: string } };
+      if (dbError.originalError?.code === "23505") {
         throw new ConflictError("Successor with this email already exists");
       }
       throw error;
