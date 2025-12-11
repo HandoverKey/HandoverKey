@@ -61,15 +61,10 @@ const Successors: React.FC = () => {
       setDelay(30);
       fetchSuccessors();
       success("Successor added successfully!");
-    } catch (err) {
-      const error = err as {
-        response?: {
-          data?: { error?: { message?: string }; message?: string };
-        };
-      };
+    } catch (error: any) {
       setError(
-        error.response?.data?.error?.message ||
-          error.response?.data?.message ||
+        error?.response?.data?.error?.message ||
+          error?.response?.data?.message ||
           "Failed to add successor",
       );
     }
