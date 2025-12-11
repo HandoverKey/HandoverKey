@@ -77,10 +77,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         ? "bg-red-600 hover:bg-red-500"
                         : "bg-blue-600 hover:bg-blue-500"
                     }`}
-                    onClick={() => {
-                      onConfirm();
-                      onClose();
-                    }}
+                    onClick={onConfirm}
                   >
                     {confirmText}
                   </button>
