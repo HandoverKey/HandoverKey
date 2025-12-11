@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AxiosError } from "axios";
 import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
@@ -61,10 +62,14 @@ const Successors: React.FC = () => {
       setDelay(30);
       fetchSuccessors();
       success("Successor added successfully!");
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as AxiosError<{
+        error?: { message: string };
+        message?: string;
+      }>;
       setError(
-        error?.response?.data?.error?.message ||
-          error?.response?.data?.message ||
+        error.response?.data?.error?.message ||
+          error.response?.data?.message ||
           "Failed to add successor",
       );
     }
