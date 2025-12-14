@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import lusca from "lusca";
 import dotenv from "dotenv";
 dotenv.config();
 import { getDatabaseClient } from "@handoverkey/database";
@@ -90,6 +91,9 @@ app.use(
   }) as express.RequestHandler,
 );
 app.use(cookieParser() as unknown as express.RequestHandler);
+
+// Enable CSRF protection for all state-changing (non-GET) requests
+app.use(lusca.csrf());
 
 // Validation and sanitization middleware
 app.use(validateContentType);
