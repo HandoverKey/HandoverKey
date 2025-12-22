@@ -13,9 +13,27 @@ async function registerAndLogin() {
 
   const registerRes = await (
     request(app).post("/api/v1/auth/register") as any
-  ).send({ email, password, confirmPassword: password });
+  ).send({ name: "Test User", email, password, confirmPassword: password });
 
   expect(registerRes.status).toBe(201);
+
+  // Get the verification token from database
+  const dbClient = getDatabaseClient();
+  const db = dbClient.getKysely();
+  const user = await db
+    .selectFrom("users")
+    .select("verification_token")
+    .where("email", "=", email)
+    .executeTakeFirst();
+
+  expect(user).toBeDefined();
+  expect(user!.verification_token).toBeDefined();
+
+  // Verify the email
+  const verifyRes = await request(app).get(
+    `/api/v1/auth/verify-email?token=${user!.verification_token}`,
+  );
+  expect(verifyRes.status).toBe(200);
 
   const loginRes = await (request(app).post("/api/v1/auth/login") as any).send({
     email,
@@ -33,7 +51,7 @@ describe("Vault and Successors Integration", () => {
     await dbClient.initialize({
       host: process.env.DB_HOST || "localhost",
       port: parseInt(process.env.DB_PORT || "5432"),
-      database: process.env.DB_NAME || "handoverkey_test",
+      database: "handoverkey_test",
       user: process.env.DB_USER || "postgres",
       password: process.env.DB_PASSWORD || "postgres",
       min: 2,

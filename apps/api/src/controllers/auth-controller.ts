@@ -6,7 +6,11 @@ import { emailService } from "../services/email-service";
 import { JWTManager } from "../auth/jwt";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { UserRegistration, UserLogin } from "@handoverkey/shared";
-import { AuthenticationError, NotFoundError } from "../errors";
+import {
+  AuthenticationError,
+  NotFoundError,
+  EmailVerificationRequiredError,
+} from "../errors";
 
 export class AuthController {
   static async register(
@@ -16,9 +20,10 @@ export class AuthController {
   ): Promise<void> {
     try {
       // Data is already validated and sanitized by Zod middleware
-      const { email, password, confirmPassword, salt } = req.body;
+      const { name, email, password, confirmPassword, salt } = req.body;
 
       const registration: UserRegistration & { salt?: string } = {
+        name,
         email,
         password,
         confirmPassword,
@@ -30,40 +35,15 @@ export class AuthController {
       // Log successful registration
       await UserService.logActivity(user.id, "USER_REGISTERED", req.ip);
 
-      // Generate tokens with session tracking
-      const { token: accessToken } = await JWTManager.generateAccessToken(
-        user.id,
-        user.email,
-        {
-          ipAddress: req.ip,
-          userAgent: req.get("user-agent"),
-        },
-      );
-      const refreshToken = JWTManager.generateRefreshToken(user.id, user.email);
-
-      // Set secure cookie options
-      const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
-        maxAge: 60 * 60 * 1000, // 1 hour
-      };
-
-      res.cookie("accessToken", accessToken, cookieOptions);
-
       res.status(201).json({
-        message: "User registered successfully",
+        message:
+          "User registered successfully. Please check your email to verify your account before logging in.",
         user: {
           id: user.id,
           email: user.email,
           name: user.name,
-          twoFactorEnabled: user.twoFactorEnabled,
+          emailVerified: user.emailVerified,
           createdAt: user.createdAt,
-          salt: Buffer.from(user.salt).toString("base64"),
-        },
-        tokens: {
-          accessToken,
-          refreshToken,
         },
       });
     } catch (error) {
@@ -194,7 +174,12 @@ export class AuthController {
       });
     } catch (error) {
       // Record failed login attempt and check for lockout
-      if (req.body.email && error instanceof AuthenticationError) {
+      // Skip failed login recording for email verification required errors
+      if (
+        req.body.email &&
+        error instanceof AuthenticationError &&
+        !(error instanceof EmailVerificationRequiredError)
+      ) {
         try {
           const existingUser = await UserService.findUserByEmail(
             req.body.email,
@@ -405,17 +390,19 @@ export class AuthController {
       if (user) {
         // Fire and forget - don't await to keep response fast
         emailService
-          .sendAccountDeletionEmail(user.email, user.name)
-          .catch((err) => console.error("Failed to send deletion email:", err));
+          .sendAccountDeletionConfirmation(user.email, user.name || "User")
+          .catch((err: Error) =>
+            console.error("Failed to send deletion email:", err),
+          );
 
         // Send notification emails to verified successors
         verifiedSuccessors.forEach((successor) => {
           emailService
-            .sendAccountDeletionSuccessorEmail(
+            .sendAccountDeletionToSuccessors(
               successor.email,
               user.name || user.email,
             )
-            .catch((err) =>
+            .catch((err: Error) =>
               console.error(
                 `Failed to send deletion email to successor ${successor.email}:`,
                 err,
@@ -437,11 +424,72 @@ export class AuthController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { token, password, salt } = req.body;
-      await UserService.resetPassword(token, password, salt);
+      const { token, password, salt, email } = req.body;
+      await UserService.resetPassword(token, password, salt, email);
 
       res.json({
         message: "Password has been reset successfully. You can now login.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async verifyEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { token } = req.query;
+
+      if (!token || typeof token !== "string") {
+        res.status(400).json({ message: "Verification token is required" });
+        return;
+      }
+
+      const result = await UserService.verifyUserByToken(token);
+
+      if (!result.success) {
+        res.status(400).json({
+          message: "Invalid or expired verification token",
+        });
+        return;
+      }
+
+      if (result.alreadyVerified) {
+        res.json({
+          message: "Email already verified. You can now login.",
+        });
+        return;
+      }
+
+      res.json({
+        message: "Email verified successfully. You can now login.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async resendVerificationEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      if (!email || typeof email !== "string") {
+        res.status(400).json({ message: "Email is required" });
+        return;
+      }
+
+      const result = await UserService.resendVerificationEmail(email);
+
+      res.json({
+        message: result.message,
+        alreadyVerified: result.alreadyVerified,
       });
     } catch (error) {
       next(error);

@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
-import {
-  setMasterKey,
-  deriveAuthKey,
-  generateEncryptionSalt,
-} from "../services/encryption";
+import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
+import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import LoadingButton from "../components/LoadingButton";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -14,13 +11,14 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -44,7 +42,7 @@ const Register: React.FC = () => {
 
       // 3. Send Registration Request
       // We send the authKey as the password, and the encryptionSalt to be stored
-      const response = await api.post("/auth/register", {
+      await api.post("/auth/register", {
         name,
         email,
         password: authKey,
@@ -52,12 +50,14 @@ const Register: React.FC = () => {
         salt: encryptionSalt, // We need to update backend to accept this
       });
 
-      // 4. Set Master Key in Memory
-      // We use the original password and the generated salt
-      await setMasterKey(password, encryptionSalt);
-
-      login(response.data.tokens.accessToken, response.data.user);
-      navigate("/dashboard");
+      // 4. Show success message and redirect to login
+      // User must verify email before they can login
+      setSuccess(
+        `Registration successful! Please check your email at ${email} to verify your account before logging in.`,
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (err) {
       const error = err as {
         response?: {
@@ -83,9 +83,21 @@ const Register: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
-            Create your account
+          <div className="flex justify-center mb-6">
+            <Link
+              to="/"
+              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+            >
+              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
+            </Link>
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+            Secure your legacy
           </h2>
+          <p className="text-gray-500 font-medium tracking-tight">
+            Create your <span className="text-gray-900">Handover</span>
+            <span className="text-blue-600">Key</span> account
+          </p>
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{" "}
             <Link
@@ -102,6 +114,12 @@ const Register: React.FC = () => {
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
+                {success}
               </div>
             )}
 
@@ -198,36 +216,13 @@ const Register: React.FC = () => {
             </div>
 
             <div>
-              <button
+              <LoadingButton
                 type="submit"
-                disabled={loading}
+                loading={loading}
                 className="w-full btn btn-primary flex justify-center"
               >
-                {loading ? (
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                ) : (
-                  "Create Account"
-                )}
-              </button>
+                Create Account
+              </LoadingButton>
             </div>
           </form>
         </div>
