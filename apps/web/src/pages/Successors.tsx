@@ -89,7 +89,6 @@ const Successors: React.FC = () => {
   };
 
   const handleAddSuccessor = async (e: React.FormEvent) => {
-    // ... (rest of the code below matches handleAddSuccessor)
 
     e.preventDefault();
     setError(null);
