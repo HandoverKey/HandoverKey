@@ -20,7 +20,7 @@ import { metricsMiddleware } from "./middleware/metrics";
 import { logger } from "./config/logger";
 import { getMetrics, getMetricsContentType } from "./config/metrics";
 import authRoutes from "./routes/auth-routes";
-import vaultRoutes from "./routes/vault-routes";
+import vaultRoutes, { publicVaultRouter } from "./routes/vault-routes";
 import activityRoutes from "./routes/activity-routes";
 import inactivityRoutes from "./routes/inactivity-routes";
 import sessionRoutes from "./routes/session-routes";

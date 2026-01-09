@@ -44,7 +44,6 @@ export class SuccessorService {
 
     let successor;
     try {
-      console.log('SuccessorService.addSuccessor data:', JSON.stringify(data, null, 2));
       successor = await successorRepo.create({
         id,
         user_id: userId,
@@ -119,6 +118,7 @@ export class SuccessorService {
       name: successor.name,
       verified: successor.verified,
       handoverDelayDays: successor.handover_delay_days,
+      encryptedShare: successor.encrypted_share,
       createdAt: successor.created_at,
     };
   }
@@ -152,6 +152,7 @@ export class SuccessorService {
       name: successor.name,
       verified: successor.verified,
       handoverDelayDays: successor.handover_delay_days,
+      encryptedShare: successor.encrypted_share,
       createdAt: successor.created_at,
     };
   }
@@ -198,38 +199,64 @@ export class SuccessorService {
     return true;
   }
 
+  static async updateShares(
+    userId: string,
+    shares: { id: string; encryptedShare: string }[],
+  ): Promise<void> {
+    const successorRepo = this.getSuccessorRepository();
+
+    for (const share of shares) {
+      // Verify ownership before update
+      const successor = await successorRepo.findById(share.id);
+      if (!successor || successor.user_id !== userId) {
+        continue; // Skip if not found or not owned
+      }
+
+      await successorRepo.update(share.id, {
+        encrypted_share: share.encryptedShare,
+      });
+    }
+  }
+
   static async verifySuccessorByToken(
     verificationToken: string,
-  ): Promise<{ success: boolean; alreadyVerified: boolean; userId?: string }> {
+  ): Promise<{
+    success: boolean;
+    alreadyVerified: boolean;
+    userId?: string;
+    userName?: string;
+    handoverStatus?: string;
+  }> {
     const successorRepo = this.getSuccessorRepository();
     const db = successorRepo["db"]; // Access the kysely instance
 
-    // First check if successor exists with this token and is already verified
-    const existingSuccessor = await db
-      .selectFrom("successors")
-      .selectAll()
-      .where("verification_token", "=", verificationToken)
-      .where("verified", "=", true)
-      .executeTakeFirst();
-
-    if (existingSuccessor) {
-      return {
-        success: true,
-        alreadyVerified: true,
-        userId: existingSuccessor.user_id,
-      };
-    }
-
-    // Find unverified successor by verification token
+    // Find successor by verification token
     const successor = await db
       .selectFrom("successors")
-      .selectAll()
-      .where("verification_token", "=", verificationToken)
-      .where("verified", "=", false)
+      .innerJoin("users", "users.id", "successors.user_id")
+      .leftJoin("handover_processes", "handover_processes.user_id", "users.id")
+      .select([
+        "successors.id",
+        "successors.user_id",
+        "successors.verified",
+        "users.name as user_name",
+        "handover_processes.status as handover_status",
+      ])
+      .where("successors.verification_token", "=", verificationToken)
       .executeTakeFirst();
 
     if (!successor) {
       return { success: false, alreadyVerified: false };
+    }
+
+    if (successor.verified) {
+      return {
+        success: true,
+        alreadyVerified: true,
+        userId: successor.user_id,
+        userName: successor.user_name || undefined,
+        handoverStatus: (successor.handover_status as string) || undefined,
+      };
     }
 
     // Update to verified
@@ -237,7 +264,13 @@ export class SuccessorService {
       verified: true,
     });
 
-    return { success: true, alreadyVerified: false, userId: successor.user_id };
+    return {
+      success: true,
+      alreadyVerified: false,
+      userId: successor.user_id,
+      userName: successor.user_name || undefined,
+      handoverStatus: (successor.handover_status as string) || undefined,
+    };
   }
 
   static async resendVerification(

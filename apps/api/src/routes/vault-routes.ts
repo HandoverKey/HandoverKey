@@ -57,4 +57,9 @@ router.delete(
   VaultController.deleteEntry,
 );
 
+// Successor access route (public, but logic handles verification)
+const publicVaultRouter = Router();
+publicVaultRouter.get("/successor-access", VaultController.getSuccessorEntries);
+
+export { publicVaultRouter };
 export default router;

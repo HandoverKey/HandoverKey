@@ -74,9 +74,9 @@ export class EmailService {
       auth:
         user && pass
           ? {
-            user,
-            pass,
-          }
+              user,
+              pass,
+            }
           : undefined,
       tls: {
         rejectUnauthorized: false,
@@ -279,11 +279,7 @@ export class EmailService {
   /**
    * Generic method to send any email
    */
-  async sendEmail(
-    to: string,
-    subject: string,
-    html: string,
-  ): Promise<void> {
+  async sendEmail(to: string, subject: string, html: string): Promise<void> {
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to,

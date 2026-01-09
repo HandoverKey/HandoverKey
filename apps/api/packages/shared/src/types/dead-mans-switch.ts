@@ -258,7 +258,11 @@ export interface NotificationService {
   ): Promise<NotificationResult>;
   sendHandoverAlert(
     userId: string,
-    successors: string[],
+    successors: {
+      name: string | null;
+      email: string;
+      encrypted_share?: string | null;
+    }[],
   ): Promise<NotificationResult[]>;
   generateCheckInLink(userId: string, expiresIn: number): Promise<string>;
   validateCheckInLink(token: string): Promise<CheckInValidation>;

@@ -134,26 +134,21 @@ export class NotificationService implements INotificationService {
    */
   async sendHandoverAlert(
     userId: string,
-    successors: string[],
+    successors: {
+      name: string | null;
+      email: string;
+      encrypted_share?: string | null;
+    }[],
     handoverProcessId?: string,
   ): Promise<NotificationResult[]> {
     const results: NotificationResult[] = [];
 
-    for (const successorId of successors) {
+    for (const successor of successors) {
       try {
-        const successor = await this.getSuccessorById(successorId);
-        if (!successor) {
-          // Only log errors in non-test environments
-          if (process.env.NODE_ENV !== "test") {
-            console.error(`Successor ${successorId} not found`);
-          }
-          continue;
-        }
-
         const content = this.createHandoverAlertContent(
-          successor.name,
+          successor.name || "Successor",
           successor.email,
-          successor.encryptedShare,
+          successor.encrypted_share,
         );
 
         const result = await this.sendEmailNotification(
@@ -185,13 +180,13 @@ export class NotificationService implements INotificationService {
         // Only log errors in non-test environments
         if (process.env.NODE_ENV !== "test") {
           console.error(
-            `Failed to send handover alert to successor ${successorId}:`,
+            `Failed to send handover alert to successor ${successor.email}:`,
             error,
           );
         }
 
         results.push({
-          id: `failed-${Date.now()}-${successorId}`,
+          id: `failed-${Date.now()}-${successor.email}`,
           userId,
           method: NotificationMethod.EMAIL,
           status: DeliveryStatus.FAILED,
@@ -268,7 +263,8 @@ export class NotificationService implements INotificationService {
           status: DeliveryStatus.FAILED,
           timestamp: new Date(),
           retryCount: 0,
-          errorMessage: error instanceof Error ? error.message : "Unknown error",
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown error",
         });
       }
     }

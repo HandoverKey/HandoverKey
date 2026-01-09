@@ -36,6 +36,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/verify-successor" element={<VerifySuccessor />} />
+            <Route path="/successor-access" element={<SuccessorAccess />} />
 
             <Route
               element={
@@ -46,7 +47,6 @@ function App() {
             >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/vault" element={<Vault />} />
-              <Route path="/successors" element={<Successors />} />
               <Route path="/successors" element={<Successors />} />
               <Route path="settings" element={<Settings />} />
             </Route>

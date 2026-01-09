@@ -239,12 +239,13 @@ export class JobProcessor {
       "Sending reminder notification",
     );
 
-    const { NotificationService } = await import("../services/notification-service");
+    const { NotificationService } =
+      await import("../services/notification-service");
     const notificationService = new NotificationService();
 
     // Map job level to ReminderType
-    // We need to import ReminderType from shared
-    const { ReminderType } = await import("@handoverkey/shared/src/types/dead-mans-switch");
+    const { ReminderType } =
+      await import("@handoverkey/shared/src/types/dead-mans-switch");
 
     let reminderType = ReminderType.FIRST_REMINDER;
     if (data.level === "warning") reminderType = ReminderType.SECOND_REMINDER;
@@ -276,7 +277,8 @@ export class JobProcessor {
       "Executing handover",
     );
 
-    const { HandoverOrchestrator } = await import("../services/handover-orchestrator");
+    const { HandoverOrchestrator } =
+      await import("../services/handover-orchestrator");
     const orchestrator = new HandoverOrchestrator();
 
     // Find the active handover process

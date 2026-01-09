@@ -251,5 +251,29 @@ export class SuccessorController {
     } catch (error) {
       next(error);
     }
+  static async updateShares(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction,
+    ): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      const { shares } = req.body;
+
+      await SuccessorService.updateShares(req.user.userId, shares);
+
+      await UserService.logActivity(
+        req.user.userId,
+        "SUCCESSOR_SHARES_UPDATED",
+        req.ip,
+      );
+
+      res.json({ message: "Successor shares updated successfully" });
+    } catch (error) {
+      next(error);
+    }
   }
 }

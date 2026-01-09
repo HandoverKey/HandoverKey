@@ -7,9 +7,20 @@ import {
   UpdateSuccessorSchema,
   VerifySuccessorSchema,
   SuccessorIdSchema,
+  UpdateSharesSchema,
 } from "../validation/schemas";
 
 const router = Router();
+
+/**
+ * Update multiple successor shares
+ * PUT /api/v1/successors/shares
+ */
+router.put(
+  "/shares",
+  validateRequest(UpdateSharesSchema, "body"),
+  SuccessorController.updateShares,
+);
 
 // All successor routes require authentication
 router.use(authenticateJWT);

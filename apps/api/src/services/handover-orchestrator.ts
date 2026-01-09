@@ -39,7 +39,7 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
       const now = new Date();
       const gracePeriodEnds = new Date(
         now.getTime() +
-        HandoverOrchestrator.GRACE_PERIOD_HOURS * 60 * 60 * 1000,
+          HandoverOrchestrator.GRACE_PERIOD_HOURS * 60 * 60 * 1000,
       );
 
       const metadata = {
@@ -65,7 +65,10 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       // Send initial grace period notifications
       const notificationService = new NotificationService();
-      await notificationService.sendReminder(userId, ReminderType.FINAL_WARNING);
+      await notificationService.sendReminder(
+        userId,
+        ReminderType.FINAL_WARNING,
+      );
 
       return handoverProcess;
     } catch (error) {
@@ -101,21 +104,30 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
       console.log(`Handover process cancelled for user ${userId}: ${reason}`);
 
       // Send cancellation notifications to successors.
-      // Note: Ideally we should only notify successors who were actually alerted, 
+      // Note: Ideally we should only notify successors who were actually alerted,
       // but for now we notify all configured successors for safety.
 
       try {
         const dbClient = getDatabaseClient();
-        const successorRepo = new (await import("@handoverkey/database")).SuccessorRepository(dbClient.getKysely());
+        const successorRepo = new (
+          await import("@handoverkey/database")
+        ).SuccessorRepository(dbClient.getKysely());
         const successors = await successorRepo.findByUserId(userId);
-        const successorIds = successors.map(s => s.id);
+        const successorIds = successors.map((s) => s.id);
 
         if (successorIds.length > 0) {
           const notificationService = new NotificationService();
-          await notificationService.sendHandoverCancellation(userId, successorIds, reason);
+          await notificationService.sendHandoverCancellation(
+            userId,
+            successorIds,
+            reason,
+          );
         }
       } catch (notifyError) {
-        console.error("Failed to send cancellation notifications:", notifyError);
+        console.error(
+          "Failed to send cancellation notifications:",
+          notifyError,
+        );
         // Don't fail the cancellation process itself if notification fails
       }
     } catch (error) {
@@ -203,14 +215,17 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       // Notify successors
       const dbClient = getDatabaseClient();
-      const successorRepo = new (await import("@handoverkey/database")).SuccessorRepository(dbClient.getKysely());
+      const successorRepo = new (
+        await import("@handoverkey/database")
+      ).SuccessorRepository(dbClient.getKysely());
       const successors = await successorRepo.findByUserId(process.user_id);
-      const successorIds = successors.map(s => s.id);
-
+      // Notification sent with key share
       const notificationService = new NotificationService();
-      await notificationService.sendHandoverAlert(process.user_id, successorIds, handoverId);
-
-      // Begin successor verification process (part of sendHandoverAlert logic/tracking)
+      await notificationService.sendHandoverAlert(
+        process.user_id,
+        successors,
+        handoverId,
+      );
     } catch (error) {
       // Only log errors in non-test environments
       if (process.env.NODE_ENV !== "test") {

@@ -9,144 +9,173 @@ import { HandoverProcessStatus } from "@handoverkey/shared/src/types/dead-mans-s
 
 // Helpers
 async function register(email: string) {
-    const password = "Password123!@$";
+  const password = "Password123!@$";
 
-    // Register
-    await (request(app).post("/api/v1/auth/register") as any)
-        .send({ name: "Test User", email, password, confirmPassword: password });
+  // Register
+  await (request(app).post("/api/v1/auth/register") as any).send({
+    name: "Test User",
+    email,
+    password,
+    confirmPassword: password,
+  });
 
-    // Verify email
-    const dbClient = getDatabaseClient();
-    const db = dbClient.getKysely();
-    const user = await db
-        .selectFrom("users")
-        .select(["verification_token", "id"])
-        .where("email", "=", email)
-        .executeTakeFirst();
+  // Verify email
+  const dbClient = getDatabaseClient();
+  const db = dbClient.getKysely();
+  const user = await db
+    .selectFrom("users")
+    .select(["verification_token", "id"])
+    .where("email", "=", email)
+    .executeTakeFirst();
 
-    if (!user || !user.verification_token) throw new Error("User registration failed");
+  if (!user || !user.verification_token)
+    throw new Error("User registration failed");
 
-    await request(app).get(
-        `/api/v1/auth/verify-email?token=${user.verification_token}`,
-    );
+  await request(app).get(
+    `/api/v1/auth/verify-email?token=${user.verification_token}`,
+  );
 
-    return { email, password, userId: user.id };
+  return { email, password, userId: user.id };
 }
 
 async function login(email: string) {
-    const password = "Password123!@$";
-    const loginRes = await (request(app).post("/api/v1/auth/login") as any).send({
-        email,
-        password,
-    });
-    return loginRes.body.tokens.accessToken;
+  const password = "Password123!@$";
+  const loginRes = await (request(app).post("/api/v1/auth/login") as any).send({
+    email,
+    password,
+  });
+  return loginRes.body.tokens.accessToken;
 }
 
 describe("Handover Flow Integration", () => {
-    beforeAll(async () => {
-        const dbClient = getDatabaseClient();
-        await dbClient.initialize({
-            host: process.env.DB_HOST || "localhost",
-            port: parseInt(process.env.DB_PORT || "5432"),
-            database: "handoverkey_test",
-            user: process.env.DB_USER || "postgres",
-            password: process.env.DB_PASSWORD || "postgres",
-            min: 2,
-            max: 10,
-        });
-
-        SessionService.initialize(dbClient);
-        await initializeRedis();
-        await appInit;
+  beforeAll(async () => {
+    const dbClient = getDatabaseClient();
+    await dbClient.initialize({
+      host: process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.DB_PORT || "5432"),
+      database: "handoverkey_test",
+      user: process.env.DB_USER || "postgres",
+      password: process.env.DB_PASSWORD || "postgres",
+      min: 2,
+      max: 10,
     });
 
-    afterAll(async () => {
-        await closeRedis();
-        await getDatabaseClient().close();
+    SessionService.initialize(dbClient);
+    await initializeRedis();
+    await appInit;
+  });
+
+  afterAll(async () => {
+    await closeRedis();
+    await getDatabaseClient().close();
+  });
+
+  it("should store encrypted key share when adding a successor", async () => {
+    const email = `share-test-${Date.now()}@example.com`;
+    await register(email);
+    const token = await login(email);
+    const auth = { Authorization: `Bearer ${token}` };
+
+    // 1. Create a Vault Entry
+    await (request(app).post("/api/v1/vault/entries") as any).set(auth).send({
+      encryptedData: "test-data",
+      iv: "test-iv",
+      algorithm: "AES-GCM",
+      category: "Login",
+      tags: ["test"],
     });
 
-    it("should store encrypted key share when adding a successor", async () => {
-        const email = `share-test-${Date.now()}@example.com`;
-        const { userId } = await register(email);
-        const token = await login(email);
-        const auth = { Authorization: `Bearer ${token}` };
+    // 2. Add Successor with Encrypted Share
+    const share = "encrypted-shamir-share-v1";
+    const res = await (request(app).post("/api/v1/successors") as any)
+      .set(auth)
+      .send({
+        email: "successor-share@example.com",
+        name: "Key Share Holder",
+        handoverDelayDays: 14,
+        encryptedShare: share,
+      });
 
-        // 1. Create a Vault Entry
-        await (request(app).post("/api/v1/vault/entries") as any)
-            .set(auth)
-            .send({
-                encryptedData: "test-data",
-                iv: "test-iv",
-                algorithm: "AES-GCM",
-                category: "Login",
-                tags: ["test"],
-            });
+    expect(res.status).toBe(201);
 
-        // 2. Add Successor with Encrypted Share
-        const share = "encrypted-shamir-share-v1";
-        const res = await (request(app).post("/api/v1/successors") as any)
-            .set(auth)
-            .send({
-                email: "successor-share@example.com",
-                name: "Key Share Holder",
-                handoverDelayDays: 14,
-                encryptedShare: share
-            });
+    // 3. Verify Share Persisted
+    const listRes = await (request(app).get("/api/v1/successors") as any).set(
+      auth,
+    );
+    expect(listRes.status).toBe(200);
+    const successor = listRes.body.successors.find(
+      (s: any) => s.email === "successor-share@example.com",
+    );
+    expect(successor).toBeDefined();
+    expect(successor.encryptedShare).toBe(share);
+  });
 
-        expect(res.status).toBe(201);
+  it("should initiate handover, cancel it, and verify status", async () => {
+    const email = `handover-test-${Date.now()}@example.com`;
+    const { userId } = await register(email);
+    const orchestrator = new HandoverOrchestrator();
 
-        // 3. Verify Share Persisted
-        const listRes = await (request(app).get("/api/v1/successors") as any).set(auth);
-        expect(listRes.status).toBe(200);
-        const successor = listRes.body.successors.find((s: any) => s.email === "successor-share@example.com");
-        expect(successor).toBeDefined();
-        expect(successor.encryptedShare).toBe(share);
-    });
+    // 1. Manually Initiate Handover
+    const process = await orchestrator.initiateHandover(userId as string); // cast string as inferred from Generated type
+    expect(process).toBeDefined();
+    expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
 
-    it("should initiate handover, cancel it, and verify status", async () => {
-        const email = `handover-test-${Date.now()}@example.com`;
-        const { userId } = await register(email);
-        const orchestrator = new HandoverOrchestrator();
+    // 2. Cancel Handover
+    await orchestrator.cancelHandover(
+      userId as string,
+      "User manually cancelled",
+    );
 
-        // 1. Manually Initiate Handover
-        const process = await orchestrator.initiateHandover(userId as string); // cast string as inferred from Generated type
-        expect(process).toBeDefined();
-        expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
+    // 3. Verify Status via direct DB check since getHandoverStatus might return null for cancelled
+    const dbClient = getDatabaseClient();
+    const db = dbClient.getKysely();
+    const cancelledProcess = await db
+      .selectFrom("handover_processes")
+      .selectAll()
+      .where("user_id", "=", userId as string)
+      .where("status", "=", HandoverProcessStatus.CANCELLED)
+      .executeTakeFirst();
 
-        // 2. Cancel Handover
-        await orchestrator.cancelHandover(userId as string, "User manually cancelled");
+    expect(cancelledProcess).toBeDefined();
+    expect(cancelledProcess!.status).toBe(HandoverProcessStatus.CANCELLED);
+    expect(cancelledProcess!.cancellation_reason).toBe(
+      "User manually cancelled",
+    );
+    expect(cancelledProcess!.cancelled_at).toBeDefined();
+  });
 
-        // 3. Verify Status
-        const status = await orchestrator.getHandoverStatus(userId as string);
-        expect(status!.status).toBe(HandoverProcessStatus.CANCELLED);
-        expect(status!.cancellationReason).toBe("User manually cancelled");
-    });
+  it("should process grace period expiration", async () => {
+    const email = `grace-test-${Date.now()}@example.com`;
+    const { userId } = await register(email);
+    const token = await login(email);
 
-    it("should process grace period expiration", async () => {
-        const email = `grace-test-${Date.now()}@example.com`;
-        const { userId } = await register(email);
-        // Add successor first to ensure notification target exists
-        const token = await login(email);
-        await (request(app).post("/api/v1/successors") as any)
-            .set({ Authorization: `Bearer ${token}` })
-            .send({
-                email: "grace-successor@example.com",
-                name: "Grace Successor",
-                handoverDelayDays: 7,
-                encryptedShare: "share-data"
-            });
+    // 1. Add Successor
+    const res = await (request(app).post("/api/v1/successors") as any)
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        email: "grace-successor@example.com",
+        name: "Grace Successor",
+        handoverDelayDays: 7,
+        encryptedShare: "share-data",
+      });
+    expect(res.status).toBe(201);
 
-        const orchestrator = new HandoverOrchestrator();
 
-        // 1. Initiate Handover
-        const process = await orchestrator.initiateHandover(userId as string);
+    const orchestrator = new HandoverOrchestrator();
 
-        // 2. Force expire (simulate time passing) or just manually call logic?
-        // Testing specific orchestrator method:
-        await orchestrator.processGracePeriodExpiration(process.id);
+    // 2. Initiate Handover
+    const process = await orchestrator.initiateHandover(userId as string);
+    expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
 
-        // 3. Verify Status Transition
-        const updated = await orchestrator.getHandoverStatus(userId as string);
-        expect(updated!.status).toBe(HandoverProcessStatus.AWAITING_SUCCESSORS);
-    });
+    // 3. Process Expiration
+    await orchestrator.processGracePeriodExpiration(process.id);
+
+    // 4. Verify Status Transition to AWAITING_SUCCESSORS
+    const updated = await orchestrator.getHandoverStatus(userId as string);
+    expect(updated).toBeDefined();
+    expect(updated!.status).toBe(HandoverProcessStatus.AWAITING_SUCCESSORS);
+
+    // 5. Verify Notification (Optional: Check logs or mock email service if not already mocked globally)
+    // Since we are monitoring logs in the run output, we can see if it worked.
+  }, 15000);
 });

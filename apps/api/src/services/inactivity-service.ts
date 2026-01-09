@@ -74,8 +74,13 @@ export class InactivityService {
 
       for (const process of processes) {
         // Check if grace period expired
-        if (process.status === HandoverProcessStatus.GRACE_PERIOD && new Date(process.gracePeriodEnds) <= new Date()) {
-          console.log(`Processing expired grace period for handover ${process.id}`);
+        if (
+          process.status === HandoverProcessStatus.GRACE_PERIOD &&
+          new Date(process.gracePeriodEnds) <= new Date()
+        ) {
+          console.log(
+            `Processing expired grace period for handover ${process.id}`,
+          );
           await orchestrator.processGracePeriodExpiration(process.id);
         }
         // We could also handle other states here
@@ -109,7 +114,8 @@ export class InactivityService {
       console.log(`User ${user.email} is inactive. Initiating handover...`);
 
       try {
-        const { HandoverOrchestrator } = await import("./handover-orchestrator");
+        const { HandoverOrchestrator } =
+          await import("./handover-orchestrator");
         const orchestrator = new HandoverOrchestrator();
         await orchestrator.initiateHandover(user.id);
         console.log(`Handover initiated for user ${user.email}`);
