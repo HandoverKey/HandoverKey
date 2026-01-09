@@ -169,6 +169,7 @@ export enum ReminderType {
   GRACE_PERIOD = "grace_period", // 100%+
   HANDOVER_INITIATED = "handover_initiated",
   SUCCESSOR_NOTIFICATION = "successor_notification",
+  HANDOVER_CANCELLED = "handover_cancelled",
 }
 
 export enum NotificationMethod {

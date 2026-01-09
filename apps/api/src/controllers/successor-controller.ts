@@ -15,12 +15,13 @@ export class SuccessorController {
         throw new AuthenticationError("Not authenticated");
       }
 
-      const { email, name, handoverDelayDays } = req.body;
+      const { email, name, handoverDelayDays, encryptedShare } = req.body;
 
       const successor = await SuccessorService.addSuccessor(req.user.userId, {
         email,
         name,
         handoverDelayDays,
+        encryptedShare,
       });
 
       await UserService.logActivity(req.user.userId, "SUCCESSOR_ADDED", req.ip);

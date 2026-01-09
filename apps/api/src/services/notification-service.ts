@@ -15,6 +15,7 @@ import {
   CheckInValidation,
 } from "@handoverkey/shared/src/types/dead-mans-switch";
 import { createHash, randomBytes } from "crypto";
+import { emailService } from "./email-service";
 
 export class NotificationService implements INotificationService {
   private static getUserRepository(): UserRepository {
@@ -152,6 +153,7 @@ export class NotificationService implements INotificationService {
         const content = this.createHandoverAlertContent(
           successor.name,
           successor.email,
+          successor.encryptedShare,
         );
 
         const result = await this.sendEmailNotification(
@@ -197,6 +199,76 @@ export class NotificationService implements INotificationService {
           retryCount: 0,
           errorMessage:
             error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Sends handover cancellation notifications to successors
+   */
+  async sendHandoverCancellation(
+    userId: string,
+    successors: string[],
+    reason: string,
+  ): Promise<NotificationResult[]> {
+    const results: NotificationResult[] = [];
+
+    for (const successorId of successors) {
+      try {
+        const successor = await this.getSuccessorById(successorId);
+        if (!successor) {
+          continue;
+        }
+
+        const content = this.createHandoverCancellationContent(
+          successor.name,
+          reason,
+        );
+
+        const result = await this.sendEmailNotification(
+          successor.email,
+          content.subject,
+          content.body,
+        );
+
+        // Record the notification delivery
+        await this.recordNotificationDelivery({
+          userId,
+          method: NotificationMethod.EMAIL,
+          notificationType: ReminderType.HANDOVER_CANCELLED,
+          status: result.status,
+          recipient: successor.email,
+          errorMessage: result.errorMessage,
+        });
+
+        results.push({
+          id: result.id,
+          userId,
+          method: NotificationMethod.EMAIL,
+          status: result.status,
+          timestamp: new Date(),
+          retryCount: 0,
+          errorMessage: result.errorMessage,
+        });
+      } catch (error) {
+        if (process.env.NODE_ENV !== "test") {
+          console.error(
+            `Failed to send handover cancellation to successor ${successorId}:`,
+            error,
+          );
+        }
+
+        results.push({
+          id: `failed-${Date.now()}`,
+          userId,
+          method: NotificationMethod.EMAIL,
+          status: DeliveryStatus.FAILED,
+          timestamp: new Date(),
+          retryCount: 0,
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -295,22 +367,29 @@ export class NotificationService implements INotificationService {
   /**
    * Private helper methods
    */
+
   private async sendEmailNotification(
     to: string,
     subject: string,
     body: string,
   ): Promise<{ id: string; status: DeliveryStatus; errorMessage?: string }> {
-    // TODO: Implement actual email sending (SendGrid, AWS SES, etc.)
-    // For now, just log and simulate success
-    console.log(`[EMAIL] To: ${to}, Subject: ${subject}`);
-    console.log(`[EMAIL] Body: ${body.substring(0, 100)}...`);
+    try {
+      // Use the actual email service
+      await emailService.sendEmail(to, subject, body);
 
-    // Simulate email sending
-    const randomId = randomBytes(6).toString("hex");
-    return {
-      id: `email-${Date.now()}-${randomId}`,
-      status: DeliveryStatus.SENT,
-    };
+      const randomId = randomBytes(6).toString("hex");
+      return {
+        id: `email-${Date.now()}-${randomId}`,
+        status: DeliveryStatus.SENT,
+      };
+    } catch (error) {
+      console.error("Failed to send notification email:", error);
+      return {
+        id: `failed-${Date.now()}`,
+        status: DeliveryStatus.FAILED,
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
   }
 
   private createReminderContent(
@@ -402,8 +481,21 @@ The HandoverKey Team
   private createHandoverAlertContent(
     successorName: string,
     _successorEmail: string,
+    encryptedShare?: string | null,
   ): { subject: string; body: string } {
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const shareSection = encryptedShare
+      ? `
+YOUR KEY SHARE:
+----------------------------------------
+${encryptedShare}
+----------------------------------------
+
+KEEP THIS SAFE. You will need this key share, combined with others, to unlock the digital vault.
+`
+      : `
+NOTE: No digital key share was found for this account. You may need to coordinate with the user's legal representatives or other successors.
+`;
 
     return {
       subject: "HandoverKey: Digital Asset Handover Initiated",
@@ -412,6 +504,8 @@ Dear ${successorName},
 
 A HandoverKey user has designated you as a successor for their digital assets. 
 The handover process has been initiated due to prolonged inactivity.
+
+${shareSection}
 
 Next steps:
 1. Visit HandoverKey: ${baseUrl}
@@ -423,6 +517,29 @@ If you believe this is an error or have questions, please contact HandoverKey su
 Best regards,
 The HandoverKey Team
       `.trim(),
+    };
+  }
+
+  private createHandoverCancellationContent(
+    successorName: string,
+    reason: string,
+  ): { subject: string; body: string } {
+    return {
+      subject: "HandoverKey: Digital Asset Handover CANCELLED",
+      body: `
+Dear ${successorName},
+
+The digital asset handover process that was previously initiated has been CANCELLED.
+
+      Reason: ${reason}
+
+No action is required from you.The digital keys previously shared(if any) are no longer valid for the current state of the vault(if re - encrypted) or simply should be disregarded as the user has regained control.
+
+If you have questions, please contact the user directly or HandoverKey support.
+
+Best regards,
+      The HandoverKey Team
+        `.trim(),
     };
   }
 
@@ -465,6 +582,7 @@ The HandoverKey Team
       id: successor.id,
       name: successor.name || "Successor",
       email: successor.email,
+      encryptedShare: successor.encrypted_share,
     };
   }
 

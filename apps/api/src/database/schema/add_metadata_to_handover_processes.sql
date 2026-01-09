@@ -1,0 +1,2 @@
+ALTER TABLE handover_processes ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE handover_processes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();

@@ -7,11 +7,13 @@ export interface AddSuccessorData {
   email: string;
   name?: string;
   handoverDelayDays?: number;
+  encryptedShare?: string;
 }
 
 export interface UpdateSuccessorData {
   name?: string;
   handoverDelayDays?: number;
+  encryptedShare?: string;
 }
 
 export interface Successor {
@@ -20,6 +22,7 @@ export interface Successor {
   name: string | null;
   verified: boolean;
   handoverDelayDays: number;
+  encryptedShare: string | null;
   createdAt: Date;
 }
 
@@ -41,6 +44,7 @@ export class SuccessorService {
 
     let successor;
     try {
+      console.log('SuccessorService.addSuccessor data:', JSON.stringify(data, null, 2));
       successor = await successorRepo.create({
         id,
         user_id: userId,
@@ -49,6 +53,7 @@ export class SuccessorService {
         verification_token: verificationToken,
         verified: false,
         handover_delay_days: data.handoverDelayDays ?? 90,
+        encrypted_share: data.encryptedShare ?? null,
       });
     } catch (error: unknown) {
       // Check for unique constraint violation (Postgres code 23505)
@@ -77,6 +82,7 @@ export class SuccessorService {
       name: successor.name,
       verified: successor.verified,
       handoverDelayDays: successor.handover_delay_days,
+      encryptedShare: successor.encrypted_share,
       createdAt: successor.created_at,
     };
   }
@@ -91,6 +97,7 @@ export class SuccessorService {
       name: s.name,
       verified: s.verified,
       handoverDelayDays: s.handover_delay_days,
+      encryptedShare: s.encrypted_share,
       createdAt: s.created_at,
     }));
   }
