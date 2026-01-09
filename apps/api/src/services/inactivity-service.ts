@@ -3,7 +3,6 @@ import {
   UserRepository,
   InactivitySettingsRepository,
 } from "@handoverkey/database";
-// import { HandoverService } from "./handover-service";
 import { HandoverProcessStatus } from "@handoverkey/shared/src/types/dead-mans-switch";
 
 export interface InactivitySettings {
