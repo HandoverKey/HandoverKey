@@ -529,7 +529,7 @@ The digital asset handover process that was previously initiated has been CANCEL
 
       Reason: ${reason}
 
-No action is required from you.The digital keys previously shared(if any) are no longer valid for the current state of the vault(if re - encrypted) or simply should be disregarded as the user has regained control.
+No action is required from you. The digital keys previously shared (if any) are no longer valid for the current state of the vault (if re-encrypted) or simply should be disregarded as the user has regained control.
 
 If you have questions, please contact the user directly or HandoverKey support.
 
