@@ -251,11 +251,13 @@ export class SuccessorController {
     } catch (error) {
       next(error);
     }
+  }
+
   static async updateShares(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction,
-    ): Promise<void> {
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       if (!req.user) {
         throw new AuthenticationError("Not authenticated");

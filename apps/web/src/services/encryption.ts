@@ -215,7 +215,7 @@ export async function importRawMasterKey(
 ): Promise<CryptoKey> {
   return window.crypto.subtle.importKey(
     "raw",
-    rawKey as any,
+    rawKey as BufferSource,
     { name: ALGORITHM },
     false,
     ["encrypt", "decrypt"],

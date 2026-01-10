@@ -24,14 +24,15 @@ const SuccessorAccess: React.FC = () => {
     const token = searchParams.get("token");
 
     const [loading, setLoading] = useState(true);
-    const [verifying, setVerifying] = useState(false);
+    const [, setVerifying] = useState(false);
     const [unlocking, setUnlocking] = useState(false);
     const [status, setStatus] = useState<"IDLE" | "VERIFIED" | "ACCESS_DENIED" | "ERROR">("IDLE");
     const [metadata, setMetadata] = useState<{ userName?: string; handoverStatus?: string }>({});
 
     const [myShare, setMyShare] = useState("");
     const [peerShares, setPeerShares] = useState<string[]>([""]);
-    const [decryptedEntries, setDecryptedEntries] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [decryptedEntries, setDecryptedEntries] = useState<Array<VaultEntry & { decryptedData: any }>>([]);
 
     useEffect(() => {
         if (!token) {

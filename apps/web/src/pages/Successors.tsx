@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { AxiosError } from "axios";
-import { PlusIcon, UserGroupIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";
-import { splitSecret } from "@handoverkey/crypto";
-import { exportRawMasterKey, arrayBufferToBase64 } from "../services/encryption";
+
 
 interface Successor {
   id: string;
@@ -17,11 +16,9 @@ interface Successor {
 }
 
 const Successors: React.FC = () => {
-  const { success, error: showError, info } = useToast();
+  const { success, error: showError } = useToast();
   const [successors, setSuccessors] = useState<Successor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [distributing, setDistributing] = useState(false);
-  const [threshold, setThreshold] = useState(2);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [successorToDelete, setSuccessorToDelete] = useState<string | null>(
@@ -49,44 +46,6 @@ const Successors: React.FC = () => {
     }
   };
 
-  const handleDistributeShares = async () => {
-    if (successors.length < 1) {
-      showError("Please add at least one successor first.");
-      return;
-    }
-
-    if (threshold > successors.length) {
-      showError(`Threshold cannot be greater than the number of successors (${successors.length}).`);
-      return;
-    }
-
-    setDistributing(true);
-    info("Preparing key shares...");
-
-    try {
-      // 1. Get raw master key
-      const rawKey = await exportRawMasterKey();
-
-      // 2. Split key into N shares
-      const shares = splitSecret(rawKey, successors.length, threshold);
-
-      // 3. Prepare payload
-      const sharesPayload = successors.map((s, index) => ({
-        id: s.id,
-        encryptedShare: arrayBufferToBase64(shares[index]),
-      }));
-
-      // 4. Send to server
-      await api.put("/successors/shares", { shares: sharesPayload });
-
-      success("Key shares distributed successfully to all successors!");
-    } catch (err) {
-      console.error("Failed to distribute shares", err);
-      showError("Failed to distribute key shares. Is your vault unlocked?");
-    } finally {
-      setDistributing(false);
-    }
-  };
 
   const handleAddSuccessor = async (e: React.FormEvent) => {
 

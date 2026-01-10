@@ -15,6 +15,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Vault from "./pages/Vault";
 import Successors from "./pages/Successors";
+import SuccessorAccess from "./pages/SuccessorAccess";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
