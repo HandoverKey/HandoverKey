@@ -160,7 +160,6 @@ describe("Handover Flow Integration", () => {
       });
     expect(res.status).toBe(201);
 
-
     const orchestrator = new HandoverOrchestrator();
 
     // 2. Initiate Handover

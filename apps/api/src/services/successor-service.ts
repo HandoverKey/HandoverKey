@@ -218,9 +218,7 @@ export class SuccessorService {
     }
   }
 
-  static async verifySuccessorByToken(
-    verificationToken: string,
-  ): Promise<{
+  static async verifySuccessorByToken(verificationToken: string): Promise<{
     success: boolean;
     alreadyVerified: boolean;
     userId?: string;

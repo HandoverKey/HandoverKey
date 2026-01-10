@@ -13,9 +13,7 @@ module.exports = {
       },
     ],
   },
-  transformIgnorePatterns: [
-    "node_modules/(?!(uuid|@handoverkey)/)",
-  ],
+  transformIgnorePatterns: ["node_modules/(?!(uuid|@handoverkey)/)"],
   moduleNameMapper: {
     "^@handoverkey/shared$": "<rootDir>/packages/shared/src/index.ts",
     "^@handoverkey/shared/src/(.*)$": "<rootDir>/packages/shared/src/$1",

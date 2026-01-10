@@ -5,7 +5,6 @@ import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";
 
-
 interface Successor {
   id: string;
   name: string;
@@ -46,9 +45,7 @@ const Successors: React.FC = () => {
     }
   };
 
-
   const handleAddSuccessor = async (e: React.FormEvent) => {
-
     e.preventDefault();
     setError(null);
     try {
@@ -70,8 +67,8 @@ const Successors: React.FC = () => {
       }>;
       setError(
         error.response?.data?.error?.message ||
-        error.response?.data?.message ||
-        "Failed to add successor",
+          error.response?.data?.message ||
+          "Failed to add successor",
       );
     }
   };
