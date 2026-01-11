@@ -205,18 +205,24 @@ export class SuccessorService {
   ): Promise<void> {
     const successorRepo = this.getSuccessorRepository();
 
-    for (const share of shares) {
-      // Verify ownership before update
-      const successor = await successorRepo.findById(share.id);
-      if (!successor || successor.user_id !== userId) {
-        console.warn(`Skipping share update for successor ${share.id}: Not found or unauthorized`);
-        continue; // Skip if not found or not owned
-      }
+    // 1. Validate ownership of all successors
+    await Promise.all(
+      shares.map(async (share) => {
+        const successor = await successorRepo.findById(share.id);
+        if (!successor || successor.user_id !== userId) {
+          throw new NotFoundError(`Successor not found: ${share.id}`);
+        }
+      }),
+    );
 
-      await successorRepo.update(share.id, {
-        encrypted_share: share.encryptedShare,
-      });
-    }
+    // 2. Perform updates
+    await Promise.all(
+      shares.map((share) =>
+        successorRepo.update(share.id, {
+          encrypted_share: share.encryptedShare,
+        }),
+      ),
+    );
   }
 
   static async verifySuccessorByToken(verificationToken: string): Promise<{

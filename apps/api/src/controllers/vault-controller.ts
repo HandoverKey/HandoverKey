@@ -227,6 +227,13 @@ export class VaultController {
       // 3. Get encrypted entries
       const entries = await VaultService.getSuccessorEntries(result.userId);
 
+      // Log the access
+      await UserService.logActivity(
+        result.userId,
+        "SUCCESSOR_VAULT_ACCESS",
+        req.ip,
+      );
+
       // Prevent caching
       res.set(
         "Cache-Control",
