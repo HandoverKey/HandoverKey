@@ -12,6 +12,10 @@ import {
 
 const router = Router();
 
+// All successor routes require authentication
+router.use(authenticateJWT);
+router.use(requireAuth);
+
 /**
  * Update multiple successor shares
  * PUT /api/v1/successors/shares
@@ -21,10 +25,6 @@ router.put(
   validateRequest(UpdateSharesSchema, "body"),
   SuccessorController.updateShares,
 );
-
-// All successor routes require authentication
-router.use(authenticateJWT);
-router.use(requireAuth);
 
 /**
  * Add a successor

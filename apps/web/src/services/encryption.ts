@@ -130,7 +130,7 @@ async function deriveKey(
     "raw",
     derivedBits,
     { name: ALGORITHM },
-    false,
+    true,
     ["encrypt", "decrypt"],
   );
 }
@@ -215,7 +215,7 @@ export async function importRawMasterKey(
 ): Promise<CryptoKey> {
   return window.crypto.subtle.importKey(
     "raw",
-    rawKey as BufferSource,
+    rawKey,
     { name: ALGORITHM },
     false,
     ["encrypt", "decrypt"],

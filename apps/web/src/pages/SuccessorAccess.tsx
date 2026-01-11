@@ -28,7 +28,6 @@ const SuccessorAccess: React.FC = () => {
   const token = searchParams.get("token");
 
   const [loading, setLoading] = useState(true);
-  const [, setVerifying] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [status, setStatus] = useState<
     "IDLE" | "VERIFIED" | "ACCESS_DENIED" | "ERROR"
@@ -45,18 +44,8 @@ const SuccessorAccess: React.FC = () => {
     Array<VaultEntry & { decryptedData: any }>
   >([]);
 
-  useEffect(() => {
-    if (!token) {
-      setStatus("ERROR");
-      setLoading(false);
-      return;
-    }
-    verifyToken();
-  }, [token]);
-
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     try {
-      setVerifying(true);
       const response = await api.get(`/successors/verify?token=${token}`);
       if (response.data.success) {
         setMetadata({
@@ -80,10 +69,18 @@ const SuccessorAccess: React.FC = () => {
       console.error("Token verification failed", err);
       setStatus("ERROR");
     } finally {
-      setVerifying(false);
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      setStatus("ERROR");
+      setLoading(false);
+      return;
+    }
+    verifyToken();
+  }, [token, verifyToken]);
 
   const handleAddPeerShare = () => {
     setPeerShares([...peerShares, ""]);
@@ -113,12 +110,16 @@ const SuccessorAccess: React.FC = () => {
 
       // 2. Convert shares from Base64 string to Uint8Array
       const shareBuffers = allShares.map((s) => {
-        const binary = atob(s);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
+        try {
+          const binary = atob(s);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          return bytes;
+        } catch {
+          throw new Error("Invalid base64 share provided");
         }
-        return bytes;
       });
 
       // 3. Reconstruct secret

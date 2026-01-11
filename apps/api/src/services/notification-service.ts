@@ -493,6 +493,17 @@ KEEP THIS SAFE. You will need this key share, combined with others, to unlock th
 NOTE: No digital key share was found for this account. You may need to coordinate with the user's legal representatives or other successors.
 `;
 
+    // Security warning for email
+    const securityWarning = encryptedShare
+      ? `
+IMPORTANT SECURITY WARNING:
+----------------------------------------
+You have received a sensitive cryptographic key share. While this single share cannot unlock the vault on its own, it is a critical component of the security system.
+Please ensure this email is deleted after you have safely stored the key share, or ensure your email account is secured with Two-Factor Authentication.
+----------------------------------------
+`
+      : "";
+
     return {
       subject: "HandoverKey: Digital Asset Handover Initiated",
       body: `
@@ -502,6 +513,8 @@ A HandoverKey user has designated you as a successor for their digital assets.
 The handover process has been initiated due to prolonged inactivity.
 
 ${shareSection}
+
+${securityWarning}
 
 Next steps:
 1. Visit HandoverKey: ${baseUrl}
@@ -527,15 +540,15 @@ Dear ${successorName},
 
 The digital asset handover process that was previously initiated has been CANCELLED.
 
-      Reason: ${reason}
+Reason: ${reason}
 
 No action is required from you. The digital keys previously shared (if any) are no longer valid for the current state of the vault (if re-encrypted) or simply should be disregarded as the user has regained control.
 
 If you have questions, please contact the user directly or HandoverKey support.
 
 Best regards,
-      The HandoverKey Team
-        `.trim(),
+The HandoverKey Team
+      `.trim(),
     };
   }
 

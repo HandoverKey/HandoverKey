@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AxiosError } from "axios";
-import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";

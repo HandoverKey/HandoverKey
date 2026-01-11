@@ -101,8 +101,6 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       console.log(`Handover process cancelled for user ${userId}: ${reason}`);
 
-      console.log(`Handover process cancelled for user ${userId}: ${reason}`);
-
       // Send cancellation notifications to successors.
       // Note: Ideally we should only notify successors who were actually alerted,
       // but for now we notify all configured successors for safety.

@@ -209,6 +209,7 @@ export class SuccessorService {
       // Verify ownership before update
       const successor = await successorRepo.findById(share.id);
       if (!successor || successor.user_id !== userId) {
+        console.warn(`Skipping share update for successor ${share.id}: Not found or unauthorized`);
         continue; // Skip if not found or not owned
       }
 
