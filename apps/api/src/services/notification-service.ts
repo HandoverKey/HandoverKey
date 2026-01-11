@@ -206,20 +206,19 @@ export class NotificationService implements INotificationService {
    */
   async sendHandoverCancellation(
     userId: string,
-    successors: string[],
+    successors: {
+      name: string | null;
+      email: string;
+      encrypted_share?: string | null;
+    }[],
     reason: string,
   ): Promise<NotificationResult[]> {
     const results: NotificationResult[] = [];
 
-    for (const successorId of successors) {
+    for (const successor of successors) {
       try {
-        const successor = await this.getSuccessorById(successorId);
-        if (!successor) {
-          continue;
-        }
-
         const content = this.createHandoverCancellationContent(
-          successor.name,
+          successor.name || "Successor",
           reason,
         );
 
@@ -251,7 +250,7 @@ export class NotificationService implements INotificationService {
       } catch (error) {
         if (process.env.NODE_ENV !== "test") {
           console.error(
-            `Failed to send handover cancellation to successor ${successorId}:`,
+            `Failed to send handover cancellation to successor ${successor.email}:`,
             error,
           );
         }
@@ -535,20 +534,18 @@ The HandoverKey Team
   ): { subject: string; body: string } {
     return {
       subject: "HandoverKey: Digital Asset Handover CANCELLED",
-      body: `
-Dear ${successorName},
+      body: `Dear ${successorName},
 
 The digital asset handover process that was previously initiated has been CANCELLED.
 
 Reason: ${reason}
 
-No action is required from you. The digital keys previously shared (if any) are no longer valid for the current state of the vault (if re-encrypted) or simply should be disregarded as the user has regained control.
+No action is required from you. The digital keys previously shared (if any) are no longer valid. If the vault was re-encrypted, the old shares cannot decrypt it. Otherwise, please disregard the shares as the user has regained control.
 
 If you have questions, please contact the user directly or HandoverKey support.
 
 Best regards,
-The HandoverKey Team
-      `.trim(),
+The HandoverKey Team`.trim(),
     };
   }
 

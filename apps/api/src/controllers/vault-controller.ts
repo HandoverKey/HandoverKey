@@ -4,6 +4,7 @@ import { UserService } from "../services/user-service";
 import { SuccessorService } from "../services/successor-service";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { AuthenticationError, NotFoundError } from "../errors";
+import { HandoverProcessStatus } from "@handoverkey/shared/src/types/dead-mans-switch";
 
 export class VaultController {
   static async createEntry(
@@ -212,7 +213,10 @@ export class VaultController {
       }
 
       // 2. Check handover status
-      const allowedStatuses = ["AWAITING_SUCCESSORS", "COMPLETED"];
+      const allowedStatuses: string[] = [
+        HandoverProcessStatus.AWAITING_SUCCESSORS,
+        HandoverProcessStatus.COMPLETED,
+      ];
       if (
         !result.handoverStatus ||
         !allowedStatuses.includes(result.handoverStatus)

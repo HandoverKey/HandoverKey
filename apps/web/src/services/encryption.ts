@@ -130,7 +130,7 @@ async function deriveKey(
     "raw",
     derivedBits,
     { name: ALGORITHM },
-    true,
+    true, // extractable must be true to support Shamir's Secret Sharing export
     ["encrypt", "decrypt"],
   );
 }

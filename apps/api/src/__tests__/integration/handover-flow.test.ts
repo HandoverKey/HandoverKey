@@ -12,7 +12,7 @@ async function register(email: string) {
   const password = "Password123!@$";
 
   // Register
-  await (request(app).post("/api/v1/auth/register") as any).send({
+  await request(app).post("/api/v1/auth/register").send({
     name: "Test User",
     email,
     password,
@@ -40,7 +40,7 @@ async function register(email: string) {
 
 async function login(email: string) {
   const password = "Password123!@$";
-  const loginRes = await (request(app).post("/api/v1/auth/login") as any).send({
+  const loginRes = await request(app).post("/api/v1/auth/login").send({
     email,
     password,
   });
@@ -48,6 +48,7 @@ async function login(email: string) {
 }
 
 describe("Handover Flow Integration", () => {
+  jest.setTimeout(30000);
   beforeAll(async () => {
     const dbClient = getDatabaseClient();
     await dbClient.initialize({
@@ -77,7 +78,7 @@ describe("Handover Flow Integration", () => {
     const auth = { Authorization: `Bearer ${token}` };
 
     // 1. Create a Vault Entry
-    await (request(app).post("/api/v1/vault/entries") as any).set(auth).send({
+    await request(app).post("/api/v1/vault/entries").set(auth).send({
       encryptedData: "test-data",
       iv: "test-iv",
       algorithm: "AES-GCM",
@@ -87,7 +88,8 @@ describe("Handover Flow Integration", () => {
 
     // 2. Add Successor with Encrypted Share
     const share = "encrypted-shamir-share-v1";
-    const res = await (request(app).post("/api/v1/successors") as any)
+    const res = await request(app)
+      .post("/api/v1/successors")
       .set(auth)
       .send({
         email: "successor-share@example.com",
@@ -99,9 +101,7 @@ describe("Handover Flow Integration", () => {
     expect(res.status).toBe(201);
 
     // 3. Verify Share Persisted
-    const listRes = await (request(app).get("/api/v1/successors") as any).set(
-      auth,
-    );
+    const listRes = await request(app).get("/api/v1/successors").set(auth);
     expect(listRes.status).toBe(200);
     const successor = listRes.body.successors.find(
       (s: any) => s.email === "successor-share@example.com",
@@ -116,13 +116,13 @@ describe("Handover Flow Integration", () => {
     const orchestrator = new HandoverOrchestrator();
 
     // 1. Manually Initiate Handover
-    const process = await orchestrator.initiateHandover(userId as string); // cast string as inferred from Generated type
+    const process = await orchestrator.initiateHandover(userId);
     expect(process).toBeDefined();
     expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
 
     // 2. Cancel Handover
     await orchestrator.cancelHandover(
-      userId as string,
+      userId,
       "User manually cancelled",
     );
 
@@ -132,7 +132,7 @@ describe("Handover Flow Integration", () => {
     const cancelledProcess = await db
       .selectFrom("handover_processes")
       .selectAll()
-      .where("user_id", "=", userId as string)
+      .where("user_id", "=", userId)
       .where("status", "=", HandoverProcessStatus.CANCELLED)
       .executeTakeFirst();
 
@@ -150,7 +150,8 @@ describe("Handover Flow Integration", () => {
     const token = await login(email);
 
     // 1. Add Successor
-    const res = await (request(app).post("/api/v1/successors") as any)
+    const res = await request(app)
+      .post("/api/v1/successors")
       .set({ Authorization: `Bearer ${token}` })
       .send({
         email: "grace-successor@example.com",
@@ -163,18 +164,133 @@ describe("Handover Flow Integration", () => {
     const orchestrator = new HandoverOrchestrator();
 
     // 2. Initiate Handover
-    const process = await orchestrator.initiateHandover(userId as string);
+    const process = await orchestrator.initiateHandover(userId);
     expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
 
     // 3. Process Expiration
     await orchestrator.processGracePeriodExpiration(process.id);
 
     // 4. Verify Status Transition to AWAITING_SUCCESSORS
-    const updated = await orchestrator.getHandoverStatus(userId as string);
+    const updated = await orchestrator.getHandoverStatus(userId);
     expect(updated).toBeDefined();
     expect(updated!.status).toBe(HandoverProcessStatus.AWAITING_SUCCESSORS);
 
     // 5. Verify Notification (Optional: Check logs or mock email service if not already mocked globally)
     // Since we are monitoring logs in the run output, we can see if it worked.
-  }, 15000);
+  }, 10000);
+
+  it("should deny successor access during grace period and allow after expiration", async () => {
+    const email = `access-test-${Date.now()}@example.com`;
+    const { userId } = await register(email);
+    const token = await login(email);
+
+    // 1. Create a Vault Entry (so there is something to retrieve)
+    await request(app)
+      .post("/api/v1/vault/entries")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        encryptedData: Buffer.from("secret-data").toString("base64"),
+        iv: "c2VjcmV0LWl2LTEy", // 16 chars base64 = 12 bytes
+        salt: Buffer.from("salt").toString("base64"),
+        algorithm: "AES-GCM",
+        category: "Notes",
+        tags: ["secret"],
+      });
+
+    // 2. Add Successor
+    await request(app)
+      .post("/api/v1/successors")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        email: "access-successor@example.com",
+        name: "Access Successor",
+        handoverDelayDays: 7,
+      });
+
+    // 3. Get Successor Verification Token directly from DB
+    const db = getDatabaseClient().getKysely();
+    const successor = await db
+      .selectFrom("successors")
+      .select("verification_token")
+      .where("user_id", "=", userId)
+      .executeTakeFirstOrThrow();
+
+    const verificationToken = successor.verification_token;
+
+    // 4. Initiate Handover (Status: GRACE_PERIOD)
+    const orchestrator = new HandoverOrchestrator();
+    const process = await orchestrator.initiateHandover(userId);
+    expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
+
+    // 5. Successor tries to verify/access -> Should fail (403 or logic specific)
+    // Actually, verify endpoint might work (to show status), but access endpoint should fail.
+    const verifyRes = await request(app).get(
+      `/api/v1/successors/verify?token=${verificationToken}`,
+    );
+    expect(verifyRes.status).toBe(200);
+
+    // 6. Successor tries to GET vault entries -> Should be 403 Forbidden
+    const accessRes = await request(app).get(
+      `/api/v1/vault/successor-access?token=${verificationToken}`,
+    );
+    expect(accessRes.status).toBe(403);
+    expect(accessRes.body.error).toMatch(/not yet open/i);
+
+    // 7. Expire Grace Period
+    await orchestrator.processGracePeriodExpiration(process.id);
+
+    // 8. Successor tries to GET vault entries -> Should be 200 OK
+    const accessResAllowed = await request(app).get(
+      `/api/v1/vault/successor-access?token=${verificationToken}`,
+    );
+    expect(accessResAllowed.status).toBe(200);
+    expect(accessResAllowed.body.entries).toHaveLength(1);
+    expect(accessResAllowed.body.entries[0].encryptedData).toBe(
+      Buffer.from("secret-data").toString("base64"),
+    );
+  });
+
+  it("should handle bulk update of successor shares", async () => {
+    const email = `bulk-test-${Date.now()}@example.com`;
+    await register(email);
+    const token = await login(email);
+    const auth = { Authorization: `Bearer ${token}` };
+
+    // 1. Add 3 Successors
+    const successors = [];
+    for (let i = 1; i <= 3; i++) {
+      const res = await request(app)
+        .post("/api/v1/successors")
+        .set(auth)
+        .send({
+          email: `successor-${i}@example.com`,
+          name: `Successor ${i}`,
+        });
+      successors.push(res.body.successor);
+    }
+
+    // 2. Bulk Update Shares
+    const shareUpdates = successors.map((s, index) => ({
+      id: s.id,
+      encryptedShare: `share-for-${index + 1}`,
+    }));
+
+    const updateRes = await request(app)
+      .put("/api/v1/successors/shares")
+      .set(auth)
+      .send({ shares: shareUpdates });
+
+    expect(updateRes.status).toBe(200);
+
+    // 3. Verify Updates in DB
+    const listRes = await request(app).get("/api/v1/successors").set(auth);
+    const updatedSuccessors = listRes.body.successors;
+
+    expect(updatedSuccessors).toHaveLength(3);
+    updatedSuccessors.forEach((s: any) => {
+      // Find expected share
+      const expected = shareUpdates.find((u) => u.id === s.id);
+      expect(s.encryptedShare).toBe(expected!.encryptedShare);
+    });
+  });
 });

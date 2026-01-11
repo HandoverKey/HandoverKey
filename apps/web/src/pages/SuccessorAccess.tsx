@@ -20,6 +20,20 @@ interface VaultEntry {
   version: string;
 }
 
+/**
+ * Successor Access Page
+ *
+ * This component handles the secure vault unlocking process for successors.
+ *
+ * Flow:
+ * 1. Verifies the successor token via API.
+ * 2. If verified and handover is active, allows user to input their key share and peer shares.
+ * 3. Client-side reconstruction of the master key using Shamir's Secret Sharing.
+ * 4. Imports the reconstructed raw key into Web Crypto API.
+ * 5. Fetches encrypted vault entries from the API.
+ * 6. Decrypts each entry locally using the master key.
+ * 7. Displays decrypted data ephemerally (not saved to disk/storage).
+ */
 const SuccessorAccess: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -155,7 +169,11 @@ const SuccessorAccess: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div
+            className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+            role="status"
+            aria-label="Loading"
+          ></div>
         </div>
       </div>
     );
@@ -281,7 +299,14 @@ const SuccessorAccess: React.FC = () => {
                     <div className="space-y-4">
                       {peerShares.map((share, index) => (
                         <div key={index} className="flex gap-2">
+                          <label
+                            htmlFor={`peer-share-${index}`}
+                            className="sr-only"
+                          >
+                            Key share from successor #{index + 2}
+                          </label>
                           <textarea
+                            id={`peer-share-${index}`}
                             rows={2}
                             className="input font-mono text-xs"
                             placeholder={`Paste share from successor #${index + 2}...`}

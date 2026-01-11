@@ -136,6 +136,7 @@ export enum ActivityType {
   API_REQUEST = "api_request",
   SUCCESSOR_MANAGEMENT = "successor_management",
   HANDOVER_CANCELLED = "handover_cancelled",
+  SUCCESSOR_VAULT_ACCESS = "successor_vault_access",
 }
 
 export enum ClientType {

@@ -206,23 +206,19 @@ export class SuccessorService {
     const successorRepo = this.getSuccessorRepository();
 
     // 1. Validate ownership of all successors
-    await Promise.all(
-      shares.map(async (share) => {
-        const successor = await successorRepo.findById(share.id);
-        if (!successor || successor.user_id !== userId) {
-          throw new NotFoundError(`Successor not found: ${share.id}`);
-        }
-      }),
-    );
+    for (const share of shares) {
+      const successor = await successorRepo.findById(share.id);
+      if (!successor || successor.user_id !== userId) {
+        throw new NotFoundError(`Successor not found: ${share.id}`);
+      }
+    }
 
     // 2. Perform updates
-    await Promise.all(
-      shares.map((share) =>
-        successorRepo.update(share.id, {
-          encrypted_share: share.encryptedShare,
-        }),
-      ),
-    );
+    for (const share of shares) {
+      await successorRepo.update(share.id, {
+        encrypted_share: share.encryptedShare,
+      });
+    }
   }
 
   static async verifySuccessorByToken(verificationToken: string): Promise<{
@@ -248,6 +244,7 @@ export class SuccessorService {
         "handover_processes.status as handover_status",
       ])
       .where("successors.verification_token", "=", verificationToken)
+      .orderBy("handover_processes.initiated_at", "desc")
       .executeTakeFirst();
 
     if (!successor) {

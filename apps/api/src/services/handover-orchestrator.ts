@@ -111,13 +111,15 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
           await import("@handoverkey/database")
         ).SuccessorRepository(dbClient.getKysely());
         const successors = await successorRepo.findByUserId(userId);
-        const successorIds = successors.map((s) => s.id);
-
-        if (successorIds.length > 0) {
+        if (successors.length > 0) {
           const notificationService = new NotificationService();
           await notificationService.sendHandoverCancellation(
             userId,
-            successorIds,
+            successors.map((s) => ({
+              name: s.name,
+              email: s.email,
+              encrypted_share: s.encrypted_share,
+            })),
             reason,
           );
         }
