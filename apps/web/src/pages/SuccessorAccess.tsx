@@ -40,8 +40,8 @@ const SuccessorAccess: React.FC = () => {
 
   const [myShare, setMyShare] = useState("");
   const [peerShares, setPeerShares] = useState<string[]>([""]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [decryptedEntries, setDecryptedEntries] = useState<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Array<VaultEntry & { decryptedData: any }>
   >([]);
 
