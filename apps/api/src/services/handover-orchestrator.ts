@@ -103,34 +103,37 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       logger.info(`Handover process cancelled for user ${userId}: ${reason}`);
 
-      // Send cancellation notifications to successors.
-      // Note: Ideally we should only notify successors who were actually alerted,
-      // but for now we notify all configured successors for safety.
+      // Only notify successors if the process had already moved beyond grace period.
+      const shouldNotifySuccessors =
+        activeProcess.status !== HandoverProcessStatus.GRACE_PERIOD;
 
-      try {
-        const dbClient = getDatabaseClient();
-        const successorRepo = new (
-          await import("@handoverkey/database")
-        ).SuccessorRepository(dbClient.getKysely());
-        const successors = await successorRepo.findByUserId(userId);
-        if (successors.length > 0) {
-          const notificationService = new NotificationService();
-          await notificationService.sendHandoverCancellation(
-            userId,
-            successors.map((s) => ({
-              name: s.name,
-              email: s.email,
-              encrypted_share: s.encrypted_share,
-            })),
-            reason,
+      if (shouldNotifySuccessors) {
+        try {
+          const dbClient = getDatabaseClient();
+          const successorRepo = new (
+            await import("@handoverkey/database")
+          ).SuccessorRepository(dbClient.getKysely());
+          const successors = await successorRepo.findByUserId(userId);
+          if (successors.length > 0) {
+            const notificationService = new NotificationService();
+            await notificationService.sendHandoverCancellation(
+              userId,
+              successors.map((s) => ({
+                name: s.name,
+                email: s.email,
+                encrypted_share: s.encrypted_share,
+                verification_token: s.verification_token,
+              })),
+              reason,
+            );
+          }
+        } catch (notifyError) {
+          logger.error(
+            { err: notifyError },
+            "Failed to send cancellation notifications",
           );
+          // Don't fail the cancellation process itself if notification fails
         }
-      } catch (notifyError) {
-        logger.error(
-          { err: notifyError },
-          "Failed to send cancellation notifications",
-        );
-        // Don't fail the cancellation process itself if notification fails
       }
     } catch (error) {
       // Only log errors in non-test environments
@@ -228,7 +231,12 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
       const notificationService = new NotificationService();
       await notificationService.sendHandoverAlert(
         process.user_id,
-        successors,
+        successors.map((s) => ({
+          name: s.name,
+          email: s.email,
+          encrypted_share: s.encrypted_share,
+          verification_token: s.verification_token,
+        })),
         handoverId,
       );
     } catch (error) {
@@ -258,7 +266,7 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         HandoverProcessStatus.AWAITING_SUCCESSORS,
       );
       const verificationProcesses = await handoverRepo.findByStatus(
-        "verification_pending",
+        HandoverProcessStatus.VERIFICATION_PENDING,
       );
 
       // Filter grace period processes that have expired

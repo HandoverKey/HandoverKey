@@ -8,6 +8,7 @@ import {
   LockClosedIcon,
   Cog6ToothIcon,
   UserGroupIcon,
+  ComputerDesktopIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
@@ -18,6 +19,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Vault", href: "/vault", icon: LockClosedIcon },
   { name: "Successors", href: "/successors", icon: UserGroupIcon },
+  { name: "Sessions", href: "/sessions", icon: ComputerDesktopIcon },
   { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
 ];
 

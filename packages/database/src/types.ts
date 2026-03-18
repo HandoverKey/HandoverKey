@@ -17,6 +17,7 @@ export interface UsersTable {
   email_verified: ColumnType<boolean, boolean | undefined, boolean>;
   two_factor_enabled: ColumnType<boolean, boolean | undefined, boolean>;
   two_factor_secret: string | null;
+  two_factor_recovery_codes: string[] | null;
   last_login: ColumnType<
     Date | null,
     Date | string | null,

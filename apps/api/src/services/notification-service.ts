@@ -139,6 +139,7 @@ export class NotificationService implements INotificationService {
       name: string | null;
       email: string;
       encrypted_share?: string | null;
+      verification_token?: string | null;
     }[],
     handoverProcessId?: string,
   ): Promise<NotificationResult[]> {
@@ -150,6 +151,7 @@ export class NotificationService implements INotificationService {
           successor.name || "Successor",
           successor.email,
           successor.encrypted_share,
+          successor.verification_token,
         );
 
         const result = await this.sendEmailNotification(
@@ -211,6 +213,7 @@ export class NotificationService implements INotificationService {
       name: string | null;
       email: string;
       encrypted_share?: string | null;
+      verification_token?: string | null;
     }[],
     reason: string,
   ): Promise<NotificationResult[]> {
@@ -478,8 +481,12 @@ The HandoverKey Team
     successorName: string,
     _successorEmail: string,
     encryptedShare?: string | null,
+    verificationToken?: string | null,
   ): { subject: string; body: string } {
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const successorAccessLink = verificationToken
+      ? `${baseUrl}/successor-access?token=${verificationToken}`
+      : `${baseUrl}/verify-successor`;
     const shareSection = encryptedShare
       ? `
 YOUR KEY SHARE:
@@ -517,9 +524,9 @@ ${shareSection}
 ${securityWarning}
 
 Next steps:
-1. Visit HandoverKey: ${baseUrl}
-2. Follow the successor verification process
-3. Access the encrypted digital assets once verified
+1. Open your secure successor access link: ${successorAccessLink}
+2. Keep your key share in a safe place
+3. Combine the required number of shares to unlock the vault
 
 If you believe this is an error or have questions, please contact HandoverKey support.
 

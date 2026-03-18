@@ -245,8 +245,13 @@ export class SuccessorController {
       }
 
       res.json({
-        message:
-          "Successor verified successfully! You can now close this window.",
+        success: true,
+        alreadyVerified: result.alreadyVerified,
+        userName: result.userName,
+        handoverStatus: result.handoverStatus,
+        message: result.alreadyVerified
+          ? "Successor already verified. You can continue to successor access."
+          : "Successor verified successfully. You can now access the handover vault when available.",
       });
     } catch (error) {
       next(error);

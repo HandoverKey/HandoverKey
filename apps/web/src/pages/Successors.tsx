@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { AxiosError } from "axios";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { splitSecret } from "@handoverkey/crypto";
+import {
+  exportRawMasterKey,
+  arrayBufferToBase64,
+} from "../services/encryption";
 
 interface Successor {
   id: string;
@@ -12,6 +17,7 @@ interface Successor {
   handoverDelayDays: number;
   verified: boolean;
   createdAt: string;
+  encryptedShare?: string | null;
 }
 
 const Successors: React.FC = () => {
@@ -29,6 +35,11 @@ const Successors: React.FC = () => {
   const [email, setEmail] = useState("");
   const [delay, setDelay] = useState(30);
   const [error, setError] = useState<string | null>(null);
+  const [generatingShares, setGeneratingShares] = useState(false);
+  const [generatedShares, setGeneratedShares] = useState<
+    Record<string, string>
+  >({});
+  const [shareThreshold, setShareThreshold] = useState<number | null>(null);
 
   useEffect(() => {
     fetchSuccessors();
@@ -120,6 +131,57 @@ const Successors: React.FC = () => {
     }
   };
 
+  const handleGenerateShares = async () => {
+    if (successors.length < 2) {
+      showError("Add at least two successors before generating shares.");
+      return;
+    }
+
+    setGeneratingShares(true);
+    try {
+      const rawMasterKey = await exportRawMasterKey();
+      const settingsResponse = await api.get("/inactivity/settings");
+      const requireMajority = Boolean(settingsResponse.data.requireMajority);
+      const threshold = requireMajority
+        ? Math.floor(successors.length / 2) + 1
+        : Math.min(2, successors.length);
+
+      const shares = splitSecret(rawMasterKey, successors.length, threshold);
+      const sharePayload = successors.map((successor, index) => ({
+        id: successor.id,
+        encryptedShare: arrayBufferToBase64(shares[index]),
+      }));
+
+      await api.put("/successors/shares", { shares: sharePayload });
+
+      setGeneratedShares(
+        sharePayload.reduce<Record<string, string>>((acc, item) => {
+          acc[item.id] = item.encryptedShare;
+          return acc;
+        }, {}),
+      );
+      setShareThreshold(threshold);
+
+      success(
+        `Distributed ${successors.length} shares (threshold: ${threshold}). Share values are now stored securely for handover.`,
+      );
+      await fetchSuccessors();
+    } catch (err) {
+      const apiError = err as {
+        response?: {
+          data?: { message?: string; error?: { message?: string } };
+        };
+      };
+      showError(
+        apiError.response?.data?.error?.message ||
+          apiError.response?.data?.message ||
+          "Failed to generate and distribute key shares. Ensure you are logged in with an unlocked vault.",
+      );
+    } finally {
+      setGeneratingShares(false);
+    }
+  };
+
   return (
     <div>
       <div className="sm:flex sm:items-center">
@@ -133,6 +195,14 @@ const Successors: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <button
+            type="button"
+            onClick={handleGenerateShares}
+            disabled={generatingShares}
+            className="btn btn-secondary mr-3"
+          >
+            {generatingShares ? "Generating..." : "Generate Key Shares"}
+          </button>
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
@@ -198,6 +268,41 @@ const Successors: React.FC = () => {
           </div>
         )}
       </div>
+
+      {Object.keys(generatedShares).length > 0 && (
+        <div className="mt-8 card p-6">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Generated Share Summary
+          </h3>
+          <p className="text-sm text-gray-600 mt-2">
+            Threshold: {shareThreshold} of {successors.length} shares required.
+            Store copies of these shares in secure channels for your successors.
+          </p>
+
+          <div className="mt-4 space-y-3">
+            {successors.map((successor) => {
+              const shareValue = generatedShares[successor.id];
+              if (!shareValue) {
+                return null;
+              }
+
+              return (
+                <div
+                  key={successor.id}
+                  className="rounded-md border border-gray-200 p-4"
+                >
+                  <p className="text-sm font-medium text-gray-900">
+                    {successor.name} ({successor.email})
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1 break-all font-mono">
+                    {shareValue}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Simple Modal */}
       {isModalOpen && (

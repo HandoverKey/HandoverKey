@@ -27,6 +27,16 @@ export interface Successor {
   createdAt: Date;
 }
 
+export interface SuccessorTokenVerificationResult {
+  success: boolean;
+  alreadyVerified: boolean;
+  userId?: string;
+  userName?: string;
+  handoverStatus?: string;
+  successorId?: string;
+  verificationToken?: string;
+}
+
 export class SuccessorService {
   private static getSuccessorRepository(): SuccessorRepository {
     const dbClient = getDatabaseClient();
@@ -222,13 +232,9 @@ export class SuccessorService {
     }
   }
 
-  static async verifySuccessorByToken(verificationToken: string): Promise<{
-    success: boolean;
-    alreadyVerified: boolean;
-    userId?: string;
-    userName?: string;
-    handoverStatus?: string;
-  }> {
+  static async verifySuccessorByToken(
+    verificationToken: string,
+  ): Promise<SuccessorTokenVerificationResult> {
     const successorRepo = this.getSuccessorRepository();
     const db = successorRepo["db"]; // Access the kysely instance
 
@@ -241,6 +247,7 @@ export class SuccessorService {
         "successors.id",
         "successors.user_id",
         "successors.verified",
+        "successors.verification_token",
         "users.name as user_name",
         "handover_processes.status as handover_status",
       ])
@@ -259,6 +266,8 @@ export class SuccessorService {
         userId: successor.user_id,
         userName: successor.user_name || undefined,
         handoverStatus: (successor.handover_status as string) || undefined,
+        successorId: successor.id,
+        verificationToken: successor.verification_token || undefined,
       };
     }
 
@@ -273,6 +282,8 @@ export class SuccessorService {
       userId: successor.user_id,
       userName: successor.user_name || undefined,
       handoverStatus: (successor.handover_status as string) || undefined,
+      successorId: successor.id,
+      verificationToken: successor.verification_token || undefined,
     };
   }
 

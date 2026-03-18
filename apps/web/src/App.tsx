@@ -14,11 +14,13 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifySuccessor from "./pages/VerifySuccessor";
 import VerifyEmail from "./pages/VerifyEmail";
+import CheckIn from "./pages/CheckIn";
 import Dashboard from "./pages/Dashboard";
 import Vault from "./pages/Vault";
 import Successors from "./pages/Successors";
 import SuccessorAccess from "./pages/SuccessorAccess";
 import Settings from "./pages/Settings";
+import Sessions from "./pages/Sessions";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -39,6 +41,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/checkin" element={<CheckIn />} />
               <Route path="/verify-successor" element={<VerifySuccessor />} />
               <Route path="/successor-access" element={<SuccessorAccess />} />
 
@@ -52,6 +55,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/vault" element={<Vault />} />
                 <Route path="/successors" element={<Successors />} />
+                <Route path="/sessions" element={<Sessions />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>
