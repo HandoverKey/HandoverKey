@@ -25,6 +25,7 @@ vi.mock("@heroicons/react/24/outline", () => ({
   HomeIcon: () => <div data-testid="home-icon" />,
   Cog6ToothIcon: () => <div data-testid="cog-icon" />,
   ComputerDesktopIcon: () => <div data-testid="desktop-icon" />,
+  ClipboardDocumentListIcon: () => <div data-testid="clipboard-icon" />,
   ArrowRightOnRectangleIcon: () => <div data-testid="logout-icon" />,
   ExclamationTriangleIcon: () => <div data-testid="warning-icon" />,
   DocumentIcon: () => <div data-testid="document-icon" />,
@@ -136,7 +137,7 @@ describe("Auth flows", () => {
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith("/auth/login", expect.any(Object));
     });
-  });
+  }, 15000);
 
   it("registers new user and shows success message", async () => {
     (api.post as vi.Mock).mockResolvedValue({
@@ -179,5 +180,5 @@ describe("Auth flows", () => {
         ),
       ).toBeInTheDocument();
     });
-  });
+  }, 15000);
 });

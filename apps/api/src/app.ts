@@ -36,9 +36,12 @@ import { JobProcessor, JobScheduler } from "./jobs";
 import { closeAllQueues, getQueueHealth } from "./config/queue";
 import { SessionService } from "./services/session-service";
 import { initializeRedis, closeRedis, checkRedisHealth } from "./config/redis";
+import { JobManager } from "./services/job-manager";
+import { realtimeService } from "./services/realtime-service";
 
 // Initialize database connection
 const dbClient = getDatabaseClient();
+const jobManager = JobManager.getInstance();
 export let appInit: Promise<void> = Promise.resolve();
 
 if (process.env.NODE_ENV !== "test") {
@@ -66,6 +69,7 @@ if (process.env.NODE_ENV !== "test") {
       await JobScheduler.scheduleInactivityCheck();
       await JobScheduler.scheduleSessionCleanup();
       await JobScheduler.scheduleArchiveLogs();
+      jobManager.start();
       logger.info("Job processors initialized and recurring jobs scheduled");
     })
     .catch((error) => {
@@ -152,8 +156,10 @@ app.get("/health", async (req, res) => {
     const jobQueueHealthy = queueHealthResults.every(
       (result) => result.healthy,
     );
+    const managerHealth = await jobManager.getHealthStatus();
 
-    const allHealthy = dbHealthy && redisHealthy && jobQueueHealthy;
+    const allHealthy =
+      dbHealthy && redisHealthy && jobQueueHealthy && managerHealth.isHealthy;
 
     res.status(allHealthy ? 200 : 503).json({
       status: allHealthy ? "ok" : "degraded",
@@ -163,6 +169,9 @@ app.get("/health", async (req, res) => {
         database: dbHealthy ? "ok" : "failed",
         redis: redisHealthy ? "ok" : "failed",
         jobQueue: jobQueueHealthy ? "ok" : "degraded",
+        inactivityMonitor: managerHealth.jobs.inactivityMonitor.isHealthy
+          ? "ok"
+          : "degraded",
       },
       queueStats: queueNames.reduce<Record<string, unknown>>(
         (acc, name, index) => {
@@ -171,6 +180,8 @@ app.get("/health", async (req, res) => {
         },
         {},
       ),
+      backgroundJobs: managerHealth.jobs,
+      realtime: realtimeService.getStats(),
     });
   } catch {
     res.status(503).json({
@@ -217,6 +228,9 @@ app.use(errorHandler);
 process.on("SIGTERM", async () => {
   logger.info("SIGTERM received, shutting down gracefully");
 
+  jobManager.stop();
+  realtimeService.close();
+
   // Close job processors and queues
   await JobProcessor.close();
   await closeAllQueues();
@@ -233,6 +247,9 @@ process.on("SIGTERM", async () => {
 
 process.on("SIGINT", async () => {
   logger.info("SIGINT received, shutting down gracefully");
+
+  jobManager.stop();
+  realtimeService.close();
 
   // Close job processors and queues
   await JobProcessor.close();

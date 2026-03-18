@@ -18,6 +18,7 @@ import { getRedisClient } from "../config/redis";
 import { logger } from "../config/logger";
 import { emailService } from "./email-service";
 import { TwoFactorService } from "./two-factor-service";
+import { realtimeService } from "./realtime-service";
 import crypto from "crypto";
 
 export interface ReEncryptedVaultEntryInput {
@@ -455,6 +456,11 @@ export class UserService {
 
       // Also update user's last_activity
       await this.updateLastActivity(userId);
+
+      realtimeService.broadcastToUser(userId, "activity.recorded", {
+        activityType,
+        at: new Date().toISOString(),
+      });
     } catch (error) {
       // Log the error but don't throw - activity logging should not block critical operations
       logger.error({ err: error }, "Failed to log activity");

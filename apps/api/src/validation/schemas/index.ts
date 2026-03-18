@@ -23,6 +23,7 @@ export {
   UpdateVaultEntrySchema,
   VaultQuerySchema,
   VaultEntryIdSchema,
+  VaultImportSchema,
 } from "./vault.schemas";
 
 // Inactivity schemas
@@ -40,6 +41,7 @@ export {
   VerifySuccessorSchema,
   SuccessorIdSchema,
   UpdateSharesSchema,
+  UpdateAssignedVaultEntriesSchema,
 } from "./successor.schemas";
 
 // Activity schemas

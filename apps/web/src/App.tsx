@@ -21,6 +21,8 @@ import Successors from "./pages/Successors";
 import SuccessorAccess from "./pages/SuccessorAccess";
 import Settings from "./pages/Settings";
 import Sessions from "./pages/Sessions";
+import ActivityLogs from "./pages/ActivityLogs";
+import AdminDashboard from "./pages/AdminDashboard";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -55,7 +57,9 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/vault" element={<Vault />} />
                 <Route path="/successors" element={<Successors />} />
+                <Route path="/activity" element={<ActivityLogs />} />
                 <Route path="/sessions" element={<Sessions />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>

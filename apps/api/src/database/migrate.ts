@@ -20,6 +20,7 @@ const MIGRATION_FILES = [
   "add_encrypted_share_to_successors.sql",
   "add_metadata_to_handover_processes.sql",
   "add_two_factor_recovery_codes.sql",
+  "add_successor_vault_assignments.sql",
 ];
 
 import { Generated } from "kysely";

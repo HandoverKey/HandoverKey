@@ -11,6 +11,7 @@ import {
 } from "@handoverkey/shared/src/types/dead-mans-switch";
 import { NotificationService } from "./notification-service";
 import { logger } from "../config/logger";
+import { realtimeService } from "./realtime-service";
 
 const GRACE_PERIOD_HOURS = parseInt(process.env.GRACE_PERIOD_HOURS || "48", 10);
 
@@ -58,6 +59,12 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       const handoverProcess = this.mapDbToHandoverProcess(dbProcess);
 
+      realtimeService.broadcastToUser(userId, "handover.status_changed", {
+        handoverId: handoverProcess.id,
+        status: handoverProcess.status,
+        gracePeriodEnds: handoverProcess.gracePeriodEnds,
+      });
+
       logger.info(
         `Handover process initiated for user ${userId}, grace period ends: ${gracePeriodEnds.toISOString()}`,
       );
@@ -99,6 +106,12 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         status: HandoverProcessStatus.CANCELLED,
         cancelled_at: new Date(),
         cancellation_reason: reason,
+      });
+
+      realtimeService.broadcastToUser(userId, "handover.status_changed", {
+        handoverId: activeProcess.id,
+        status: HandoverProcessStatus.CANCELLED,
+        reason,
       });
 
       logger.info(`Handover process cancelled for user ${userId}: ${reason}`);
@@ -216,6 +229,15 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
       await handoverRepo.update(handoverId, {
         status: HandoverProcessStatus.AWAITING_SUCCESSORS,
       });
+
+      realtimeService.broadcastToUser(
+        process.user_id,
+        "handover.status_changed",
+        {
+          handoverId,
+          status: HandoverProcessStatus.AWAITING_SUCCESSORS,
+        },
+      );
 
       logger.info(
         `Grace period expired for handover ${handoverId}, notifying successors`,
