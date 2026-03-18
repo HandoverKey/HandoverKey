@@ -206,12 +206,7 @@ const Successors: React.FC = () => {
     const toBase64 = (value: unknown): string => {
       if (!value) return "";
       if (typeof value === "string") return value;
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        "type" in value &&
-        "data" in value
-      ) {
+      if (typeof value === "object" && "type" in value && "data" in value) {
         const buffer = value as { type: string; data: number[] };
         if (buffer.type === "Buffer" && Array.isArray(buffer.data)) {
           return arrayBufferToBase64(new Uint8Array(buffer.data).buffer);

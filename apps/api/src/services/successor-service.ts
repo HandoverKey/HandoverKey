@@ -281,11 +281,9 @@ export class SuccessorService {
     }
 
     const uniqueEntryIds = [...new Set(entryIds)];
-    for (const entryId of uniqueEntryIds) {
-      const entry = await vaultRepo.findById(entryId, userId);
-      if (!entry) {
-        throw new NotFoundError("Vault entry");
-      }
+    const existingEntries = await vaultRepo.findByIds(userId, uniqueEntryIds);
+    if (existingEntries.length !== uniqueEntryIds.length) {
+      throw new NotFoundError("Vault entry");
     }
 
     await assignmentRepo.replaceBySuccessorId(successorId, uniqueEntryIds);
@@ -328,7 +326,7 @@ export class SuccessorService {
     verificationToken: string,
   ): Promise<SuccessorTokenVerificationResult> {
     const successorRepo = this.getSuccessorRepository();
-    const db = successorRepo["db"]; // Access the kysely instance
+    const db = getDatabaseClient().getKysely();
 
     // Find successor by verification token
     const successor = await db

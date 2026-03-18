@@ -4,6 +4,7 @@ import {
   VaultFilters as DbVaultFilters,
   SuccessorRepository,
   SuccessorVaultEntryRepository,
+  NewVaultEntry,
 } from "@handoverkey/database";
 import { EncryptedData } from "@handoverkey/shared";
 import { v4 as uuidv4 } from "uuid";
@@ -259,24 +260,22 @@ export class VaultService {
       }>;
     },
   ): Promise<{ created: number; updated: number; total: number }> {
-    const vaultRepo = this.getVaultRepository();
+    const dbClient = getDatabaseClient();
 
-    if (payload.mode === "replace") {
-      const existingEntries = await vaultRepo.findByUserId(userId, {});
-      for (const existingEntry of existingEntries) {
-        await vaultRepo.delete(existingEntry.id, userId);
+    return dbClient.transaction(async (trx) => {
+      const vaultRepo = new VaultRepository(trx);
+
+      if (payload.mode === "replace") {
+        await vaultRepo.deleteByUserId(userId);
       }
-    }
 
-    let created = 0;
-    let updated = 0;
-
-    for (const entry of payload.entries) {
-      const targetId = entry.id || uuidv4();
-      const existing = await vaultRepo.findById(targetId, userId);
-
-      if (existing) {
-        await vaultRepo.update(targetId, userId, {
+      const entriesById = new Map<
+        string,
+        Omit<NewVaultEntry, "id" | "user_id">
+      >();
+      for (const entry of payload.entries) {
+        const targetId = entry.id || uuidv4();
+        entriesById.set(targetId, {
           encrypted_data: Buffer.from(entry.encryptedData, "base64"),
           iv: Buffer.from(entry.iv, "base64"),
           salt: entry.salt ? Buffer.from(entry.salt, "base64") : null,
@@ -284,27 +283,59 @@ export class VaultService {
           category: entry.category ?? null,
           tags: entry.tags ?? null,
         });
-        updated += 1;
-      } else {
-        await vaultRepo.create({
-          id: targetId,
-          user_id: userId,
-          encrypted_data: Buffer.from(entry.encryptedData, "base64"),
-          iv: Buffer.from(entry.iv, "base64"),
-          salt: entry.salt ? Buffer.from(entry.salt, "base64") : null,
-          algorithm: entry.algorithm,
-          category: entry.category ?? null,
-          tags: entry.tags ?? null,
-        });
-        created += 1;
       }
-    }
 
-    return {
-      created,
-      updated,
-      total: payload.entries.length,
-    };
+      const preparedEntries = Array.from(entriesById.entries()).map(
+        ([id, data]) => ({
+          id,
+          ...data,
+        }),
+      );
+
+      const existingEntries = await vaultRepo.findByIds(
+        userId,
+        preparedEntries.map((entry) => entry.id),
+      );
+      const existingIds = new Set(existingEntries.map((entry) => entry.id));
+
+      const createValues: NewVaultEntry[] = [];
+      let updated = 0;
+
+      for (const entry of preparedEntries) {
+        if (existingIds.has(entry.id)) {
+          await vaultRepo.update(entry.id, userId, {
+            encrypted_data: entry.encrypted_data,
+            iv: entry.iv,
+            salt: entry.salt,
+            algorithm: entry.algorithm,
+            category: entry.category,
+            tags: entry.tags,
+          });
+          updated += 1;
+        } else {
+          createValues.push({
+            id: entry.id,
+            user_id: userId,
+            encrypted_data: entry.encrypted_data,
+            iv: entry.iv,
+            salt: entry.salt,
+            algorithm: entry.algorithm,
+            category: entry.category,
+            tags: entry.tags,
+          });
+        }
+      }
+
+      if (createValues.length > 0) {
+        await trx.insertInto("vault_entries").values(createValues).execute();
+      }
+
+      return {
+        created: createValues.length,
+        updated,
+        total: preparedEntries.length,
+      };
+    });
   }
 
   private static mapDbEntryToVaultEntry(dbEntry: {

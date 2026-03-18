@@ -83,7 +83,7 @@ class RealtimeClient {
     directHandlers?.forEach((handler) => handler(payload));
 
     const wildcardHandlers = this.listeners.get("*");
-    wildcardHandlers?.forEach((handler) => handler({ event, ...payload }));
+    wildcardHandlers?.forEach((handler) => handler({ ...payload, event }));
   }
 
   private resolveWebSocketUrl(): string {

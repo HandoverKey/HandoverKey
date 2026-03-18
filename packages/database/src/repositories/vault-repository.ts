@@ -158,6 +158,22 @@ export class VaultRepository {
     }
   }
 
+  async deleteByUserId(userId: string): Promise<number> {
+    try {
+      const result = await this.db
+        .deleteFrom("vault_entries")
+        .where("user_id", "=", userId)
+        .executeTakeFirst();
+
+      return Number(result.numDeletedRows);
+    } catch (error) {
+      throw new QueryError(
+        `Failed to delete vault entries by user: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error instanceof Error ? error : undefined,
+      );
+    }
+  }
+
   async getCategories(userId: string): Promise<string[]> {
     try {
       const result = await this.db

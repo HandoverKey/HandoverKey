@@ -26,6 +26,8 @@ interface VaultEntry {
   fileName?: string;
 }
 
+const MAX_VAULT_IMPORT_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+
 const Vault: React.FC = () => {
   const { success, error: showError } = useToast();
   const [entries, setEntries] = useState<VaultEntry[]>([]);
@@ -183,6 +185,12 @@ const Vault: React.FC = () => {
   ) => {
     const file = event.target.files?.[0];
     if (!file) {
+      return;
+    }
+
+    if (file.size > MAX_VAULT_IMPORT_FILE_SIZE_BYTES) {
+      showError("Import file is too large. Maximum supported size is 5 MB.");
+      event.target.value = "";
       return;
     }
 
