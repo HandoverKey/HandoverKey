@@ -33,7 +33,7 @@ The platform works as a dead man's switch:
 
 ## Project Status
 
-`v2.0.0` is the current major release.
+`v1.0.0` is the current release.
 
 The repository now ships a production-grade web app and API with:
 
