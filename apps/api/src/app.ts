@@ -145,11 +145,11 @@ app.use(metricsMiddleware);
 app.use(rateLimiter as unknown as express.RequestHandler);
 
 // Body parsing middleware
-app.use(express.json({ limit: "5mb" }) as express.RequestHandler);
+app.use(express.json({ limit: "10mb" }) as express.RequestHandler);
 app.use(
   express.urlencoded({
     extended: true,
-    limit: "5mb",
+    limit: "10mb",
   }) as express.RequestHandler,
 );
 app.use(cookieParser() as unknown as express.RequestHandler);
