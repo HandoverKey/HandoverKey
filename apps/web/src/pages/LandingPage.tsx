@@ -500,7 +500,7 @@ const stepColors: Record<string, { bg: string; text: string; ring: string }> = {
   green: { bg: "bg-green-50", text: "text-green-600", ring: "ring-green-100" },
 };
 
-function FlowArrow({ color }: { color: string }) {
+function FlowArrow({ color }: { color: StepColor }) {
   const arrowColors: Record<string, string> = {
     blue: "text-blue-300",
     yellow: "text-yellow-300",
@@ -532,6 +532,8 @@ function FlowArrow({ color }: { color: string }) {
   );
 }
 
+type StepColor = keyof typeof stepColors;
+
 function LifecycleStep({
   step,
   icon,
@@ -545,7 +547,7 @@ function LifecycleStep({
   icon: React.ReactNode;
   title: string;
   description: string;
-  color: string;
+  color: StepColor;
   align: "left" | "right";
   isLast: boolean;
 }) {
@@ -628,13 +630,11 @@ function KeySharingScenario({
         {shares.map((share, i) => (
           <div
             key={i}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-              i < threshold
-                ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
-                : "bg-gray-50 text-gray-500 ring-1 ring-gray-100"
-            }`}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm bg-blue-50 text-blue-700 ring-1 ring-blue-100"
           >
-            <KeyIcon className="w-4 h-4" />
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">
+              {share.icon}
+            </span>
             <span className="font-medium">{share.label}</span>
           </div>
         ))}
@@ -642,7 +642,7 @@ function KeySharingScenario({
 
       <div className="flex items-center gap-2 mb-4 text-sm">
         <span className="font-semibold text-blue-600">
-          {threshold} of {shares.length}
+          Any {threshold} of {shares.length}
         </span>
         <span className="text-gray-400">shares needed to unlock</span>
       </div>

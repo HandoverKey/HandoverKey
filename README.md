@@ -92,7 +92,7 @@ flowchart TD
     Cancelled["Cancelled: user checked in"]
 
     Setup --> Normal
-    Normal -->|"inactivity reaches threshold"| Reminders
+    Normal -->|"inactivity reaches 75%"| Reminders
     Reminders -->|"user checks in"| Normal
     Reminders -->|"100% threshold reached"| Grace
     Grace -->|"user checks in or logs in"| Cancelled
@@ -106,9 +106,10 @@ zero-knowledge vault (encrypted client-side with AES-256-GCM), designates truste
 successors, and generates key shares. The user also configures an inactivity
 threshold (30--365 days, default 90).
 
-**Step 2 -- Normal operation.** Every login, API call, or manual check-in resets
-the user's last-activity timestamp. A background job runs hourly to evaluate each
-user's inactivity duration against their configured threshold.
+**Step 2 -- Normal operation.** Logins and key authenticated actions, such as
+vault access or a manual check-in, reset the user's last-activity timestamp.
+An in-process monitor evaluates each user's inactivity against their configured
+threshold every 15 minutes, with an additional hourly BullMQ job as a backstop.
 
 **Step 3 -- Reminder phase.** As inactivity approaches the threshold, the system
 sends graduated email reminders. Each reminder includes a secure one-click check-in
