@@ -1,8 +1,12 @@
-import { AxiosError } from "axios";
+import axios from "axios";
 
 interface ApiErrorData {
   message?: string;
-  error?: { message?: string; code?: string };
+  error?: {
+    message?: string;
+    code?: string;
+    details?: Array<{ message?: string }>;
+  };
 }
 
 /**
@@ -13,9 +17,11 @@ export function getApiErrorMessage(
   err: unknown,
   fallback = "An unexpected error occurred. Please try again.",
 ): string {
-  if (err instanceof AxiosError && err.response?.data) {
+  if (axios.isAxiosError(err) && err.response?.data) {
     const data = err.response.data as ApiErrorData;
-    return data.message || data.error?.message || fallback;
+    const message = data.message || data.error?.message || fallback;
+    const detail = data.error?.details?.[0]?.message;
+    return detail ? `${message}: ${detail}` : message;
   }
 
   if (err instanceof Error) {
