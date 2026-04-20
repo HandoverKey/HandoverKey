@@ -215,14 +215,19 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Lifecycle Steps */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          {/* Lifecycle Steps — flowing timeline */}
+          <div className="relative max-w-3xl mx-auto mb-20">
+            {/* Vertical connector line */}
+            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200 via-amber-200 to-green-200 md:-translate-x-px" />
+
             <LifecycleStep
               step={1}
               icon={<LockClosedIcon className="w-6 h-6" />}
               title="Set Up Your Vault"
               description="Create an account, store your secrets (passwords, keys, documents), and designate trusted successors. Everything is encrypted on your device before it leaves your browser."
               color="blue"
+              align="right"
+              isLast={false}
             />
             <LifecycleStep
               step={2}
@@ -230,6 +235,8 @@ export default function LandingPage() {
               title="Configure Your Timer"
               description="Set an inactivity threshold between 30 and 365 days. Generate Shamir key shares and distribute them to your successors. Choose whether a majority is required to unlock."
               color="blue"
+              align="left"
+              isLast={false}
             />
             <LifecycleStep
               step={3}
@@ -237,6 +244,8 @@ export default function LandingPage() {
               title="Reminders Are Sent"
               description="As inactivity approaches your threshold, you'll receive up to three graduated email reminders at 75%, 85%, and 95%. Each includes a one-click check-in link valid for 7 days."
               color="yellow"
+              align="right"
+              isLast={false}
             />
             <LifecycleStep
               step={4}
@@ -244,6 +253,8 @@ export default function LandingPage() {
               title="Grace Period (48h)"
               description="When the threshold is reached, a 48-hour grace period begins. You can still cancel the handover by logging in, checking in, or clicking a reminder link. Your successors are not notified yet."
               color="amber"
+              align="left"
+              isLast={false}
             />
             <LifecycleStep
               step={5}
@@ -251,6 +262,8 @@ export default function LandingPage() {
               title="Successors Notified"
               description="After the grace period expires, each successor receives an email with a unique secure access link. They can accept or decline the handover — the process completes once everyone has responded."
               color="orange"
+              align="right"
+              isLast={false}
             />
             <LifecycleStep
               step={6}
@@ -258,6 +271,8 @@ export default function LandingPage() {
               title="Vault Unlocked"
               description="Accepted successors combine their key shares in the browser to reconstruct your master key. Each vault entry is decrypted locally — the server never sees plaintext data."
               color="green"
+              align="left"
+              isLast={true}
             />
           </div>
 
@@ -485,42 +500,101 @@ const stepColors: Record<string, { bg: string; text: string; ring: string }> = {
   green: { bg: "bg-green-50", text: "text-green-600", ring: "ring-green-100" },
 };
 
+function FlowArrow({ color }: { color: string }) {
+  const arrowColors: Record<string, string> = {
+    blue: "text-blue-300",
+    yellow: "text-yellow-300",
+    amber: "text-amber-300",
+    orange: "text-orange-300",
+    green: "text-green-300",
+  };
+  const cls = arrowColors[color] ?? arrowColors.blue;
+
+  return (
+    <div className="flex justify-center py-2">
+      <motion.svg
+        initial={{ opacity: 0, y: -4 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.3 }}
+        className={`w-6 h-8 ${cls}`}
+        viewBox="0 0 24 32"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="12" y1="2" x2="12" y2="26" />
+        <polyline points="6,20 12,26 18,20" />
+      </motion.svg>
+    </div>
+  );
+}
+
 function LifecycleStep({
   step,
   icon,
   title,
   description,
   color,
+  align,
+  isLast,
 }: {
   step: number;
   icon: React.ReactNode;
   title: string;
   description: string;
   color: string;
+  align: "left" | "right";
+  isLast: boolean;
 }) {
   const c = stepColors[color] ?? stepColors.blue;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: step * 0.08 }}
-      className="bg-white rounded-2xl p-8 border border-gray-100 hover:shadow-apple transition-all"
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div
-          className={`w-10 h-10 rounded-xl ${c.bg} ${c.text} flex items-center justify-center ring-1 ${c.ring}`}
-        >
-          {icon}
+    <div className="relative">
+      {/* Node on the timeline */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className={`absolute left-6 md:left-1/2 -translate-x-1/2 w-12 h-12 rounded-full ${c.bg} ${c.text} ring-4 ring-white shadow-md flex items-center justify-center z-10`}
+      >
+        {icon}
+      </motion.div>
+
+      {/* Card — alternates sides on md+ */}
+      <motion.div
+        initial={{ opacity: 0, x: align === "right" ? 40 : -40 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className={`ml-16 md:ml-0 md:w-[calc(50%-3rem)] ${
+          align === "right" ? "md:ml-auto md:pl-0" : "md:mr-auto md:pr-0"
+        }`}
+      >
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-apple transition-all">
+          <span
+            className={`inline-block text-xs font-bold tracking-wider uppercase ${c.text} mb-2`}
+          >
+            Step {step}
+          </span>
+          <h4 className="text-lg font-bold text-gray-900 mb-2">{title}</h4>
+          <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
         </div>
-        <span className="text-sm font-semibold text-gray-400 tracking-wide uppercase">
-          Step {step}
-        </span>
-      </div>
-      <h4 className="text-lg font-bold text-gray-900 mb-2">{title}</h4>
-      <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
-    </motion.div>
+      </motion.div>
+
+      {/* Arrow to next step */}
+      {!isLast && (
+        <div className="absolute left-6 md:left-1/2 -translate-x-1/2 -bottom-1 z-10">
+          <FlowArrow color={color} />
+        </div>
+      )}
+
+      {/* Spacer */}
+      <div className="h-14" />
+    </div>
   );
 }
 
