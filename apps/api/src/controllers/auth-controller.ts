@@ -476,6 +476,7 @@ export class AuthController {
           id: updatedUser.id,
           email: updatedUser.email,
           name: updatedUser.name,
+          role: isAdmin(updatedUser.email) ? "admin" : "user",
           twoFactorEnabled: updatedUser.twoFactorEnabled,
           lastActivity: updatedUser.lastActivity,
           createdAt: updatedUser.createdAt,
