@@ -3,6 +3,22 @@ import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
 import { logger } from "../config/logger";
 
+let cachedRedisClient: {
+  sendCommand: (...args: string[]) => Promise<unknown>;
+} | null = null;
+
+async function getRedis() {
+  if (!cachedRedisClient) {
+    const { getRedisClient } = await import("../config/redis");
+    cachedRedisClient = getRedisClient();
+  }
+  return cachedRedisClient;
+}
+
+const useRedisStore =
+  process.env.NODE_ENV === "production" ||
+  process.env.RATE_LIMIT_STORE === "redis";
+
 /**
  * Creates a rate limiter. In production, uses a Redis-backed store so
  * rate-limit state survives deploys. Falls back to in-memory otherwise.
@@ -21,16 +37,11 @@ export function createRateLimiter(
     legacyHeaders: false,
   };
 
-  if (
-    redisPrefix &&
-    (process.env.NODE_ENV === "production" ||
-      process.env.RATE_LIMIT_STORE === "redis")
-  ) {
+  if (redisPrefix && useRedisStore) {
     opts.store = new RedisStore({
       sendCommand: async (...args: string[]) => {
-        const { getRedisClient } = await import("../config/redis");
-        const client = getRedisClient();
-        return client.sendCommand(args);
+        const client = await getRedis();
+        return client.sendCommand(...args);
       },
       prefix: redisPrefix,
     });
@@ -46,35 +57,26 @@ export const rateLimiter = createRateLimiter(
   "rl:global:",
 ) as unknown as (req: Request, res: Response, next: NextFunction) => void;
 
-export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 5 : 1000, // strict in production, relaxed in dev/test
-  message: {
-    error: "Too many authentication attempts, please try again later.",
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+export const authRateLimiter = createRateLimiter(
+  15 * 60 * 1000,
+  process.env.NODE_ENV === "production" ? 5 : 1000,
+  "Too many authentication attempts, please try again later.",
+  "rl:auth:",
+);
 
-export const registerRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: process.env.NODE_ENV === "production" ? 20 : 1000, // strict in production, relaxed in dev/test
-  message: {
-    error: "Too many accounts created from this IP, please try again later.",
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+export const registerRateLimiter = createRateLimiter(
+  60 * 60 * 1000,
+  process.env.NODE_ENV === "production" ? 20 : 1000,
+  "Too many accounts created from this IP, please try again later.",
+  "rl:register:",
+);
 
-export const contactRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: process.env.NODE_ENV === "development" ? 1000 : 3, // limit each IP to 3 contact form submissions per hour (1000 in dev)
-  message: {
-    error: "Too many contact form submissions, please try again later.",
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+export const contactRateLimiter = createRateLimiter(
+  60 * 60 * 1000,
+  process.env.NODE_ENV === "development" ? 1000 : 3,
+  "Too many contact form submissions, please try again later.",
+  "rl:contact:",
+);
 
 export const validateContentType = (
   req: Request,
@@ -190,7 +192,7 @@ const sanitizeObject = (
     // Allow larger limits for encrypted data fields
     const isEncryptedField =
       keyName === "encryptedData" || keyName === "iv" || keyName === "salt";
-    const limit = isEncryptedField ? 50 * 1024 * 1024 : 10000; // 50MB for encrypted data
+    const limit = isEncryptedField ? 1024 * 1024 : 10000; // 1MB for encrypted data
     return sanitizeString(obj, limit);
   }
 

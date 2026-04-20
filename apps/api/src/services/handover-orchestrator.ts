@@ -162,8 +162,8 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
   /**
    * Processes a successor's response to a handover notification.
-   * Marks the notification as verified and, when all notified successors have
-   * responded, transitions the handover to COMPLETED.
+   * Marks the notification as accepted or declined and, when all notified
+   * successors have responded, transitions the handover to COMPLETED.
    */
   async processSuccessorResponse(
     handoverId: string,
@@ -176,17 +176,23 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         "Processing successor response",
       );
 
+      const handoverRepo = HandoverOrchestrator.getHandoverProcessRepository();
+      const handoverProcess = await handoverRepo.findById(handoverId);
+
+      if (!handoverProcess) {
+        logger.warn({ handoverId }, "Handover process not found");
+        return;
+      }
+
       const notificationRepo =
         HandoverOrchestrator.getSuccessorNotificationRepository();
       await notificationRepo.update(handoverId, successorId, {
-        verification_status: response.accepted ? "verified" : "declined",
+        verification_status: response.accepted ? "VERIFIED" : "DECLINED",
         verified_at: new Date(),
       });
 
       realtimeService.broadcastToUser(
-        (await HandoverOrchestrator.getHandoverProcessRepository().findById(
-          handoverId,
-        ))!.user_id,
+        handoverProcess.user_id,
         "handover.successor_responded",
         { handoverId, successorId, accepted: response.accepted },
       );
@@ -195,26 +201,32 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         await notificationRepo.findByHandoverProcess(handoverId);
       const allResponded = allNotifications.every(
         (n) =>
-          n.verification_status === "verified" ||
-          n.verification_status === "declined",
+          n.verification_status === "VERIFIED" ||
+          n.verification_status === "DECLINED",
       );
 
       if (allResponded) {
-        const handoverRepo =
-          HandoverOrchestrator.getHandoverProcessRepository();
+        if (
+          handoverProcess.status === HandoverProcessStatus.COMPLETED ||
+          handoverProcess.status === HandoverProcessStatus.CANCELLED
+        ) {
+          logger.info(
+            { handoverId, status: handoverProcess.status },
+            "Skipping completion -- handover already in terminal state",
+          );
+          return;
+        }
+
         await handoverRepo.update(handoverId, {
           status: HandoverProcessStatus.COMPLETED,
           completed_at: new Date(),
         });
 
-        const process = await handoverRepo.findById(handoverId);
-        if (process) {
-          realtimeService.broadcastToUser(
-            process.user_id,
-            "handover.status_changed",
-            { handoverId, status: HandoverProcessStatus.COMPLETED },
-          );
-        }
+        realtimeService.broadcastToUser(
+          handoverProcess.user_id,
+          "handover.status_changed",
+          { handoverId, status: HandoverProcessStatus.COMPLETED },
+        );
 
         logger.info({ handoverId }, "Handover process completed");
       }
