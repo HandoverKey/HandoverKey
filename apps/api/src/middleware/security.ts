@@ -156,7 +156,7 @@ const sanitizeObject = (
     // Allow larger limits for encrypted data fields
     const isEncryptedField =
       keyName === "encryptedData" || keyName === "iv" || keyName === "salt";
-    const limit = isEncryptedField ? 1024 * 1024 : 10000; // 1MB for encrypted data (aligned with body parser limit)
+    const limit = isEncryptedField ? 5 * 1024 * 1024 : 10000; // 5MB for encrypted data (e.g. large PDFs)
     return sanitizeString(obj, limit);
   }
 
