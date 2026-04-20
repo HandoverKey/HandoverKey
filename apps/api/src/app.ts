@@ -104,25 +104,49 @@ app.use(
   }) as unknown as express.RequestHandler,
 );
 
-const ALLOWED_ORIGINS = new Set(
-  (
-    process.env.CORS_ORIGINS ||
+// Build the CORS allowlist. For each configured origin we also allow the
+// www / non-www counterpart (apex domains only) so that
+// FRONTEND_URL=https://handoverkey.com automatically permits
+// https://www.handoverkey.com and vice-versa.
+function buildAllowedOrigins(raw: string): Set<string> {
+  const origins = new Set<string>();
+
+  for (const entry of raw.split(",")) {
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+
+    let parsed: URL;
+    try {
+      parsed = new URL(trimmed);
+    } catch {
+      logger.warn({ origin: trimmed }, "Ignoring malformed CORS origin");
+      continue;
+    }
+
+    // url.origin normalises scheme + host + port (strips paths, trailing slashes)
+    origins.add(parsed.origin);
+
+    const parts = parsed.hostname.split(".");
+    if (parsed.hostname.startsWith("www.") && parts.length === 3) {
+      // www.example.com -> also allow example.com
+      const bare = new URL(parsed.origin);
+      bare.hostname = parsed.hostname.slice(4);
+      origins.add(bare.origin);
+    } else if (parts.length === 2) {
+      // example.com -> also allow www.example.com
+      const www = new URL(parsed.origin);
+      www.hostname = `www.${parsed.hostname}`;
+      origins.add(www.origin);
+    }
+  }
+
+  return origins;
+}
+
+const ALLOWED_ORIGINS = buildAllowedOrigins(
+  process.env.CORS_ORIGINS ||
     process.env.FRONTEND_URL ||
-    "http://localhost:5173"
-  )
-    .split(",")
-    .flatMap((o) => {
-      const origin = o.trim();
-      try {
-        const url = new URL(origin);
-        const wwwVariant = url.hostname.startsWith("www.")
-          ? `${url.protocol}//${url.hostname.slice(4)}${url.port ? `:${url.port}` : ""}`
-          : `${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ""}`;
-        return [origin, wwwVariant];
-      } catch {
-        return [origin];
-      }
-    }),
+    "http://localhost:5173",
 );
 
 app.use(
