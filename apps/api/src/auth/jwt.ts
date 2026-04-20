@@ -34,22 +34,19 @@ export class JWTManager {
     process.env.JWT_REFRESH_EXPIRES_IN || "7d";
 
   /**
-   * Generate access token and create session in database
+   * Generate access token and create session in database.
+   * The token hash stored in the DB matches the final token the client receives.
    */
   static async generateAccessToken(
     userId: string,
     email: string,
     options?: TokenGenerationOptions,
   ): Promise<{ token: string; sessionId: string }> {
-    const payload: JWTPayload = {
-      userId,
-      email,
-      sessionId: "", // Will be set after session creation
-    };
-
-    // Generate token without sessionId first to get expiration
     const secret = this.getJwtSecret();
-    const tempToken = jwt.sign(payload, secret, {
+
+    // First pass: generate a temp token to calculate the expiration window
+    const tempPayload: JWTPayload = { userId, email, sessionId: "" };
+    const tempToken = jwt.sign(tempPayload, secret, {
       expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
     } as jwt.SignOptions);
 
@@ -58,21 +55,24 @@ export class JWTManager {
       throw new Error("Failed to get token expiration");
     }
 
-    // Create session in database
-    const tokenHash = SessionService.hashToken(tempToken);
+    // Create session with a placeholder hash (updated below)
     const sessionId = await SessionService.createSession({
       userId,
-      tokenHash,
+      tokenHash: "pending",
       expiresAt: expiration,
       ipAddress: options?.ipAddress,
       userAgent: options?.userAgent,
     });
 
-    // Generate final token with sessionId
-    payload.sessionId = sessionId;
-    const token = jwt.sign(payload, secret, {
+    // Generate the final token that the client will actually receive
+    const finalPayload: JWTPayload = { userId, email, sessionId };
+    const token = jwt.sign(finalPayload, secret, {
       expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
     } as jwt.SignOptions);
+
+    // Update the session with the hash of the actual token
+    const tokenHash = SessionService.hashToken(token);
+    await SessionService.updateSessionTokenHash(sessionId, tokenHash);
 
     return { token, sessionId };
   }

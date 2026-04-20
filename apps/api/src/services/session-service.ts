@@ -64,17 +64,17 @@ export class SessionService {
   }
 
   /**
-   * Validates a session by checking server-side data, not user-controlled input
-   * This prevents user-controlled bypass of security checks
+   * Validates a session by checking server-side data, not user-controlled input.
+   * Verifies the token hash matches the stored hash for defense-in-depth.
    */
   static async validateSession(
     payload: JWTPayload | undefined,
+    rawToken?: string,
   ): Promise<boolean> {
     if (!payload) {
       return false;
     }
 
-    // Validate payload structure (server-side validation)
     if (
       !payload.userId ||
       typeof payload.userId !== "string" ||
@@ -87,7 +87,6 @@ export class SessionService {
     }
 
     try {
-      // Check if session exists in database and is not expired
       const session = await this.sessionRepository.findById(payload.sessionId);
 
       if (!session) {
@@ -98,7 +97,6 @@ export class SessionService {
         return false;
       }
 
-      // Verify session belongs to the user
       if (session.user_id !== payload.userId) {
         logger.warn(
           {
@@ -111,7 +109,18 @@ export class SessionService {
         return false;
       }
 
-      // Server-side validation - check if user exists in database
+      // Verify token hash matches stored hash (defense-in-depth)
+      if (rawToken && session.token_hash) {
+        const presentedHash = this.hashToken(rawToken);
+        if (presentedHash !== session.token_hash) {
+          logger.warn(
+            { sessionId: payload.sessionId, userId: payload.userId },
+            "Token hash mismatch",
+          );
+          return false;
+        }
+      }
+
       const user = await UserService.findUserById(payload.userId);
 
       if (!user) {
@@ -119,7 +128,6 @@ export class SessionService {
         return false;
       }
 
-      // Validate email matches (server-side check)
       if (user.email !== payload.email) {
         logger.warn(
           {
@@ -132,7 +140,6 @@ export class SessionService {
         return false;
       }
 
-      // Update last activity timestamp
       await this.sessionRepository.updateLastActivity(session.id);
 
       return true;
@@ -148,8 +155,28 @@ export class SessionService {
   /**
    * Validates authentication for a request using server-side checks
    */
-  static async isAuthenticated(req: { user?: JWTPayload }): Promise<boolean> {
-    return await this.validateSession(req.user);
+  static async isAuthenticated(req: {
+    user?: JWTPayload;
+    rawToken?: string;
+  }): Promise<boolean> {
+    return await this.validateSession(req.user, req.rawToken);
+  }
+
+  /**
+   * Update the token hash for a session (used after final token generation)
+   */
+  static async updateSessionTokenHash(
+    sessionId: string,
+    tokenHash: string,
+  ): Promise<void> {
+    try {
+      await this.sessionRepository.update(sessionId, {
+        token_hash: tokenHash,
+      });
+    } catch (error) {
+      logger.error({ error, sessionId }, "Failed to update session token hash");
+      throw error;
+    }
   }
 
   /**
