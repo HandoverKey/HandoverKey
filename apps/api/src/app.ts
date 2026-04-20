@@ -109,7 +109,7 @@ app.use(
 // www / non-www counterpart (apex domains only) so that
 // FRONTEND_URL=https://handoverkey.com automatically permits
 // https://www.handoverkey.com and vice-versa.
-function buildAllowedOrigins(raw: string): Set<string> {
+export function buildAllowedOrigins(raw: string): Set<string> {
   const origins = new Set<string>();
 
   for (const entry of raw.split(",")) {

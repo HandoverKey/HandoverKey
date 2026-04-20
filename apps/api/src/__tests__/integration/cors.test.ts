@@ -1,6 +1,5 @@
-import { URL } from "node:url";
 import request from "supertest";
-import app from "../../app";
+import app, { buildAllowedOrigins } from "../../app";
 
 describe("CORS", () => {
   const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -15,18 +14,38 @@ describe("CORS", () => {
     expect(res.headers["access-control-allow-credentials"]).toBe("true");
   });
 
-  it("allows the www variant of the configured origin", async () => {
-    const url = new URL(allowedOrigin);
-    const wwwOrigin = url.hostname.startsWith("www.")
-      ? allowedOrigin
-      : `${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ""}`;
+  it("allows the www variant for apex domains", () => {
+    const origins = buildAllowedOrigins("https://handoverkey.com");
 
-    const res = await request(app)
-      .options("/api/v1/auth/profile")
-      .set("Origin", wwwOrigin)
-      .set("Access-Control-Request-Method", "GET");
+    expect(origins.has("https://handoverkey.com")).toBe(true);
+    expect(origins.has("https://www.handoverkey.com")).toBe(true);
+  });
 
-    expect(res.headers["access-control-allow-origin"]).toBe(wwwOrigin);
+  it("strips www for www-prefixed apex domains", () => {
+    const origins = buildAllowedOrigins("https://www.handoverkey.com");
+
+    expect(origins.has("https://www.handoverkey.com")).toBe(true);
+    expect(origins.has("https://handoverkey.com")).toBe(true);
+  });
+
+  it("does not add www variant for subdomains", () => {
+    const origins = buildAllowedOrigins("https://app.example.com");
+
+    expect(origins.has("https://app.example.com")).toBe(true);
+    expect(origins.has("https://www.app.example.com")).toBe(false);
+  });
+
+  it("normalises origins via url.origin", () => {
+    const origins = buildAllowedOrigins("https://Example.COM:443/path/");
+
+    expect(origins.has("https://example.com")).toBe(true);
+  });
+
+  it("skips malformed origins", () => {
+    const origins = buildAllowedOrigins("not-a-url, https://valid.com");
+
+    expect(origins.has("not-a-url")).toBe(false);
+    expect(origins.has("https://valid.com")).toBe(true);
   });
 
   it("rejects requests from disallowed origins", async () => {
@@ -38,9 +57,12 @@ describe("CORS", () => {
     expect(res.headers["access-control-allow-origin"]).toBeUndefined();
   });
 
-  it("allows requests with no Origin header (server-to-server)", async () => {
-    const res = await request(app).get("/health");
+  it("passes requests with no Origin header through CORS", async () => {
+    const res = await request(app)
+      .get("/api/v1/auth/profile")
+      .set("Accept", "application/json");
 
-    expect(res.status).toBe(200);
+    expect(res.headers["access-control-allow-origin"]).toBeUndefined();
+    expect(res.status).not.toBe(500);
   });
 });
