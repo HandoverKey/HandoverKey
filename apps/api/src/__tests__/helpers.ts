@@ -1,6 +1,6 @@
 import request from "supertest";
 import crypto from "crypto";
-import app from "../../app";
+import app from "../app";
 import { getDatabaseClient } from "@handoverkey/database";
 
 export const DEFAULT_PASSWORD = "Password123!@$";
