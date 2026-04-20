@@ -1,14 +1,16 @@
-import app, { appInit } from "./app";
+import app, { appInit, shutdownServices } from "./app";
 import { logger } from "./config/logger";
-import { createServer } from "http";
+import { createServer, Server } from "http";
 import { realtimeService } from "./services/realtime-service";
 
 const PORT = process.env.API_PORT || 3001;
 
+let server: Server;
+
 async function start() {
   await appInit;
 
-  const server = createServer(app);
+  server = createServer(app);
   realtimeService.initialize(server);
 
   server.listen(PORT, () => {
@@ -20,6 +22,25 @@ async function start() {
     }
   });
 }
+
+async function shutdown(signal: string) {
+  logger.info(`${signal} received, shutting down gracefully`);
+
+  // Stop accepting new connections first
+  if (server) {
+    await new Promise<void>((resolve) => {
+      server.close(() => resolve());
+    });
+  }
+
+  await shutdownServices();
+
+  logger.info("Shutdown complete");
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 start().catch((err) => {
   logger.fatal({ err }, "Failed to start server");
