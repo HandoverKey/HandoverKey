@@ -6,6 +6,25 @@ import { ShieldCheckIcon } from "@heroicons/react/24/outline";
 import LoadingButton from "../components/LoadingButton";
 import { getApiErrorMessage } from "../services/api-error";
 
+function getPasswordStrength(pw: string): {
+  score: number;
+  label: string;
+  color: string;
+} {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^a-zA-Z0-9]/.test(pw)) score++;
+
+  if (score <= 1) return { score, label: "Weak", color: "bg-red-500" };
+  if (score <= 2) return { score, label: "Fair", color: "bg-orange-500" };
+  if (score <= 3) return { score, label: "Good", color: "bg-yellow-500" };
+  if (score === 4) return { score, label: "Strong", color: "bg-green-500" };
+  return { score, label: "Very Strong", color: "bg-emerald-500" };
+}
+
 const Register: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -174,6 +193,23 @@ const Register: React.FC = () => {
                   placeholder="Min 12 chars, uppercase, lowercase, number, special"
                 />
               </div>
+              {password && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${getPasswordStrength(password).color}`}
+                        style={{
+                          width: `${(getPasswordStrength(password).score / 5) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-gray-600 w-20 text-right">
+                      {getPasswordStrength(password).label}
+                    </span>
+                  </div>
+                </div>
+              )}
               <p className="mt-1 text-xs text-gray-500">
                 Must be at least 12 characters with uppercase, lowercase,
                 number, and special character.

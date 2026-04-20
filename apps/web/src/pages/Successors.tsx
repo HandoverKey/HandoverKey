@@ -289,14 +289,21 @@ const Successors: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <button
-            type="button"
-            onClick={handleGenerateShares}
-            disabled={generatingShares}
-            className="btn btn-secondary mr-3"
-          >
-            {generatingShares ? "Generating..." : "Generate Key Shares"}
-          </button>
+          <div className="relative group inline-block">
+            <button
+              type="button"
+              onClick={handleGenerateShares}
+              disabled={generatingShares || successors.length < 2}
+              className="btn btn-secondary mr-3"
+            >
+              {generatingShares ? "Generating..." : "Generate Key Shares"}
+            </button>
+            {successors.length < 2 && !loading && (
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg">
+                Add at least 2 successors first
+              </span>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
