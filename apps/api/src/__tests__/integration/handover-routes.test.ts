@@ -69,7 +69,7 @@ describe("Handover Routes Integration", () => {
 
   describe("POST /api/v1/handover/cancel", () => {
     it("should return 401 without authentication", async () => {
-      const res = await request(app).post("/api/v1/handover/cancel");
+      const res = await request(app).post("/api/v1/handover/cancel").send({});
       expect(res.status).toBe(401);
     });
 
