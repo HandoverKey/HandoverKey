@@ -104,18 +104,31 @@ app.use(
   }) as unknown as express.RequestHandler,
 );
 
-const ALLOWED_ORIGINS = (
-  process.env.CORS_ORIGINS ||
-  process.env.FRONTEND_URL ||
-  "http://localhost:5173"
-)
-  .split(",")
-  .map((o) => o.trim());
+const ALLOWED_ORIGINS = new Set(
+  (
+    process.env.CORS_ORIGINS ||
+    process.env.FRONTEND_URL ||
+    "http://localhost:5173"
+  )
+    .split(",")
+    .flatMap((o) => {
+      const origin = o.trim();
+      try {
+        const url = new URL(origin);
+        const wwwVariant = url.hostname.startsWith("www.")
+          ? `${url.protocol}//${url.hostname.slice(4)}${url.port ? `:${url.port}` : ""}`
+          : `${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ""}`;
+        return [origin, wwwVariant];
+      } catch {
+        return [origin];
+      }
+    }),
+);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      if (!origin || ALLOWED_ORIGINS.has(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`Origin ${origin} not allowed by CORS`));
