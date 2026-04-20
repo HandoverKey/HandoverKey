@@ -4,8 +4,10 @@ import { createServer, Server } from "http";
 import { realtimeService } from "./services/realtime-service";
 
 const PORT = process.env.API_PORT || 3001;
+const SHUTDOWN_TIMEOUT_MS = 15_000;
 
-let server: Server;
+let server: Server | undefined;
+let shuttingDown = false;
 
 async function start() {
   await appInit;
@@ -24,23 +26,48 @@ async function start() {
 }
 
 async function shutdown(signal: string) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
   logger.info(`${signal} received, shutting down gracefully`);
 
-  // Stop accepting new connections first
-  if (server) {
-    await new Promise<void>((resolve) => {
-      server.close(() => resolve());
-    });
+  const timeout = setTimeout(() => {
+    logger.error("Shutdown timed out, forcing exit");
+    process.exit(1);
+  }, SHUTDOWN_TIMEOUT_MS);
+
+  try {
+    realtimeService.close();
+
+    if (server) {
+      await new Promise<void>((resolve) => {
+        server!.close(() => resolve());
+      });
+    }
+
+    await shutdownServices();
+
+    logger.info("Shutdown complete");
+  } catch (err) {
+    logger.error({ err }, "Error during shutdown");
+  } finally {
+    clearTimeout(timeout);
+    process.exit(0);
   }
-
-  await shutdownServices();
-
-  logger.info("Shutdown complete");
-  process.exit(0);
 }
 
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => {
+  shutdown("SIGTERM").catch((err) => {
+    logger.error({ err }, "Unhandled error in SIGTERM shutdown");
+    process.exit(1);
+  });
+});
+process.on("SIGINT", () => {
+  shutdown("SIGINT").catch((err) => {
+    logger.error({ err }, "Unhandled error in SIGINT shutdown");
+    process.exit(1);
+  });
+});
 
 start().catch((err) => {
   logger.fatal({ err }, "Failed to start server");

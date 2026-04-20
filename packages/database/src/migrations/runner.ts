@@ -57,5 +57,9 @@ if (process.argv[2] === "rollback") {
   );
   process.exit(1);
 } else {
-  migrateToLatest();
+  void migrateToLatest().catch((error) => {
+    console.error("Failed to migrate");
+    console.error(error);
+    process.exit(1);
+  });
 }

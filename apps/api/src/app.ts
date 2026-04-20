@@ -230,7 +230,6 @@ app.use(errorHandler);
  */
 export async function shutdownServices(): Promise<void> {
   jobManager.stop();
-  realtimeService.close();
   await JobProcessor.close();
   await closeAllQueues();
   await closeRedis();
