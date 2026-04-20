@@ -1,18 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
-import { RedisStore } from "rate-limit-redis";
+import { RedisStore, type SendCommandFn } from "rate-limit-redis";
 import { logger } from "../config/logger";
 
-let cachedRedisClient: {
-  sendCommand: (...args: string[]) => Promise<unknown>;
-} | null = null;
+let cachedSendCommand: SendCommandFn | null = null;
 
-async function getRedis() {
-  if (!cachedRedisClient) {
+async function getSendCommand(): Promise<SendCommandFn> {
+  if (!cachedSendCommand) {
     const { getRedisClient } = await import("../config/redis");
-    cachedRedisClient = getRedisClient();
+    const client = getRedisClient();
+    cachedSendCommand = ((...args: string[]) =>
+      client.sendCommand(args)) as SendCommandFn;
   }
-  return cachedRedisClient;
+  return cachedSendCommand;
 }
 
 const useRedisStore =
@@ -40,8 +40,8 @@ export function createRateLimiter(
   if (redisPrefix && useRedisStore) {
     opts.store = new RedisStore({
       sendCommand: async (...args: string[]) => {
-        const client = await getRedis();
-        return client.sendCommand(...args);
+        const fn = await getSendCommand();
+        return fn(...args);
       },
       prefix: redisPrefix,
     });
