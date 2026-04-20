@@ -100,6 +100,10 @@ export class HandoverController {
         { accepted, message },
       );
 
+      const updatedHandover = await orchestrator.getHandoverStatus(
+        result.userId,
+      );
+
       await UserService.logActivity(
         result.userId,
         accepted ? "SUCCESSOR_ACCEPTED" : "SUCCESSOR_DECLINED",
@@ -111,7 +115,7 @@ export class HandoverController {
           ? "Handover accepted successfully"
           : "Handover declined",
         handoverId: handover.id,
-        status: handover.status,
+        status: updatedHandover?.status ?? handover.status,
       });
     } catch (error) {
       next(error);

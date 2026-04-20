@@ -46,9 +46,17 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
   const [setupStatus, setSetupStatus] = useState<SetupStatus | null>(null);
-  const [onboardingDismissed, setOnboardingDismissed] = useState(
-    () => localStorage.getItem("onboarding_dismissed") === "true",
-  );
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setOnboardingDismissed(
+        window.localStorage.getItem("onboarding_dismissed") === "true",
+      );
+    } catch {
+      /* restricted storage mode */
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -57,7 +65,12 @@ const Dashboard: React.FC = () => {
           api.get("/vault/entries"),
           api.get("/successors"),
           api.get("/activity?limit=5"),
-          api.get("/inactivity/settings").catch(() => null),
+          api.get("/inactivity/settings").catch((err: unknown) => {
+            const status = (err as { response?: { status?: number } })?.response
+              ?.status;
+            if (status === 404) return null;
+            throw err;
+          }),
         ]);
 
       // Vault returns array directly
