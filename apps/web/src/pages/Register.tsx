@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
@@ -34,6 +34,11 @@ const Register: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const passwordStrength = useMemo(
+    () => getPasswordStrength(password),
+    [password],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,14 +203,14 @@ const Register: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 rounded-full bg-gray-200 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${getPasswordStrength(password).color}`}
+                        className={`h-full rounded-full transition-all ${passwordStrength.color}`}
                         style={{
-                          width: `${(getPasswordStrength(password).score / 5) * 100}%`,
+                          width: `${(passwordStrength.score / 5) * 100}%`,
                         }}
                       />
                     </div>
                     <span className="text-xs font-medium text-gray-600 w-20 text-right">
-                      {getPasswordStrength(password).label}
+                      {passwordStrength.label}
                     </span>
                   </div>
                 </div>
