@@ -34,6 +34,25 @@ export class JWTManager {
     process.env.JWT_REFRESH_EXPIRES_IN || "7d";
 
   /**
+   * Parse a duration string like "1h", "7d", "30m" into milliseconds.
+   */
+  private static parseDurationMs(duration: string): number {
+    const match = duration.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      return 60 * 60 * 1000; // default 1h
+    }
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000,
+    };
+    return value * (multipliers[unit] ?? 60 * 60 * 1000);
+  }
+
+  /**
    * Generate access token and create session in database.
    * The token hash stored in the DB matches the final token the client receives.
    */
@@ -44,33 +63,22 @@ export class JWTManager {
   ): Promise<{ token: string; sessionId: string }> {
     const secret = this.getJwtSecret();
 
-    // First pass: generate a temp token to calculate the expiration window
-    const tempPayload: JWTPayload = { userId, email, sessionId: "" };
-    const tempToken = jwt.sign(tempPayload, secret, {
-      expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
-    } as jwt.SignOptions);
+    const durationMs = this.parseDurationMs(this.ACCESS_TOKEN_EXPIRES_IN);
+    const expiresAt = new Date(Date.now() + durationMs);
 
-    const expiration = this.getTokenExpiration(tempToken);
-    if (!expiration) {
-      throw new Error("Failed to get token expiration");
-    }
-
-    // Create session with a placeholder hash (updated below)
     const sessionId = await SessionService.createSession({
       userId,
       tokenHash: "pending",
-      expiresAt: expiration,
+      expiresAt,
       ipAddress: options?.ipAddress,
       userAgent: options?.userAgent,
     });
 
-    // Generate the final token that the client will actually receive
     const finalPayload: JWTPayload = { userId, email, sessionId };
     const token = jwt.sign(finalPayload, secret, {
       expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
     } as jwt.SignOptions);
 
-    // Update the session with the hash of the actual token
     const tokenHash = SessionService.hashToken(token);
     await SessionService.updateSessionTokenHash(sessionId, tokenHash);
 

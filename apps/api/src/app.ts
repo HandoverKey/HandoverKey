@@ -40,7 +40,7 @@ import { SessionService } from "./services/session-service";
 import { initializeRedis, closeRedis, checkRedisHealth } from "./config/redis";
 import { JobManager } from "./services/job-manager";
 import { realtimeService } from "./services/realtime-service";
-import { requireAuth } from "./middleware/auth";
+import { authenticateJWT, requireAuth } from "./middleware/auth";
 
 const dbClient = getDatabaseClient();
 const jobManager = JobManager.getInstance();
@@ -216,7 +216,7 @@ app.get("/health", async (req, res) => {
 });
 
 // Prometheus metrics endpoint (protected -- requires authentication)
-app.get("/metrics", requireAuth, async (req, res) => {
+app.get("/metrics", authenticateJWT, requireAuth, async (req, res) => {
   try {
     res.set("Content-Type", getMetricsContentType());
     const metrics = await getMetrics();

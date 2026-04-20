@@ -174,10 +174,16 @@ export function reconstructSecret(
     throw new ValidationError("At least 2 shares are required");
   }
 
-  if (threshold !== undefined && (threshold < 2 || shares.length < threshold)) {
-    throw new ValidationError(
-      `At least ${threshold} shares are required to reconstruct the secret, but only ${shares.length} were provided`,
-    );
+  if (threshold !== undefined) {
+    if (!Number.isFinite(threshold) || !Number.isInteger(threshold)) {
+      throw new ValidationError("Threshold must be a finite integer");
+    }
+
+    if (threshold < 2 || shares.length < threshold) {
+      throw new ValidationError(
+        `At least ${threshold} shares are required to reconstruct the secret, but only ${shares.length} were provided`,
+      );
+    }
   }
 
   // Parse shares

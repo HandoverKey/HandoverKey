@@ -109,8 +109,14 @@ export class SessionService {
         return false;
       }
 
-      // Verify token hash matches stored hash (defense-in-depth)
-      if (rawToken && session.token_hash) {
+      if (session.token_hash) {
+        if (!rawToken || typeof rawToken !== "string") {
+          logger.warn(
+            { sessionId: payload.sessionId, userId: payload.userId },
+            "Raw token required for token hash validation",
+          );
+          return false;
+        }
         const presentedHash = this.hashToken(rawToken);
         if (presentedHash !== session.token_hash) {
           logger.warn(
