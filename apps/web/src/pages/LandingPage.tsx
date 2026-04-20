@@ -9,6 +9,14 @@ import {
   LockClosedIcon,
   DocumentTextIcon,
   ChevronDownIcon,
+  BellAlertIcon,
+  HandRaisedIcon,
+  EnvelopeIcon,
+  LockOpenIcon,
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  PauseCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 
 const faqItems = [
@@ -129,12 +137,12 @@ export default function LandingPage() {
               >
                 Start Your Legacy Plan
               </Link>
-              <Link
-                to="/how-it-works"
+              <a
+                href="#how-it-works"
                 className="btn btn-secondary text-lg px-8 py-3"
               >
                 How it Works
-              </Link>
+              </a>
             </motion.div>
           </div>
         </div>
@@ -194,6 +202,159 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* How It Works Section */}
+      <div id="how-it-works" className="py-24 bg-gray-50 scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              How HandoverKey Works
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              From setup to vault unlock — a fully automated, zero-knowledge
+              handover in six steps.
+            </p>
+          </div>
+
+          {/* Lifecycle Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+            <LifecycleStep
+              step={1}
+              icon={<LockClosedIcon className="w-6 h-6" />}
+              title="Set Up Your Vault"
+              description="Create an account, store your secrets (passwords, keys, documents), and designate trusted successors. Everything is encrypted on your device before it leaves your browser."
+              color="blue"
+            />
+            <LifecycleStep
+              step={2}
+              icon={<ClockIcon className="w-6 h-6" />}
+              title="Configure Your Timer"
+              description="Set an inactivity threshold between 30 and 365 days. Generate Shamir key shares and distribute them to your successors. Choose whether a majority is required to unlock."
+              color="blue"
+            />
+            <LifecycleStep
+              step={3}
+              icon={<BellAlertIcon className="w-6 h-6" />}
+              title="Reminders Are Sent"
+              description="As inactivity approaches your threshold, you'll receive up to three graduated email reminders at 75%, 85%, and 95%. Each includes a one-click check-in link valid for 7 days."
+              color="yellow"
+            />
+            <LifecycleStep
+              step={4}
+              icon={<HandRaisedIcon className="w-6 h-6" />}
+              title="Grace Period (48h)"
+              description="When the threshold is reached, a 48-hour grace period begins. You can still cancel the handover by logging in, checking in, or clicking a reminder link. Your successors are not notified yet."
+              color="amber"
+            />
+            <LifecycleStep
+              step={5}
+              icon={<EnvelopeIcon className="w-6 h-6" />}
+              title="Successors Notified"
+              description="After the grace period expires, each successor receives an email with a unique secure access link. They can accept or decline the handover — the process completes once everyone has responded."
+              color="orange"
+            />
+            <LifecycleStep
+              step={6}
+              icon={<LockOpenIcon className="w-6 h-6" />}
+              title="Vault Unlocked"
+              description="Accepted successors combine their key shares in the browser to reconstruct your master key. Each vault entry is decrypted locally — the server never sees plaintext data."
+              color="green"
+            />
+          </div>
+
+          {/* Key Sharing Explained */}
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                How Key Sharing Works
+              </h3>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Your encryption key is never stored whole. Using Shamir's Secret
+                Sharing, it's split into pieces so no single person can access
+                your data alone.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <KeySharingScenario
+                title="Family Plan"
+                subtitle="3 successors, 2 required"
+                shares={[
+                  { label: "Spouse", icon: "A" },
+                  { label: "Sibling", icon: "B" },
+                  { label: "Attorney", icon: "C" },
+                ]}
+                threshold={2}
+                description="Any two successors can combine their shares to unlock. If one is unavailable, the other two can still access the vault."
+              />
+              <KeySharingScenario
+                title="Team Plan"
+                subtitle="5 successors, 3 required (majority)"
+                shares={[
+                  { label: "Partner 1", icon: "A" },
+                  { label: "Partner 2", icon: "B" },
+                  { label: "Partner 3", icon: "C" },
+                  { label: "Legal", icon: "D" },
+                  { label: "Advisor", icon: "E" },
+                ]}
+                threshold={3}
+                description="Any three of five can unlock. Survives two people being unreachable. No single person or pair can access data alone."
+              />
+              <KeySharingScenario
+                title="Strict Plan"
+                subtitle="2 successors, both required"
+                shares={[
+                  { label: "Successor 1", icon: "A" },
+                  { label: "Successor 2", icon: "B" },
+                ]}
+                threshold={2}
+                description="Both parties must cooperate. The most restrictive option — if either is unavailable, the vault stays sealed."
+              />
+            </div>
+          </div>
+
+          {/* Conflict Resolution */}
+          <div>
+            <div className="text-center mb-12">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                What If Something Goes Wrong?
+              </h3>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                HandoverKey handles every edge case to keep your data safe.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ConflictCard
+                icon={<ArrowPathIcon className="w-6 h-6 text-green-600" />}
+                title="You return during the grace period"
+                description="Simply log in, click a check-in link, or check in from your dashboard. The handover is cancelled instantly and your successors never know it started."
+                accent="green"
+              />
+              <ConflictCard
+                icon={
+                  <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+                }
+                title="You return after successors are notified"
+                description="You can still cancel the handover at any time. Successors who were already notified will receive a cancellation notice via email."
+                accent="amber"
+              />
+              <ConflictCard
+                icon={<XCircleIcon className="w-6 h-6 text-red-600" />}
+                title="A successor declines or is unreachable"
+                description="The handover still completes, but declined successors don't participate in key reconstruction. If too few shares remain to meet the threshold, the vault stays sealed — by design."
+                accent="red"
+              />
+              <ConflictCard
+                icon={<PauseCircleIcon className="w-6 h-6 text-blue-600" />}
+                title="Going on vacation?"
+                description="Pause the inactivity tracker from your settings — indefinitely or until a specific date. No reminders, no threshold checks, no accidental triggers while you're away."
+                accent="blue"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* FAQ Section */}
       <div className="py-24 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -227,12 +388,12 @@ export default function LandingPage() {
                 Get in touch
               </Link>{" "}
               or read our detailed{" "}
-              <Link
-                to="/how-it-works"
+              <a
+                href="#how-it-works"
                 className="text-blue-600 font-medium hover:text-blue-700 transition-colors"
               >
                 How it Works
-              </Link>{" "}
+              </a>{" "}
               guide.
             </p>
           </div>
@@ -304,6 +465,156 @@ function FeatureCard({
       </div>
       <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
+    </motion.div>
+  );
+}
+
+const stepColors: Record<string, { bg: string; text: string; ring: string }> = {
+  blue: { bg: "bg-blue-50", text: "text-blue-600", ring: "ring-blue-100" },
+  yellow: {
+    bg: "bg-yellow-50",
+    text: "text-yellow-600",
+    ring: "ring-yellow-100",
+  },
+  amber: { bg: "bg-amber-50", text: "text-amber-600", ring: "ring-amber-100" },
+  orange: {
+    bg: "bg-orange-50",
+    text: "text-orange-600",
+    ring: "ring-orange-100",
+  },
+  green: { bg: "bg-green-50", text: "text-green-600", ring: "ring-green-100" },
+};
+
+function LifecycleStep({
+  step,
+  icon,
+  title,
+  description,
+  color,
+}: {
+  step: number;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  color: string;
+}) {
+  const c = stepColors[color] ?? stepColors.blue;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, delay: step * 0.08 }}
+      className="bg-white rounded-2xl p-8 border border-gray-100 hover:shadow-apple transition-all"
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className={`w-10 h-10 rounded-xl ${c.bg} ${c.text} flex items-center justify-center ring-1 ${c.ring}`}
+        >
+          {icon}
+        </div>
+        <span className="text-sm font-semibold text-gray-400 tracking-wide uppercase">
+          Step {step}
+        </span>
+      </div>
+      <h4 className="text-lg font-bold text-gray-900 mb-2">{title}</h4>
+      <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
+    </motion.div>
+  );
+}
+
+function KeySharingScenario({
+  title,
+  subtitle,
+  shares,
+  threshold,
+  description,
+}: {
+  title: string;
+  subtitle: string;
+  shares: { label: string; icon: string }[];
+  threshold: number;
+  description: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4 }}
+      className="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-apple transition-all"
+    >
+      <div className="mb-4">
+        <h4 className="text-lg font-bold text-gray-900">{title}</h4>
+        <p className="text-sm text-gray-500">{subtitle}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {shares.map((share, i) => (
+          <div
+            key={i}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+              i < threshold
+                ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+                : "bg-gray-50 text-gray-500 ring-1 ring-gray-100"
+            }`}
+          >
+            <KeyIcon className="w-4 h-4" />
+            <span className="font-medium">{share.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2 mb-4 text-sm">
+        <span className="font-semibold text-blue-600">
+          {threshold} of {shares.length}
+        </span>
+        <span className="text-gray-400">shares needed to unlock</span>
+      </div>
+
+      <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+    </motion.div>
+  );
+}
+
+const accentColors: Record<string, string> = {
+  green: "bg-green-50 ring-green-100",
+  amber: "bg-amber-50 ring-amber-100",
+  red: "bg-red-50 ring-red-100",
+  blue: "bg-blue-50 ring-blue-100",
+};
+
+function ConflictCard({
+  icon,
+  title,
+  description,
+  accent,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  accent: string;
+}) {
+  const colors = accentColors[accent] ?? accentColors.blue;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4 }}
+      className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-apple transition-all flex gap-4"
+    >
+      <div
+        className={`w-12 h-12 rounded-xl ${colors} ring-1 flex-shrink-0 flex items-center justify-center`}
+      >
+        {icon}
+      </div>
+      <div>
+        <h4 className="font-bold text-gray-900 mb-1">{title}</h4>
+        <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+      </div>
     </motion.div>
   );
 }
