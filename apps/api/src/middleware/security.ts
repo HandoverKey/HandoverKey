@@ -1,16 +1,50 @@
 import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
 import { logger } from "../config/logger";
 
-export const rateLimiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"), // limit each IP to 100 requests per windowMs
-  message: {
-    error: "Too many requests from this IP, please try again later.",
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-}) as unknown as (req: Request, res: Response, next: NextFunction) => void;
+/**
+ * Creates a rate limiter. In production, uses a Redis-backed store so
+ * rate-limit state survives deploys. Falls back to in-memory otherwise.
+ */
+export function createRateLimiter(
+  windowMs: number,
+  max: number,
+  message: string,
+  redisPrefix?: string,
+) {
+  const opts: Parameters<typeof rateLimit>[0] = {
+    windowMs,
+    max,
+    message: { error: message },
+    standardHeaders: true,
+    legacyHeaders: false,
+  };
+
+  if (
+    redisPrefix &&
+    (process.env.NODE_ENV === "production" ||
+      process.env.RATE_LIMIT_STORE === "redis")
+  ) {
+    opts.store = new RedisStore({
+      sendCommand: async (...args: string[]) => {
+        const { getRedisClient } = await import("../config/redis");
+        const client = getRedisClient();
+        return client.sendCommand(args);
+      },
+      prefix: redisPrefix,
+    });
+  }
+
+  return rateLimit(opts);
+}
+
+export const rateLimiter = createRateLimiter(
+  parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"),
+  parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
+  "Too many requests from this IP, please try again later.",
+  "rl:global:",
+) as unknown as (req: Request, res: Response, next: NextFunction) => void;
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
