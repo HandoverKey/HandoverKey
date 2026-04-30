@@ -39,6 +39,13 @@ vi.mock("@heroicons/react/24/outline", () => ({
   EnvelopeIcon: () => <div data-testid="envelope-icon" />,
   ArrowPathIcon: () => <div data-testid="arrow-path-icon" />,
   PauseCircleIcon: () => <div data-testid="pause-circle-icon" />,
+  SparklesIcon: () => <div data-testid="sparkles-icon" />,
+  CheckIcon: () => <div data-testid="check-icon-outline" />,
+  CreditCardIcon: () => <div data-testid="credit-card-icon" />,
+}));
+
+vi.mock("@heroicons/react/24/solid", () => ({
+  SparklesIcon: () => <div data-testid="sparkles-solid-icon" />,
 }));
 
 // Mock framer-motion
