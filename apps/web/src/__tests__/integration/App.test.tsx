@@ -32,6 +32,13 @@ vi.mock("@heroicons/react/24/outline", () => ({
   EnvelopeIcon: () => <div data-testid="envelope-icon" />,
   ArrowPathIcon: () => <div data-testid="arrow-path-icon" />,
   PauseCircleIcon: () => <div data-testid="pause-circle-icon" />,
+  SparklesIcon: () => <div data-testid="sparkles-icon" />,
+  CheckIcon: () => <div data-testid="check-icon-outline" />,
+  CreditCardIcon: () => <div data-testid="credit-card-icon" />,
+}));
+
+vi.mock("@heroicons/react/24/solid", () => ({
+  SparklesIcon: () => <div data-testid="sparkles-solid-icon" />,
 }));
 
 // Mock the API
@@ -69,11 +76,11 @@ describe("App Integration", () => {
 
   it("navigates to register page", async () => {
     render(<App />);
-    const registerLink = await screen.findByRole("link", {
+    const registerLinks = await screen.findAllByRole("link", {
       name: /get started/i,
     });
-    expect(registerLink).toBeInTheDocument();
-    expect(registerLink).toHaveAttribute("href", "/register");
+    expect(registerLinks[0]).toBeInTheDocument();
+    expect(registerLinks[0]).toHaveAttribute("href", "/register");
   });
 
   it("renders NotFound page for unknown routes", async () => {

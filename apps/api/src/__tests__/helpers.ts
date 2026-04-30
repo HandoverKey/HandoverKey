@@ -37,6 +37,13 @@ export async function registerVerifyLogin(
     `/api/v1/auth/verify-email?token=${user.verification_token}`,
   );
 
+  // Set tier to 'family' so tier limits don't interfere with integration tests
+  await db
+    .updateTable("users")
+    .set({ subscription_tier: "family" })
+    .where("id", "=", user.id)
+    .execute();
+
   const loginRes = await request(app)
     .post("/api/v1/auth/login")
     .send({ email, password });

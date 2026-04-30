@@ -10,6 +10,7 @@ interface User {
   createdAt?: string;
   twoFactorEnabled?: boolean;
   role?: string;
+  subscriptionTier?: string;
 }
 
 interface AuthContextType {

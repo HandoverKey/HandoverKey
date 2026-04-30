@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import axios from "axios";
 import api from "../services/api";
 import { getApiErrorMessage } from "../services/api-error";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";
+import UpgradeModal from "../components/UpgradeModal";
 import { splitSecret } from "@handoverkey/crypto";
 import {
   exportRawMasterKey,
@@ -56,6 +58,12 @@ const Successors: React.FC = () => {
   const [restrictToAssignedEntries, setRestrictToAssignedEntries] =
     useState(false);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState<{
+    open: boolean;
+    tier: string;
+    current: number;
+    limit: number;
+  }>({ open: false, tier: "free", current: 0, limit: 0 });
 
   useEffect(() => {
     fetchSuccessors();
@@ -88,7 +96,17 @@ const Successors: React.FC = () => {
       fetchSuccessors();
       success("Successor added successfully!");
     } catch (err) {
-      setError(getApiErrorMessage(err, "Failed to add successor"));
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.status === 403 &&
+        err.response.data?.limit != null
+      ) {
+        const { tier, current, limit } = err.response.data;
+        setIsModalOpen(false);
+        setUpgradeModal({ open: true, tier, current, limit });
+      } else {
+        setError(getApiErrorMessage(err, "Failed to add successor"));
+      }
     }
   };
 
@@ -642,6 +660,15 @@ const Successors: React.FC = () => {
         message="Are you sure you want to remove this successor? This action cannot be undone."
         confirmText="Remove"
         type="danger"
+      />
+
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal((s) => ({ ...s, open: false }))}
+        limitType="successor"
+        currentTier={upgradeModal.tier}
+        currentCount={upgradeModal.current}
+        limit={upgradeModal.limit}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import { VaultController } from "../controllers/vault-controller";
 import { authenticateJWT, requireAuth } from "../middleware/auth";
 import { SimpleActivityMiddleware } from "../middleware/simple-activity";
+import { requireVaultCapacity } from "../middleware/tier-guard";
 import { validateRequest, validateMultiple } from "../validation";
 import {
   CreateVaultEntrySchema,
@@ -24,6 +25,7 @@ router.use(SimpleActivityMiddleware.trackActivity("VAULT_ACCESS"));
 // Create vault entry
 router.post(
   "/entries",
+  requireVaultCapacity,
   validateRequest(CreateVaultEntrySchema, "body"),
   VaultController.createEntry,
 );

@@ -4,9 +4,11 @@ import {
   MagnifyingGlassIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import axios from "axios";
 import api from "../services/api";
 import VaultEntryModal, { VaultEntryData } from "../components/VaultEntryModal";
 import ConfirmationModal from "../components/ConfirmationModal";
+import UpgradeModal from "../components/UpgradeModal";
 import {
   encryptData,
   decryptData,
@@ -38,6 +40,12 @@ const Vault: React.FC = () => {
   const [selectedEntry, setSelectedEntry] = useState<VaultEntry | null>(null);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState<{
+    open: boolean;
+    tier: string;
+    current: number;
+    limit: number;
+  }>({ open: false, tier: "free", current: 0, limit: 0 });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -122,8 +130,17 @@ const Vault: React.FC = () => {
       // Refresh list
       fetchEntries();
     } catch (error) {
-      console.error("Failed to save entry", error);
-      showError("Failed to save secret");
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status === 403 &&
+        error.response.data?.limit != null
+      ) {
+        const { tier, current, limit } = error.response.data;
+        setUpgradeModal({ open: true, tier, current, limit });
+      } else {
+        console.error("Failed to save entry", error);
+        showError("Failed to save secret");
+      }
     }
   };
 
@@ -400,6 +417,15 @@ const Vault: React.FC = () => {
         accept="application/json"
         className="hidden"
         onChange={handleImportFile}
+      />
+
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal((s) => ({ ...s, open: false }))}
+        limitType="vault"
+        currentTier={upgradeModal.tier}
+        currentCount={upgradeModal.current}
+        limit={upgradeModal.limit}
       />
     </div>
   );

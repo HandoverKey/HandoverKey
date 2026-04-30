@@ -41,6 +41,12 @@ const envSchema = z.object({
   ADMIN_EMAILS: z.string().optional(),
   TWO_FACTOR_ISSUER: z.string().default("HandoverKey"),
   GRACE_PERIOD_HOURS: z.coerce.number().int().positive().default(48),
+
+  // Stripe (optional — billing disabled if not set)
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRO_PRICE_ID: z.string().optional(),
+  STRIPE_FAMILY_PRICE_ID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

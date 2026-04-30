@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { SuccessorController } from "../controllers/successor-controller";
 import { authenticateJWT, requireAuth } from "../middleware/auth";
+import { requireSuccessorCapacity } from "../middleware/tier-guard";
 import { validateRequest, validateMultiple } from "../validation";
 import {
   AddSuccessorSchema,
@@ -33,6 +34,7 @@ router.put(
  */
 router.post(
   "/",
+  requireSuccessorCapacity,
   validateRequest(AddSuccessorSchema, "body"),
   SuccessorController.addSuccessor,
 );

@@ -59,3 +59,6 @@ export {
 
 // Contact schemas
 export { ContactFormSchema } from "./contact.schemas";
+
+// Waitlist schemas
+export { WaitlistSchema } from "./waitlist.schemas";

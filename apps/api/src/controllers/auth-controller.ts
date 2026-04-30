@@ -441,6 +441,7 @@ export class AuthController {
           lastActivity: user.lastActivity,
           createdAt: user.createdAt,
           salt: Buffer.from(user.salt).toString("base64"),
+          subscriptionTier: user.subscriptionTier || "free",
         },
       });
     } catch (error) {
