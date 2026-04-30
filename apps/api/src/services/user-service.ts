@@ -635,7 +635,8 @@ export class UserService {
       failedLoginAttempts: dbUser.failed_login_attempts ?? 0,
       lockedUntil: dbUser.locked_until ?? null,
       inactivityThresholdDays: dbUser.inactivity_threshold_days ?? 90,
-      subscription_tier: dbUser.subscription_tier ?? "free",
+      subscriptionTier:
+        (dbUser.subscription_tier as "free" | "pro" | "family") ?? "free",
       createdAt: dbUser.created_at,
       updatedAt: dbUser.updated_at,
     };

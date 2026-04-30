@@ -13,7 +13,7 @@ export interface User {
   failedLoginAttempts: number;
   lockedUntil?: Date | null;
   inactivityThresholdDays: number;
-  subscription_tier?: string;
+  subscriptionTier?: "free" | "pro" | "family";
   createdAt: Date;
   updatedAt: Date;
 }

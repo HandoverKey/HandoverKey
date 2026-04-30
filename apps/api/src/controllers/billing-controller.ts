@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { StripeService, isStripeEnabled } from "../services/stripe-service";
+import { StripeService, isStripeConfigured } from "../services/stripe-service";
 import { getDatabaseClient, UserRepository } from "@handoverkey/database";
 import { logger } from "../config/logger";
 
@@ -10,27 +10,29 @@ export class BillingController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      if (!isStripeEnabled()) {
+      if (!isStripeConfigured()) {
         res.status(503).json({ error: "Billing is not configured" });
         return;
       }
 
       const { priceId } = req.body;
-      if (!priceId) {
-        res.status(400).json({ error: "priceId is required" });
+
+      // Only accept known plan names — never pass client-supplied Stripe IDs
+      const ALLOWED_PLANS: Record<string, string | undefined> = {
+        pro: process.env.STRIPE_PRO_PRICE_ID,
+        family: process.env.STRIPE_FAMILY_PRICE_ID,
+      };
+
+      if (!priceId || !(priceId in ALLOWED_PLANS)) {
+        res
+          .status(400)
+          .json({ error: "Invalid plan. Choose 'pro' or 'family'." });
         return;
       }
 
-      // Resolve tier name to actual Stripe price ID
-      let resolvedPriceId = priceId;
-      if (priceId === "pro") {
-        resolvedPriceId = process.env.STRIPE_PRO_PRICE_ID;
-      } else if (priceId === "family") {
-        resolvedPriceId = process.env.STRIPE_FAMILY_PRICE_ID;
-      }
-
+      const resolvedPriceId = ALLOWED_PLANS[priceId];
       if (!resolvedPriceId) {
-        res.status(400).json({ error: "Invalid plan selected" });
+        res.status(503).json({ error: "Plan not configured on server" });
         return;
       }
 
@@ -57,7 +59,7 @@ export class BillingController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      if (!isStripeEnabled()) {
+      if (!isStripeConfigured()) {
         res.status(503).json({ error: "Billing is not configured" });
         return;
       }
@@ -91,7 +93,7 @@ export class BillingController {
       res.json({
         tier: user.subscription_tier || "free",
         status: user.subscription_status || "active",
-        stripeEnabled: isStripeEnabled(),
+        stripeEnabled: isStripeConfigured(),
         hasSubscription: !!user.stripe_subscription_id,
         endsAt: user.subscription_ends_at || null,
       });

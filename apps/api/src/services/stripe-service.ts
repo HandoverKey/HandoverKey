@@ -19,6 +19,19 @@ export function isStripeEnabled(): boolean {
   return !!process.env.STRIPE_SECRET_KEY;
 }
 
+/**
+ * Returns true only when ALL required Stripe env vars are configured.
+ * Use this to gate billing features in the UI/API.
+ */
+export function isStripeConfigured(): boolean {
+  return !!(
+    process.env.STRIPE_SECRET_KEY &&
+    process.env.STRIPE_WEBHOOK_SECRET &&
+    process.env.STRIPE_PRO_PRICE_ID &&
+    process.env.STRIPE_FAMILY_PRICE_ID
+  );
+}
+
 export class StripeService {
   /**
    * Creates a Stripe Checkout session for a subscription upgrade.
@@ -60,7 +73,11 @@ export class StripeService {
       metadata: { user_id: userId },
     });
 
-    return session.url!;
+    if (!session.url) {
+      throw new Error("Stripe did not return a checkout URL");
+    }
+
+    return session.url;
   }
 
   /**
@@ -224,7 +241,9 @@ function resolveTier(priceId: string | undefined): string {
   if (!priceId) return "free";
   if (priceId === process.env.STRIPE_PRO_PRICE_ID) return "pro";
   if (priceId === process.env.STRIPE_FAMILY_PRICE_ID) return "family";
-  return "pro"; // Default to pro for unknown paid prices
+  // Unknown price ID — default to free and log for investigation
+  logger.warn({ priceId }, "Unknown Stripe price ID, defaulting to free tier");
+  return "free";
 }
 
 function mapSubscriptionStatus(status: string): string {

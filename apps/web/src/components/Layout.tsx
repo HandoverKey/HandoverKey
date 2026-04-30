@@ -52,7 +52,7 @@ const Layout: React.FC = () => {
       : baseNavigation;
 
   const isFreeTier =
-    !user?.subscription_tier || user.subscription_tier === "free";
+    !user?.subscriptionTier || user.subscriptionTier === "free";
 
   useEffect(() => {
     const unsubReminder = realtimeClient.subscribe(

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import api from "../services/api";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
@@ -63,15 +64,26 @@ const Billing: React.FC = () => {
     try {
       const response = await api.get("/billing/status");
       setBilling(response.data);
-    } catch {
-      // If billing endpoint doesn't exist yet, default to free
-      setBilling({
-        tier: "free",
-        status: "active",
-        stripeEnabled: false,
-        hasSubscription: false,
-        endsAt: null,
-      });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        // Billing endpoint not deployed yet — default to free
+        setBilling({
+          tier: "free",
+          status: "active",
+          stripeEnabled: false,
+          hasSubscription: false,
+          endsAt: null,
+        });
+      } else {
+        // Real error (network, 500, etc.) — still show page but without billing
+        setBilling({
+          tier: "free",
+          status: "active",
+          stripeEnabled: false,
+          hasSubscription: false,
+          endsAt: null,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -86,6 +98,7 @@ const Billing: React.FC = () => {
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Failed to create checkout session:", err);
     } finally {
       setCheckoutLoading(null);
@@ -97,6 +110,7 @@ const Billing: React.FC = () => {
       const response = await api.post("/billing/portal");
       window.location.href = response.data.url;
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Failed to open billing portal:", err);
     }
   };

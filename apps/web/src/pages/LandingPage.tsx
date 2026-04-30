@@ -823,6 +823,9 @@ function PricingSection() {
             </span>
             <button
               onClick={() => setAnnual(!annual)}
+              role="switch"
+              aria-checked={annual}
+              aria-label="Toggle annual billing"
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 annual ? "bg-blue-600" : "bg-gray-300"
               }`}
@@ -967,12 +970,12 @@ function WaitlistSection() {
             }}
             placeholder="you@example.com"
             required
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+            className="input flex-1 rounded-xl"
           />
           <button
             type="submit"
             disabled={status === "loading" || status === "success"}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="btn btn-primary rounded-xl px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "loading"
               ? "Joining..."
