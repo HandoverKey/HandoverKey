@@ -13,12 +13,16 @@ import {
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
   CreditCardIcon,
+  SunIcon,
+  MoonIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { realtimeClient } from "../services/realtime";
 import clsx from "clsx";
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import SkipLink from "./SkipLink";
 
 const baseNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -40,6 +44,7 @@ const Layout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout, user } = useAuth();
   const { success } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const navigation =
@@ -79,6 +84,7 @@ const Layout: React.FC = () => {
 
   return (
     <>
+      <SkipLink />
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -133,14 +139,14 @@ const Layout: React.FC = () => {
                     </div>
                   </Transition.Child>
                   {/* Sidebar component, swap this element with another sidebar if you like */}
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-6 pb-4">
                     <div className="flex h-16 shrink-0 items-center gap-x-2 focus:outline-none justify-between">
                       <Link
                         to={user ? "/dashboard" : "/"}
                         className="flex items-center gap-x-2"
                       >
                         <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-                        <span className="text-xl font-bold tracking-tight text-gray-900">
+                        <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                           Handover<span className="text-blue-600">Key</span>
                         </span>
                       </Link>
@@ -155,8 +161,8 @@ const Layout: React.FC = () => {
                                   to={item.href}
                                   className={clsx(
                                     location.pathname === item.href
-                                      ? "bg-gray-50 text-blue-600"
-                                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50",
+                                      ? "bg-gray-50 dark:bg-gray-800 text-blue-600"
+                                      : "text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800",
                                     "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold",
                                   )}
                                 >
@@ -179,40 +185,58 @@ const Layout: React.FC = () => {
                           {isFreeTier && (
                             <Link
                               to="/billing"
-                              className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 text-sm hover:shadow-md transition-all group"
+                              className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 text-sm hover:shadow-md transition-all group"
                             >
                               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
                                 <SparklesIcon className="h-4 w-4 text-white" />
                               </div>
                               <div className="flex flex-col min-w-0">
-                                <span className="font-semibold text-gray-900">
+                                <span className="font-semibold text-gray-900 dark:text-white">
                                   Upgrade to Pro
                                 </span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                   Unlock unlimited secrets
                                 </span>
                               </div>
                             </Link>
                           )}
-                          <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 pt-4 mt-4">
-                            <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 transition-colors">
-                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shrink-0">
+                          <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                            <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                              <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
                                 {user?.name?.[0]?.toUpperCase() ||
                                   user?.email?.[0]?.toUpperCase() ||
                                   "U"}
                               </div>
                               <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-semibold text-gray-900 truncate">
+                                <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                                   {user?.name || "User"}
                                 </span>
-                                <span className="text-xs text-gray-500 truncate">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                   {user?.email}
                                 </span>
                               </div>
                             </div>
                             <button
+                              onClick={toggleTheme}
+                              className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
+                              aria-label="Toggle dark mode"
+                            >
+                              {theme === "dark" ? (
+                                <SunIcon
+                                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-yellow-500 transition-colors"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                <MoonIcon
+                                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-600 transition-colors"
+                                  aria-hidden="true"
+                                />
+                              )}
+                              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                            </button>
+                            <button
                               onClick={logout}
-                              className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-red-50 hover:text-red-600 w-full transition-colors"
+                              className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 w-full transition-colors"
                             >
                               <ArrowRightOnRectangleIcon
                                 className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-red-600 transition-colors"
@@ -233,14 +257,14 @@ const Layout: React.FC = () => {
 
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 pb-4">
             <div className="flex h-16 shrink-0 items-center gap-x-2 focus:outline-none justify-between">
               <Link
                 to={user ? "/dashboard" : "/"}
                 className="flex items-center gap-x-2"
               >
                 <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold tracking-tight text-gray-900">
+                <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Handover<span className="text-blue-600">Key</span>
                 </span>
               </Link>
@@ -255,8 +279,8 @@ const Layout: React.FC = () => {
                           to={item.href}
                           className={clsx(
                             location.pathname === item.href
-                              ? "bg-gray-50 text-blue-600"
-                              : "text-gray-700 hover:text-blue-600 hover:bg-gray-50",
+                              ? "bg-gray-50 dark:bg-gray-800 text-blue-600"
+                              : "text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800",
                             "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold",
                           )}
                         >
@@ -279,40 +303,58 @@ const Layout: React.FC = () => {
                   {isFreeTier && (
                     <Link
                       to="/billing"
-                      className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 text-sm hover:shadow-md transition-all group"
+                      className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 text-sm hover:shadow-md transition-all group"
                     >
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
                         <SparklesIcon className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           Upgrade to Pro
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           Unlock unlimited secrets
                         </span>
                       </div>
                     </Link>
                   )}
-                  <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 pt-4 mt-4">
-                    <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 transition-colors">
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shrink-0">
+                  <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
                         {user?.name?.[0]?.toUpperCase() ||
                           user?.email?.[0]?.toUpperCase() ||
                           "U"}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold text-gray-900 truncate">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                           {user?.name || "User"}
                         </span>
-                        <span className="text-xs text-gray-500 truncate">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {user?.email}
                         </span>
                       </div>
                     </div>
                     <button
+                      onClick={toggleTheme}
+                      className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
+                      aria-label="Toggle dark mode"
+                    >
+                      {theme === "dark" ? (
+                        <SunIcon
+                          className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-yellow-500 transition-colors"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <MoonIcon
+                          className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-600 transition-colors"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                    </button>
+                    <button
                       onClick={logout}
-                      className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-red-50 hover:text-red-600 w-full transition-colors"
+                      className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 w-full transition-colors"
                     >
                       <ArrowRightOnRectangleIcon
                         className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-red-600 transition-colors"
@@ -328,10 +370,10 @@ const Layout: React.FC = () => {
         </div>
 
         <div className="lg:pl-72">
-          <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 lg:hidden">
+          <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 lg:hidden">
             <button
               type="button"
-              className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+              className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -341,8 +383,19 @@ const Layout: React.FC = () => {
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
               <div className="flex flex-1" />
               <div className="flex items-center gap-x-4 lg:gap-x-6">
-                <div className="flex items-center gap-x-3 px-4 py-3 text-sm font-semibold leading-6 text-gray-900">
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shrink-0">
+                <button
+                  onClick={toggleTheme}
+                  className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                  aria-label="Toggle dark mode"
+                >
+                  {theme === "dark" ? (
+                    <SunIcon className="h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <MoonIcon className="h-6 w-6" aria-hidden="true" />
+                  )}
+                </button>
+                <div className="flex items-center gap-x-3 px-4 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
                     {user?.name?.[0]?.toUpperCase() ||
                       user?.email?.[0]?.toUpperCase() ||
                       "U"}
@@ -353,7 +406,10 @@ const Layout: React.FC = () => {
             </div>
           </div>
 
-          <main className="py-10 bg-gray-50 min-h-screen transition-colors">
+          <main
+            id="main-content"
+            className="py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors"
+          >
             <div className="px-4 sm:px-6 lg:px-8">
               <Outlet />
             </div>
