@@ -87,6 +87,8 @@ jest.mock("../../middleware/security", () => ({
   registerRateLimiter: (_req: any, _res: any, next: any) => next(),
   rateLimiter: (_req: any, _res: any, next: any) => next(),
   createRateLimiter: () => (_req: any, _res: any, next: any) => next(),
+  validateContentType: (_req: any, _res: any, next: any) => next(),
+  sanitizeInput: (_req: any, _res: any, next: any) => next(),
 }));
 
 import app, { appInit } from "../../app";
