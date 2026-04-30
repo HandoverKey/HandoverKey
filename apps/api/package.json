@@ -34,7 +34,7 @@
     "@handoverkey/shared": "file:./packages/shared",
     "@types/ws": "^8.18.1",
     "bcryptjs": "^3.0.3",
-    "bullmq": "^5.70.1",
+    "bullmq": "^5.76.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
