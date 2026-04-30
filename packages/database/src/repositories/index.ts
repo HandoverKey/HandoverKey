@@ -10,3 +10,4 @@ export * from "./notification-delivery-repository";
 export * from "./system-status-repository";
 export * from "./successor-notification-repository";
 export * from "./successor-vault-entry-repository";
+export * from "./waitlist-repository";

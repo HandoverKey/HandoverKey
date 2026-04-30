@@ -30,6 +30,15 @@ export interface UsersTable {
     Date | string | null
   >;
   inactivity_threshold_days: ColumnType<number, number | undefined, number>;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_tier: ColumnType<string, string | undefined, string>;
+  subscription_status: ColumnType<string, string | undefined, string>;
+  subscription_ends_at: ColumnType<
+    Date | null,
+    Date | string | null,
+    Date | string | null
+  >;
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
@@ -293,6 +302,18 @@ export type NewSuccessorNotification = Insertable<SuccessorNotificationsTable>;
 export type SuccessorNotificationUpdate =
   Updateable<SuccessorNotificationsTable>;
 
+// Waitlist table types
+export interface WaitlistTable {
+  id: Generated<string>;
+  email: string;
+  tier_interest: string | null;
+  source: string | null;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+}
+
+export type WaitlistEntry = Selectable<WaitlistTable>;
+export type NewWaitlistEntry = Insertable<WaitlistTable>;
+
 // Database schema
 export interface Database {
   users: UsersTable;
@@ -309,4 +330,5 @@ export interface Database {
   notification_deliveries: NotificationDeliveriesTable;
   system_status: SystemStatusTable;
   successor_notifications: SuccessorNotificationsTable;
+  waitlist: WaitlistTable;
 }

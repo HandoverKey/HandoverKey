@@ -17,7 +17,9 @@ import {
   ExclamationTriangleIcon,
   PauseCircleIcon,
   XCircleIcon,
+  CheckIcon,
 } from "@heroicons/react/24/outline";
+import api from "../services/api";
 
 const faqItems = [
   {
@@ -87,6 +89,12 @@ export default function LandingPage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
+              <a
+                href="#pricing"
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:inline"
+              >
+                Pricing
+              </a>
               <Link
                 to="/login"
                 className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
@@ -415,6 +423,12 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* Waitlist Section */}
+      <WaitlistSection />
+
       {/* CTA Section */}
       <div className="bg-gray-900 py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -727,6 +741,254 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// --- Pricing Section ---
+
+const tiers = [
+  {
+    name: "Free",
+    price: { monthly: 0, annual: 0 },
+    description: "Get started with basic digital legacy protection.",
+    features: [
+      "Up to 5 vault entries",
+      "1 successor",
+      "Dead Man's Switch",
+      "Zero-knowledge encryption",
+      "Email reminders",
+      "Community support",
+    ],
+    cta: "Get Started",
+    ctaLink: "/register",
+    highlighted: false,
+  },
+  {
+    name: "Pro",
+    price: { monthly: 7, annual: 70 },
+    description: "For individuals who need comprehensive protection.",
+    features: [
+      "Unlimited vault entries",
+      "Up to 5 successors",
+      "Shamir's Secret Sharing",
+      "Priority email reminders",
+      "Activity audit logs",
+      "Vault export & import",
+      "Priority support",
+    ],
+    cta: "Start Pro",
+    ctaLink: "/register?plan=pro",
+    highlighted: true,
+  },
+  {
+    name: "Family",
+    price: { monthly: 15, annual: 150 },
+    description: "Complete protection for you and your family.",
+    features: [
+      "Everything in Pro",
+      "Unlimited successors",
+      "Per-entry access controls",
+      "Custom inactivity thresholds",
+      "Webhook notifications",
+      "Dedicated support",
+      "Early access to new features",
+    ],
+    cta: "Start Family",
+    ctaLink: "/register?plan=family",
+    highlighted: false,
+  },
+];
+
+function PricingSection() {
+  const [annual, setAnnual] = useState(false);
+
+  return (
+    <div id="pricing" className="py-24 bg-white scroll-mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Simple, transparent pricing
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Start free. Upgrade when you need more power. No hidden fees.
+          </p>
+
+          {/* Billing toggle */}
+          <div className="flex items-center justify-center gap-3">
+            <span
+              className={`text-sm font-medium ${!annual ? "text-gray-900" : "text-gray-500"}`}
+            >
+              Monthly
+            </span>
+            <button
+              onClick={() => setAnnual(!annual)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                annual ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  annual ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <span
+              className={`text-sm font-medium ${annual ? "text-gray-900" : "text-gray-500"}`}
+            >
+              Annual{" "}
+              <span className="text-green-600 font-semibold">
+                (save 2 months)
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {tiers.map((tier) => (
+            <motion.div
+              key={tier.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className={`rounded-2xl p-8 border ${
+                tier.highlighted
+                  ? "border-blue-200 bg-blue-50/50 ring-2 ring-blue-600 shadow-lg relative"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
+              {tier.highlighted && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    Most Popular
+                  </span>
+                </div>
+              )}
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">{tier.description}</p>
+              </div>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-gray-900">
+                  $
+                  {annual
+                    ? Math.round(tier.price.annual / 12)
+                    : tier.price.monthly}
+                </span>
+                {tier.price.monthly > 0 && (
+                  <span className="text-gray-500 text-sm">/month</span>
+                )}
+                {annual && tier.price.annual > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Billed ${tier.price.annual}/year
+                  </p>
+                )}
+              </div>
+              <ul className="space-y-3 mb-8">
+                {tier.features.map((feature) => (
+                  <li
+                    key={feature}
+                    className="flex items-start gap-2 text-sm text-gray-700"
+                  >
+                    <CheckIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to={tier.ctaLink}
+                className={`block w-full text-center py-3 px-6 rounded-xl font-semibold transition-all ${
+                  tier.highlighted
+                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                    : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                }`}
+              >
+                {tier.cta}
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Waitlist Section ---
+
+function WaitlistSection() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus("loading");
+    try {
+      await api.post("/waitlist", { email, source: "landing" });
+      setStatus("success");
+      setMessage(
+        "You're on the list! We'll notify you when paid plans launch.",
+      );
+      setEmail("");
+    } catch (err: unknown) {
+      setStatus("error");
+      const error = err as { response?: { data?: { error?: string } } };
+      setMessage(
+        error.response?.data?.error ||
+          "Something went wrong. Please try again.",
+      );
+    }
+  };
+
+  return (
+    <div className="py-16 bg-gray-50">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h3 className="text-2xl font-bold text-gray-900 mb-3">
+          Get notified when Pro & Family launch
+        </h3>
+        <p className="text-gray-600 mb-6">
+          Join the waitlist for early access and exclusive launch pricing.
+        </p>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-3 justify-center"
+        >
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (status !== "idle") setStatus("idle");
+            }}
+            placeholder="you@example.com"
+            required
+            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+          />
+          <button
+            type="submit"
+            disabled={status === "loading" || status === "success"}
+            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {status === "loading"
+              ? "Joining..."
+              : status === "success"
+                ? "Joined!"
+                : "Join Waitlist"}
+          </button>
+        </form>
+        {message && (
+          <p
+            className={`mt-3 text-sm ${status === "success" ? "text-green-600" : "text-red-600"}`}
+          >
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

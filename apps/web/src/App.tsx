@@ -32,6 +32,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Sessions = lazy(() => import("./pages/Sessions"));
 const ActivityLogs = lazy(() => import("./pages/ActivityLogs"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Billing = lazy(() => import("./pages/Billing"));
 
 const enableAnalytics = import.meta.env.VITE_ENABLE_ANALYTICS === "true";
 const VercelAnalytics = enableAnalytics
@@ -88,6 +89,7 @@ function App() {
                   <Route path="/activity" element={<ActivityLogs />} />
                   <Route path="/sessions" element={<Sessions />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/billing" element={<Billing />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
 

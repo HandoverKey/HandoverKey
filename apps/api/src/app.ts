@@ -36,6 +36,9 @@ import successorRoutes, { verifyRouter } from "./routes/successor-routes";
 import handoverRoutes, { publicHandoverRouter } from "./routes/handover-routes";
 import adminRoutes from "./routes/admin-routes";
 import contactRoutes from "./routes/contact-routes";
+import waitlistRoutes from "./routes/waitlist-routes";
+import billingRoutes from "./routes/billing-routes";
+import { BillingController } from "./controllers/billing-controller";
 import { JobProcessor, JobScheduler } from "./jobs";
 import { closeAllQueues, getQueueHealth } from "./config/queue";
 import { SessionService } from "./services/session-service";
@@ -183,6 +186,13 @@ app.use(metricsMiddleware);
 // Security middleware (rate limiter only)
 app.use(rateLimiter as unknown as express.RequestHandler);
 
+// Stripe webhook needs raw body — must be registered before JSON body parser
+app.post(
+  "/api/v1/billing/webhook",
+  express.raw({ type: "application/json" }) as express.RequestHandler,
+  BillingController.handleWebhook as unknown as express.RequestHandler,
+);
+
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }) as express.RequestHandler);
 app.use(
@@ -280,6 +290,8 @@ app.use("/api/v1/handover", publicHandoverRouter); // Public respond route
 app.use("/api/v1/handover", handoverRoutes); // Protected routes
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/contact", contactRoutes);
+app.use("/api/v1/waitlist", waitlistRoutes);
+app.use("/api/v1/billing", billingRoutes);
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);

@@ -12,11 +12,13 @@ import {
   ClipboardDocumentListIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { realtimeClient } from "../services/realtime";
 import clsx from "clsx";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 
 const baseNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -24,6 +26,7 @@ const baseNavigation = [
   { name: "Successors", href: "/successors", icon: UserGroupIcon },
   { name: "Activity", href: "/activity", icon: ClipboardDocumentListIcon },
   { name: "Sessions", href: "/sessions", icon: ComputerDesktopIcon },
+  { name: "Billing", href: "/billing", icon: CreditCardIcon },
   { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
 ];
 
@@ -47,6 +50,9 @@ const Layout: React.FC = () => {
           ...baseNavigation.slice(5),
         ]
       : baseNavigation;
+
+  const isFreeTier =
+    !user?.subscription_tier || user.subscription_tier === "free";
 
   useEffect(() => {
     const unsubReminder = realtimeClient.subscribe(
@@ -170,6 +176,24 @@ const Layout: React.FC = () => {
                           </ul>
                         </li>
                         <li className="mt-auto">
+                          {isFreeTier && (
+                            <Link
+                              to="/billing"
+                              className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 text-sm hover:shadow-md transition-all group"
+                            >
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
+                                <SparklesIcon className="h-4 w-4 text-white" />
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-semibold text-gray-900">
+                                  Upgrade to Pro
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  Unlock unlimited secrets
+                                </span>
+                              </div>
+                            </Link>
+                          )}
                           <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 pt-4 mt-4">
                             <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 transition-colors">
                               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shrink-0">
@@ -252,6 +276,24 @@ const Layout: React.FC = () => {
                   </ul>
                 </li>
                 <li className="mt-auto">
+                  {isFreeTier && (
+                    <Link
+                      to="/billing"
+                      className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 text-sm hover:shadow-md transition-all group"
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
+                        <SparklesIcon className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-gray-900">
+                          Upgrade to Pro
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          Unlock unlimited secrets
+                        </span>
+                      </div>
+                    </Link>
+                  )}
                   <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 pt-4 mt-4">
                     <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 transition-colors">
                       <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shrink-0">
