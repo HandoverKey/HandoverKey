@@ -217,9 +217,10 @@ const Layout: React.FC = () => {
                               </div>
                             </div>
                             <button
+                              type="button"
                               onClick={toggleTheme}
                               className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
-                              aria-label="Toggle dark mode"
+                              aria-pressed={theme === "dark"}
                             >
                               {theme === "dark" ? (
                                 <SunIcon
@@ -335,9 +336,10 @@ const Layout: React.FC = () => {
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={toggleTheme}
                       className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
-                      aria-label="Toggle dark mode"
+                      aria-pressed={theme === "dark"}
                     >
                       {theme === "dark" ? (
                         <SunIcon
@@ -384,9 +386,15 @@ const Layout: React.FC = () => {
               <div className="flex flex-1" />
               <div className="flex items-center gap-x-4 lg:gap-x-6">
                 <button
+                  type="button"
                   onClick={toggleTheme}
                   className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                  aria-label="Toggle dark mode"
+                  aria-label={
+                    theme === "dark"
+                      ? "Switch to light mode"
+                      : "Switch to dark mode"
+                  }
+                  aria-pressed={theme === "dark"}
                 >
                   {theme === "dark" ? (
                     <SunIcon className="h-6 w-6" aria-hidden="true" />
