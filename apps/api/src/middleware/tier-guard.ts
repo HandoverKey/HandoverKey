@@ -27,7 +27,7 @@ export function requireVaultCapacity(
   res: Response,
   next: NextFunction,
 ): void {
-  const userId = (req as unknown as { user: { id: string } }).user?.id;
+  const userId = (req as unknown as { user: { userId: string } }).user?.userId;
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -92,7 +92,7 @@ export function requireSuccessorCapacity(
   res: Response,
   next: NextFunction,
 ): void {
-  const userId = (req as unknown as { user: { id: string } }).user?.id;
+  const userId = (req as unknown as { user: { userId: string } }).user?.userId;
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return;

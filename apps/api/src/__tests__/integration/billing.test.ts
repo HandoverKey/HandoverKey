@@ -70,7 +70,11 @@ jest.mock("../../services/stripe-service", () => ({
 
 jest.mock("../../middleware/auth", () => ({
   authenticateJWT: (req: any, _res: any, next: any) => {
-    req.user = { id: "user-123", email: "test@example.com" };
+    req.user = {
+      userId: "user-123",
+      email: "test@example.com",
+      sessionId: "session-123",
+    };
     next();
   },
   requireAuth: (_req: any, _res: any, next: any) => next(),

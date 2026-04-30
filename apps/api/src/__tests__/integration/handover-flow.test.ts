@@ -35,6 +35,13 @@ async function register(email: string) {
     `/api/v1/auth/verify-email?token=${user.verification_token}`,
   );
 
+  // Set tier to 'family' so successor/vault limits don't interfere with flow tests
+  await db
+    .updateTable("users")
+    .set({ subscription_tier: "family" })
+    .where("id", "=", user.id)
+    .execute();
+
   return { email, password, userId: user.id };
 }
 

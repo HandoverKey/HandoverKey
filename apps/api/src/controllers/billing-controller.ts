@@ -36,7 +36,8 @@ export class BillingController {
         return;
       }
 
-      const userId = (req as unknown as { user: { id: string } }).user.id;
+      const userId = (req as unknown as { user: { userId: string } }).user
+        .userId;
       const userEmail = (req as unknown as { user: { email: string } }).user
         .email;
 
@@ -64,7 +65,8 @@ export class BillingController {
         return;
       }
 
-      const userId = (req as unknown as { user: { id: string } }).user.id;
+      const userId = (req as unknown as { user: { userId: string } }).user
+        .userId;
       const url = await StripeService.createPortalSession(userId);
 
       res.json({ url });
@@ -80,7 +82,8 @@ export class BillingController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const userId = (req as unknown as { user: { id: string } }).user.id;
+      const userId = (req as unknown as { user: { userId: string } }).user
+        .userId;
       const db = getDatabaseClient().getKysely();
       const userRepo = new UserRepository(db);
 
