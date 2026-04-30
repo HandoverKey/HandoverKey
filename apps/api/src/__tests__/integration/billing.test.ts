@@ -76,6 +76,15 @@ jest.mock("../../middleware/auth", () => ({
   requireAuth: (_req: any, _res: any, next: any) => next(),
 }));
 
+jest.mock("../../middleware/security", () => ({
+  contactRateLimiter: (_req: any, _res: any, next: any) => next(),
+  generalRateLimiter: (_req: any, _res: any, next: any) => next(),
+  authRateLimiter: (_req: any, _res: any, next: any) => next(),
+  registerRateLimiter: (_req: any, _res: any, next: any) => next(),
+  rateLimiter: (_req: any, _res: any, next: any) => next(),
+  createRateLimiter: () => (_req: any, _res: any, next: any) => next(),
+}));
+
 import app, { appInit } from "../../app";
 
 describe("Billing Integration", () => {
@@ -96,7 +105,7 @@ describe("Billing Integration", () => {
       );
 
       const response = await request(app)
-        .post("/api/billing/checkout")
+        .post("/api/v1/billing/checkout")
         .send({ priceId: "pro" });
 
       expect(response.status).toBe(200);
@@ -111,7 +120,7 @@ describe("Billing Integration", () => {
       );
 
       const response = await request(app)
-        .post("/api/billing/checkout")
+        .post("/api/v1/billing/checkout")
         .send({ priceId: "family" });
 
       expect(response.status).toBe(200);
@@ -120,7 +129,7 @@ describe("Billing Integration", () => {
 
     it("should reject arbitrary Stripe price IDs", async () => {
       const response = await request(app)
-        .post("/api/billing/checkout")
+        .post("/api/v1/billing/checkout")
         .send({ priceId: "price_attacker_controlled" });
 
       expect(response.status).toBe(400);
@@ -129,7 +138,7 @@ describe("Billing Integration", () => {
 
     it("should reject missing priceId", async () => {
       const response = await request(app)
-        .post("/api/billing/checkout")
+        .post("/api/v1/billing/checkout")
         .send({});
 
       expect(response.status).toBe(400);
@@ -146,7 +155,7 @@ describe("Billing Integration", () => {
         subscription_ends_at: null,
       });
 
-      const response = await request(app).get("/api/billing/status");
+      const response = await request(app).get("/api/v1/billing/status");
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
@@ -160,7 +169,7 @@ describe("Billing Integration", () => {
     it("should return 404 when user not found", async () => {
       mockUserRepo.findById.mockResolvedValue(null);
 
-      const response = await request(app).get("/api/billing/status");
+      const response = await request(app).get("/api/v1/billing/status");
 
       expect(response.status).toBe(404);
     });

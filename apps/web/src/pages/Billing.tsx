@@ -98,7 +98,6 @@ const Billing: React.FC = () => {
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error("Failed to create checkout session:", err);
     } finally {
       setCheckoutLoading(null);
@@ -110,7 +109,6 @@ const Billing: React.FC = () => {
       const response = await api.post("/billing/portal");
       window.location.href = response.data.url;
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error("Failed to open billing portal:", err);
     }
   };

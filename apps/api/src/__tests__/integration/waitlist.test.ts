@@ -50,11 +50,14 @@ jest.mock("../../auth/jwt", () => ({
   },
 }));
 
-// Bypass rate limiter in tests
+// Bypass rate limiters in tests
 jest.mock("../../middleware/security", () => ({
   contactRateLimiter: (_req: any, _res: any, next: any) => next(),
   generalRateLimiter: (_req: any, _res: any, next: any) => next(),
   authRateLimiter: (_req: any, _res: any, next: any) => next(),
+  registerRateLimiter: (_req: any, _res: any, next: any) => next(),
+  rateLimiter: (_req: any, _res: any, next: any) => next(),
+  createRateLimiter: () => (_req: any, _res: any, next: any) => next(),
 }));
 
 import app, { appInit } from "../../app";
@@ -73,7 +76,7 @@ describe("Waitlist Integration", () => {
       mockWaitlistRepo.findByEmail.mockResolvedValue(null);
 
       const response = await request(app)
-        .post("/api/waitlist")
+        .post("/api/v1/waitlist")
         .send({ email: "new@example.com", tier_interest: "pro" });
 
       expect(response.status).toBe(201);
@@ -90,7 +93,7 @@ describe("Waitlist Integration", () => {
       });
 
       const response = await request(app)
-        .post("/api/waitlist")
+        .post("/api/v1/waitlist")
         .send({ email: "dup@example.com" });
 
       expect(response.status).toBe(200);
@@ -100,14 +103,14 @@ describe("Waitlist Integration", () => {
 
     it("should reject invalid email", async () => {
       const response = await request(app)
-        .post("/api/waitlist")
+        .post("/api/v1/waitlist")
         .send({ email: "not-an-email" });
 
       expect(response.status).toBe(400);
     });
 
     it("should reject missing email", async () => {
-      const response = await request(app).post("/api/waitlist").send({});
+      const response = await request(app).post("/api/v1/waitlist").send({});
 
       expect(response.status).toBe(400);
     });
@@ -116,7 +119,7 @@ describe("Waitlist Integration", () => {
       mockWaitlistRepo.findByEmail.mockResolvedValue(null);
 
       const response = await request(app)
-        .post("/api/waitlist")
+        .post("/api/v1/waitlist")
         .send({ email: "  User@Example.COM  " });
 
       expect(response.status).toBe(201);
