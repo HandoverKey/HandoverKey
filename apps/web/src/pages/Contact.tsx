@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShieldCheckIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
 import api from "../services/api";
 
 export default function Contact() {
@@ -42,20 +42,20 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link to="/" className="flex items-center">
               <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
                 HandoverKey
               </span>
             </Link>
             <div className="flex items-center space-x-4">
               <Link
                 to="/login"
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
               >
                 Log in
               </Link>
@@ -69,13 +69,15 @@ export default function Contact() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Contact Us
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
             Have questions? We'd love to hear from you.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-apple border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-apple border border-gray-100 dark:border-gray-800 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="p-8 bg-blue-600 text-white">
               <h2 className="text-2xl font-bold mb-6">Get in touch</h2>
@@ -95,7 +97,7 @@ export default function Contact() {
             <div className="p-8">
               {submitMessage && (
                 <div
-                  className={`mb-6 p-4 rounded-lg ${submitMessage.includes("Thank you") ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"}`}
+                  className={`mb-6 p-4 rounded-lg ${submitMessage.includes("Thank you") ? "bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-800"}`}
                 >
                   {submitMessage}
                 </div>
@@ -104,7 +106,7 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Name
                   </label>
@@ -122,7 +124,7 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Email
                   </label>
@@ -140,7 +142,7 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Message
                   </label>

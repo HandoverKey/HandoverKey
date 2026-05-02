@@ -64,20 +64,24 @@ const CheckIn: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="card p-8 text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
             >
               <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
             </Link>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900">Secure Check-In</h1>
-          <p className="mt-4 text-sm text-gray-600">{message}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Secure Check-In
+          </h1>
+          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            {message}
+          </p>
 
           {status === "loading" && (
             <div className="mt-6 flex justify-center">

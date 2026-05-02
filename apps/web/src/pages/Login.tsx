@@ -59,32 +59,33 @@ const Login: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Spinner className="h-8 w-8 text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
             >
               <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
             </Link>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             Welcome back
           </h2>
-          <p className="text-gray-500 font-medium tracking-tight">
-            Sign in to <span className="text-gray-900">Handover</span>
+          <p className="text-gray-500 dark:text-gray-400 font-medium tracking-tight">
+            Sign in to{" "}
+            <span className="text-gray-900 dark:text-white">Handover</span>
             <span className="text-blue-600">Key</span>
           </p>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Or{" "}
             <Link
               to="/register"
@@ -98,7 +99,7 @@ const Login: React.FC = () => {
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -106,7 +107,7 @@ const Login: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Email address
               </label>
@@ -129,7 +130,7 @@ const Login: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Password
                 </label>
@@ -158,9 +159,9 @@ const Login: React.FC = () => {
             </div>
 
             {show2FA && (
-              <div className="rounded-md border border-gray-200 p-4">
+              <div className="rounded-md border border-gray-200 dark:border-gray-700 p-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Use recovery code
                   </label>
                   <input
@@ -174,7 +175,7 @@ const Login: React.FC = () => {
                   <div className="mt-3">
                     <label
                       htmlFor="two-factor-code"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Two-Factor Code
                     </label>
@@ -196,7 +197,7 @@ const Login: React.FC = () => {
                   <div className="mt-3">
                     <label
                       htmlFor="recovery-code"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Recovery Code
                     </label>
