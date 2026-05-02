@@ -76,10 +76,14 @@ const ResetPassword: React.FC = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full text-center">
-          <h2 className="text-xl font-bold text-red-600">Invalid Request</h2>
-          <p className="mt-2 text-gray-600">Missing reset token.</p>
+          <h2 className="text-xl font-bold text-red-600 dark:text-red-400">
+            Invalid Request
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Missing reset token.
+          </p>
           <Link
             to="/login"
             className="mt-4 inline-block text-blue-600 hover:text-blue-500"
@@ -92,31 +96,31 @@ const ResetPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
             >
               <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
             </Link>
           </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Set new password
           </h2>
         </div>
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
+        <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <ExclamationTriangleIcon className="h-5 w-5 text-amber-500" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-semibold text-amber-800">
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 This will erase all encrypted data
               </h3>
-              <p className="mt-1 text-sm text-amber-700">
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
                 HandoverKey uses zero-knowledge encryption. Because we never
                 store your password, resetting it means your existing vault
                 entries cannot be decrypted and will be permanently lost.
@@ -174,7 +178,7 @@ const ResetPassword: React.FC = () => {
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+            <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg
@@ -190,14 +194,16 @@ const ResetPassword: React.FC = () => {
                   </svg>
                 </div>
                 <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
+                  <p className="text-sm font-medium text-red-800 dark:text-red-400">
+                    {error}
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {message && (
-            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg
@@ -213,7 +219,7 @@ const ResetPassword: React.FC = () => {
                   </svg>
                 </div>
                 <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-green-800">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-400">
                     {message}
                   </p>
                 </div>

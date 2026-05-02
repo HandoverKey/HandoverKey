@@ -99,18 +99,18 @@ const VerifyEmail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
             >
               <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
             </Link>
           </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Email Verification
           </h2>
         </div>
@@ -119,13 +119,15 @@ const VerifyEmail: React.FC = () => {
           {status === "loading" && (
             <div className="text-center">
               <Spinner className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600">Verifying your email...</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Verifying your email...
+              </p>
             </div>
           )}
 
           {status === "success" && (
             <div className="text-center">
-              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
                 <div className="flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
@@ -141,13 +143,15 @@ const VerifyEmail: React.FC = () => {
                   {message}
                 </div>
               </div>
-              <p className="text-gray-600">Redirecting to login...</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Redirecting to login...
+              </p>
             </div>
           )}
 
           {status === "already-verified" && (
             <div className="text-center">
-              <div className="bg-blue-50 border border-blue-200 text-blue-600 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 px-4 py-3 rounded-lg text-sm mb-4">
                 <div className="flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
@@ -163,13 +167,15 @@ const VerifyEmail: React.FC = () => {
                   {message}
                 </div>
               </div>
-              <p className="text-gray-600">Redirecting to login...</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Redirecting to login...
+              </p>
             </div>
           )}
 
           {status === "resend" && (
             <div>
-              <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-4 py-3 rounded-lg text-sm mb-6">
+              <div className="bg-yellow-50 dark:bg-amber-900/20 border border-yellow-200 dark:border-amber-700 text-yellow-600 dark:text-amber-300 px-4 py-3 rounded-lg text-sm mb-6">
                 <div className="flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
@@ -190,7 +196,7 @@ const VerifyEmail: React.FC = () => {
                 <div>
                   <label
                     htmlFor="resendEmail"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Email Address
                   </label>
@@ -233,7 +239,7 @@ const VerifyEmail: React.FC = () => {
 
           {status === "error" && (
             <div className="text-center">
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
                 <div className="flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
