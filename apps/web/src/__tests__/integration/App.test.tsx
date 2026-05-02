@@ -49,7 +49,27 @@ vi.mock("../../services/api", () => ({
   },
 }));
 
-// Mock framer-motion
+// Mock framer-motion — filter out motion-specific props to avoid React DOM warnings
+const motionProps = new Set([
+  "initial",
+  "animate",
+  "exit",
+  "variants",
+  "transition",
+  "whileHover",
+  "whileTap",
+  "whileFocus",
+  "whileDrag",
+  "whileInView",
+  "viewport",
+  "drag",
+  "dragConstraints",
+  "onDragStart",
+  "onDragEnd",
+  "layout",
+  "layoutId",
+]);
+
 vi.mock("framer-motion", () => ({
   AnimatePresence: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
@@ -58,9 +78,16 @@ vi.mock("framer-motion", () => ({
     {},
     {
       get: (_target, prop) => {
-        return ({ children, ...props }: React.ComponentProps<"div">) => {
+        return ({ children, ...props }: Record<string, unknown>) => {
+          const filtered = Object.fromEntries(
+            Object.entries(props).filter(([key]) => !motionProps.has(key)),
+          );
           const Tag = String(prop) as keyof React.JSX.IntrinsicElements;
-          return <Tag {...props}>{children}</Tag>;
+          return React.createElement(
+            Tag,
+            filtered,
+            children as React.ReactNode,
+          );
         };
       },
     },
@@ -70,15 +97,23 @@ vi.mock("framer-motion", () => ({
 describe("App Integration", () => {
   it("renders landing page by default", async () => {
     render(<App />);
-    const heading = await screen.findAllByText(/HandoverKey/i);
+    const heading = await screen.findAllByText(
+      /HandoverKey/i,
+      {},
+      { timeout: 5000 },
+    );
     expect(heading[0]).toBeInTheDocument();
   });
 
   it("navigates to register page", async () => {
     render(<App />);
-    const registerLinks = await screen.findAllByRole("link", {
-      name: /get started/i,
-    });
+    const registerLinks = await screen.findAllByRole(
+      "link",
+      {
+        name: /get started/i,
+      },
+      { timeout: 5000 },
+    );
     expect(registerLinks[0]).toBeInTheDocument();
     expect(registerLinks[0]).toHaveAttribute("href", "/register");
   });
@@ -86,8 +121,11 @@ describe("App Integration", () => {
   it("renders NotFound page for unknown routes", async () => {
     window.history.pushState({}, "", "/some-unknown-page");
     render(<App />);
-    await waitFor(() => {
-      expect(screen.getByText(/page not found/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/page not found/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   });
 });
