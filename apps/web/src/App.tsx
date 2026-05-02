@@ -8,6 +8,7 @@ import {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -57,50 +58,58 @@ function App() {
       <Router>
         <AuthProvider>
           <ToastProvider>
-            <Suspense fallback={<PageFallback />}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route
-                  path="/how-it-works"
-                  element={<Navigate to="/#how-it-works" replace />}
-                />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/checkin" element={<CheckIn />} />
-                <Route path="/verify-successor" element={<VerifySuccessor />} />
-                <Route path="/successor-access" element={<SuccessorAccess />} />
+            <ThemeProvider>
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route
+                    path="/how-it-works"
+                    element={<Navigate to="/#how-it-works" replace />}
+                  />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/verify-email" element={<VerifyEmail />} />
+                  <Route path="/checkin" element={<CheckIn />} />
+                  <Route
+                    path="/verify-successor"
+                    element={<VerifySuccessor />}
+                  />
+                  <Route
+                    path="/successor-access"
+                    element={<SuccessorAccess />}
+                  />
 
-                <Route
-                  element={
-                    <ProtectedRoute>
-                      <Layout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/vault" element={<Vault />} />
-                  <Route path="/successors" element={<Successors />} />
-                  <Route path="/activity" element={<ActivityLogs />} />
-                  <Route path="/sessions" element={<Sessions />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/billing" element={<Billing />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Route>
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Layout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/vault" element={<Vault />} />
+                    <Route path="/successors" element={<Successors />} />
+                    <Route path="/activity" element={<ActivityLogs />} />
+                    <Route path="/sessions" element={<Sessions />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/billing" element={<Billing />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Route>
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            {VercelAnalytics && (
-              <Suspense fallback={null}>
-                <VercelAnalytics />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
               </Suspense>
-            )}
+              {VercelAnalytics && (
+                <Suspense fallback={null}>
+                  <VercelAnalytics />
+                </Suspense>
+              )}
+            </ThemeProvider>
           </ToastProvider>
         </AuthProvider>
       </Router>
