@@ -41,18 +41,18 @@ const VerifySuccessor: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="card p-8 text-center">
           {status === "loading" && (
             <div>
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Verifying...
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 Please wait while we verify your successor status.
               </p>
             </div>
@@ -60,9 +60,9 @@ const VerifySuccessor: React.FC = () => {
 
           {status === "success" && (
             <div>
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 mb-4">
                 <svg
-                  className="h-8 w-8 text-green-600"
+                  className="h-8 w-8 text-green-600 dark:text-green-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -75,10 +75,10 @@ const VerifySuccessor: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Verification Successful!
               </h2>
-              <p className="text-gray-600 mb-6">{message}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
               <Link
                 to={token ? `/successor-access?token=${token}` : "/"}
                 className="btn btn-primary inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg w-auto"
@@ -90,9 +90,9 @@ const VerifySuccessor: React.FC = () => {
 
           {status === "error" && (
             <div>
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
                 <svg
-                  className="h-8 w-8 text-red-600"
+                  className="h-8 w-8 text-red-600 dark:text-red-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -105,10 +105,10 @@ const VerifySuccessor: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Verification Failed
               </h2>
-              <p className="text-gray-600 mb-6">{message}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
               <Link
                 to="/"
                 className="btn btn-primary inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg w-auto"

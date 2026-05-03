@@ -95,12 +95,14 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
 
       <div className="px-6 pt-4 pb-2">
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="text-gray-600 font-medium">
+          <span className="text-gray-600 dark:text-gray-400 font-medium">
             {completedCount} of {steps.length} complete
           </span>
-          <span className="text-gray-500">{Math.round(progressPercent)}%</span>
+          <span className="text-gray-500 dark:text-gray-400">
+            {Math.round(progressPercent)}%
+          </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-2">
+        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -108,7 +110,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
         </div>
       </div>
 
-      <ul className="divide-y divide-gray-100 px-6">
+      <ul className="divide-y divide-gray-100 dark:divide-gray-700 px-6">
         {steps.map((step) => {
           const done = status[step.key];
           return (
@@ -117,23 +119,23 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                 {done ? (
                   <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
                 ) : (
-                  <CheckCircleIcon className="w-6 h-6 text-gray-300" />
+                  <CheckCircleIcon className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm font-semibold ${done ? "text-gray-400 line-through" : "text-gray-900"}`}
+                  className={`text-sm font-semibold ${done ? "text-gray-400 dark:text-gray-500 line-through" : "text-gray-900 dark:text-white"}`}
                 >
                   {step.title}
                 </p>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                   {step.description}
                 </p>
               </div>
               {!done && (
                 <Link
                   to={step.href}
-                  className="flex-shrink-0 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors whitespace-nowrap"
+                  className="flex-shrink-0 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors whitespace-nowrap"
                 >
                   {step.cta}
                 </Link>

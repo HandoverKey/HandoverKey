@@ -82,31 +82,31 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
                 {/* Close button */}
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
 
                 <div className="p-6 sm:p-8">
                   {/* Icon */}
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 mb-4">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 mb-4">
                     <SparklesIcon className="h-7 w-7 text-blue-600" />
                   </div>
 
                   {/* Title */}
                   <Dialog.Title
                     as="h3"
-                    className="text-xl font-bold text-gray-900 text-center"
+                    className="text-xl font-bold text-gray-900 dark:text-white text-center"
                   >
                     You've reached your limit
                   </Dialog.Title>
 
                   {/* Description */}
-                  <p className="mt-3 text-sm text-gray-600 text-center">
+                  <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center">
                     Your{" "}
                     <span className="font-medium capitalize">
                       {currentTier}
@@ -120,9 +120,9 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   </p>
 
                   {/* Upgrade card */}
-                  <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50/50 p-5">
+                  <div className="mt-6 rounded-xl border border-blue-200 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20 p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-lg font-bold text-gray-900">
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white">
                         {tierInfo.name}
                       </h4>
                       <span className="text-lg font-bold text-blue-600">
@@ -133,7 +133,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                       {tierInfo.features.map((feature) => (
                         <li
                           key={feature}
-                          className="flex items-start gap-2 text-sm text-gray-700"
+                          className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                         >
                           <CheckIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                           {feature}
@@ -155,7 +155,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     </button>
                     <button
                       onClick={onClose}
-                      className="w-full rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors"
+                      className="w-full rounded-lg bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                     >
                       Maybe later
                     </button>

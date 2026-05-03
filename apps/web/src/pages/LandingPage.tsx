@@ -77,27 +77,27 @@ const faqItems = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+      <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center gap-x-2">
               <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold tracking-tight text-gray-900">
+              <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Handover<span className="text-blue-600">Key</span>
               </span>
             </div>
             <div className="flex items-center space-x-4">
               <a
                 href="#pricing"
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:inline"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors hidden sm:inline"
               >
                 Pricing
               </a>
               <Link
                 to="/login"
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
               >
                 Log in
               </Link>
@@ -117,7 +117,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-4xl sm:text-6xl font-bold text-gray-900 tracking-tight mb-6"
+              className="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white tracking-tight mb-6"
             >
               Secure your digital legacy with a{" "}
               <span className="text-blue-600">Dead Man's Switch</span>
@@ -126,7 +126,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-xl text-gray-600 mb-10 leading-relaxed"
+              className="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed"
             >
               Ensure your critical data, passwords, and documents are securely
               transferred to your trusted successors if something happens to
@@ -157,19 +157,19 @@ export default function LandingPage() {
 
         {/* Background decoration */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full overflow-hidden -z-10 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-200 dark:bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div className="py-24 bg-white">
+      <div className="py-24 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               Why choose HandoverKey?
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               We combine military-grade security with an intuitive interface to
               make legacy planning simple and safe.
             </p>
@@ -211,13 +211,16 @@ export default function LandingPage() {
       </div>
 
       {/* How It Works Section */}
-      <div id="how-it-works" className="py-24 bg-gray-50 scroll-mt-20">
+      <div
+        id="how-it-works"
+        className="py-24 bg-gray-50 dark:bg-gray-900 scroll-mt-20"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               How HandoverKey Works
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               From setup to vault unlock — a fully automated, zero-knowledge
               handover in six steps.
             </p>
@@ -226,7 +229,7 @@ export default function LandingPage() {
           {/* Lifecycle Steps — flowing timeline */}
           <div className="relative max-w-3xl mx-auto mb-20">
             {/* Vertical connector line */}
-            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200 via-amber-200 to-green-200 md:-translate-x-px" />
+            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200 via-amber-200 to-green-200 dark:from-blue-800 dark:via-amber-800 dark:to-green-800 md:-translate-x-px" />
 
             <LifecycleStep
               step={1}
@@ -287,10 +290,10 @@ export default function LandingPage() {
           {/* Key Sharing Explained */}
           <div className="mb-20">
             <div className="text-center mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                 How Key Sharing Works
               </h3>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 Your encryption key is never stored whole. Using Shamir's Secret
                 Sharing, it's split into pieces so no single person can access
                 your data alone.
@@ -338,10 +341,10 @@ export default function LandingPage() {
           {/* Conflict Resolution */}
           <div>
             <div className="text-center mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                 What If Something Goes Wrong?
               </h3>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 HandoverKey handles every edge case to keep your data safe.
               </p>
             </div>
@@ -379,13 +382,13 @@ export default function LandingPage() {
       </div>
 
       {/* FAQ Section */}
-      <div className="py-24 bg-gray-50">
+      <div className="py-24 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 dark:text-gray-400">
               Everything you need to know about securing your digital legacy
               with HandoverKey.
             </p>
@@ -402,7 +405,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Still have questions?{" "}
               <Link
                 to="/contact"
@@ -449,7 +452,7 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-12">
+      <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0 gap-x-2">
             <ShieldCheckIcon className="h-6 w-6 text-gray-400" />
@@ -459,13 +462,22 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="flex space-x-6">
-            <Link to="/privacy" className="text-gray-400 hover:text-gray-600">
+            <Link
+              to="/privacy"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-gray-400 hover:text-gray-600">
+            <Link
+              to="/terms"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
               Terms of Service
             </Link>
-            <Link to="/contact" className="text-gray-400 hover:text-gray-600">
+            <Link
+              to="/contact"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
               Contact
             </Link>
           </div>
@@ -487,31 +499,47 @@ function FeatureCard({
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="bg-gray-50 rounded-2xl p-8 border border-gray-100 hover:shadow-apple transition-all"
+      className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700 hover:shadow-apple transition-all"
     >
-      <div className="bg-white w-14 h-14 rounded-xl flex items-center justify-center shadow-sm mb-6">
+      <div className="bg-white dark:bg-gray-700 w-14 h-14 rounded-xl flex items-center justify-center shadow-sm mb-6">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
-      <p className="text-gray-600 leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+        {title}
+      </h3>
+      <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+        {description}
+      </p>
     </motion.div>
   );
 }
 
 const stepColors: Record<string, { bg: string; text: string; ring: string }> = {
-  blue: { bg: "bg-blue-50", text: "text-blue-600", ring: "ring-blue-100" },
+  blue: {
+    bg: "bg-blue-50 dark:bg-blue-900/30",
+    text: "text-blue-600",
+    ring: "ring-blue-100 dark:ring-blue-800",
+  },
   yellow: {
-    bg: "bg-yellow-50",
+    bg: "bg-yellow-50 dark:bg-yellow-900/30",
     text: "text-yellow-600",
-    ring: "ring-yellow-100",
+    ring: "ring-yellow-100 dark:ring-yellow-800",
   },
-  amber: { bg: "bg-amber-50", text: "text-amber-600", ring: "ring-amber-100" },
+  amber: {
+    bg: "bg-amber-50 dark:bg-amber-900/30",
+    text: "text-amber-600",
+    ring: "ring-amber-100 dark:ring-amber-800",
+  },
   orange: {
-    bg: "bg-orange-50",
+    bg: "bg-orange-50 dark:bg-orange-900/30",
     text: "text-orange-600",
-    ring: "ring-orange-100",
+    ring: "ring-orange-100 dark:ring-orange-800",
   },
-  green: { bg: "bg-green-50", text: "text-green-600", ring: "ring-green-100" },
+  green: {
+    bg: "bg-green-50 dark:bg-green-900/30",
+    text: "text-green-600",
+    ring: "ring-green-100 dark:ring-green-800",
+  },
 };
 
 function FlowArrow({ color }: { color: StepColor }) {
@@ -575,7 +603,7 @@ function LifecycleStep({
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className={`absolute left-6 md:left-1/2 -translate-x-1/2 w-12 h-12 rounded-full ${c.bg} ${c.text} ring-4 ring-white shadow-md flex items-center justify-center z-10`}
+        className={`absolute left-6 md:left-1/2 -translate-x-1/2 w-12 h-12 rounded-full ${c.bg} ${c.text} ring-4 ring-white dark:ring-gray-900 shadow-md flex items-center justify-center z-10`}
       >
         {icon}
       </motion.div>
@@ -590,14 +618,18 @@ function LifecycleStep({
           align === "right" ? "md:ml-auto md:pl-0" : "md:mr-auto md:pr-0"
         }`}
       >
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-apple transition-all">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-apple transition-all">
           <span
             className={`inline-block text-xs font-bold tracking-wider uppercase ${c.text} mb-2`}
           >
             Step {step}
           </span>
-          <h4 className="text-lg font-bold text-gray-900 mb-2">{title}</h4>
-          <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            {title}
+          </h4>
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
+            {description}
+          </p>
         </div>
       </motion.div>
 
@@ -633,20 +665,22 @@ function KeySharingScenario({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-apple transition-all"
+      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 hover:shadow-apple transition-all"
     >
       <div className="mb-4">
-        <h4 className="text-lg font-bold text-gray-900">{title}</h4>
-        <p className="text-sm text-gray-500">{subtitle}</p>
+        <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+          {title}
+        </h4>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {shares.map((share, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-1 ring-blue-100 dark:ring-blue-800"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800 text-[10px] font-bold text-blue-700 dark:text-blue-300">
               {share.icon}
             </span>
             <span className="font-medium">{share.label}</span>
@@ -661,16 +695,18 @@ function KeySharingScenario({
         <span className="text-gray-400">shares needed to unlock</span>
       </div>
 
-      <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+      <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+        {description}
+      </p>
     </motion.div>
   );
 }
 
 const accentColors: Record<string, string> = {
-  green: "bg-green-50 ring-green-100",
-  amber: "bg-amber-50 ring-amber-100",
-  red: "bg-red-50 ring-red-100",
-  blue: "bg-blue-50 ring-blue-100",
+  green: "bg-green-50 dark:bg-green-900/30 ring-green-100 dark:ring-green-800",
+  amber: "bg-amber-50 dark:bg-amber-900/30 ring-amber-100 dark:ring-amber-800",
+  red: "bg-red-50 dark:bg-red-900/30 ring-red-100 dark:ring-red-800",
+  blue: "bg-blue-50 dark:bg-blue-900/30 ring-blue-100 dark:ring-blue-800",
 };
 
 function ConflictCard({
@@ -692,7 +728,7 @@ function ConflictCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-apple transition-all flex gap-4"
+      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-apple transition-all flex gap-4"
     >
       <div
         className={`w-12 h-12 rounded-xl ${colors} ring-1 flex-shrink-0 flex items-center justify-center`}
@@ -700,8 +736,12 @@ function ConflictCard({
         {icon}
       </div>
       <div>
-        <h4 className="font-bold text-gray-900 mb-1">{title}</h4>
-        <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+        <h4 className="font-bold text-gray-900 dark:text-white mb-1">
+          {title}
+        </h4>
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+          {description}
+        </p>
       </div>
     </motion.div>
   );
@@ -711,12 +751,12 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
-        <span className="text-lg font-semibold text-gray-900 pr-4">
+        <span className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
           {question}
         </span>
         <motion.div
@@ -735,7 +775,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
-            <div className="px-6 pb-6 text-gray-600 leading-relaxed">
+            <div className="px-6 pb-6 text-gray-600 dark:text-gray-400 leading-relaxed">
               {answer}
             </div>
           </motion.div>
@@ -804,20 +844,20 @@ function PricingSection() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <div id="pricing" className="py-24 bg-white scroll-mt-20">
+    <div id="pricing" className="py-24 bg-white dark:bg-gray-800 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
             Start free. Upgrade when you need more power. No hidden fees.
           </p>
 
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-3">
             <span
-              className={`text-sm font-medium ${!annual ? "text-gray-900" : "text-gray-500"}`}
+              className={`text-sm font-medium ${!annual ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
             >
               Monthly
             </span>
@@ -827,7 +867,7 @@ function PricingSection() {
               aria-checked={annual}
               aria-label="Toggle annual billing"
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                annual ? "bg-blue-600" : "bg-gray-300"
+                annual ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
               }`}
             >
               <span
@@ -837,7 +877,7 @@ function PricingSection() {
               />
             </button>
             <span
-              className={`text-sm font-medium ${annual ? "text-gray-900" : "text-gray-500"}`}
+              className={`text-sm font-medium ${annual ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
             >
               Annual{" "}
               <span className="text-green-600 font-semibold">
@@ -857,8 +897,8 @@ function PricingSection() {
               transition={{ duration: 0.4 }}
               className={`rounded-2xl p-8 border ${
                 tier.highlighted
-                  ? "border-blue-200 bg-blue-50/50 ring-2 ring-blue-600 shadow-lg relative"
-                  : "border-gray-200 bg-white"
+                  ? "border-blue-200 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20 ring-2 ring-blue-600 shadow-lg relative"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
               }`}
             >
               {tier.highlighted && (
@@ -869,21 +909,27 @@ function PricingSection() {
                 </div>
               )}
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{tier.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {tier.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {tier.description}
+                </p>
               </div>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-gray-900">
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">
                   $
                   {annual
                     ? Math.round(tier.price.annual / 12)
                     : tier.price.monthly}
                 </span>
                 {tier.price.monthly > 0 && (
-                  <span className="text-gray-500 text-sm">/month</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    /month
+                  </span>
                 )}
                 {annual && tier.price.annual > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Billed ${tier.price.annual}/year
                   </p>
                 )}
@@ -892,7 +938,7 @@ function PricingSection() {
                 {tier.features.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-start gap-2 text-sm text-gray-700"
+                    className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                   >
                     <CheckIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     {feature}
@@ -904,7 +950,7 @@ function PricingSection() {
                 className={`block w-full text-center py-3 px-6 rounded-xl font-semibold transition-all ${
                   tier.highlighted
                     ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-                    : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
                 {tier.cta}
@@ -949,12 +995,12 @@ function WaitlistSection() {
   };
 
   return (
-    <div className="py-16 bg-gray-50">
+    <div className="py-16 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
           Get notified when Pro & Family launch
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Join the waitlist for early access and exclusive launch pricing.
         </p>
         <form

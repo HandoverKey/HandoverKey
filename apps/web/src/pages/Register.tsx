@@ -91,25 +91,26 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 p-3 rounded-2xl border border-blue-100 shadow-sm focus:outline-none"
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
             >
               <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
             </Link>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             Secure your legacy
           </h2>
-          <p className="text-gray-500 font-medium tracking-tight">
-            Create your <span className="text-gray-900">Handover</span>
+          <p className="text-gray-500 dark:text-gray-400 font-medium tracking-tight">
+            Create your{" "}
+            <span className="text-gray-900 dark:text-white">Handover</span>
             <span className="text-blue-600">Key</span> account
           </p>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
             <Link
               to="/login"
@@ -123,13 +124,13 @@ const Register: React.FC = () => {
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm">
                 {success}
               </div>
             )}
@@ -137,7 +138,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Full Name
               </label>
@@ -159,7 +160,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Email address
               </label>
@@ -181,7 +182,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Password
               </label>
@@ -201,7 +202,7 @@ const Register: React.FC = () => {
               {password && (
                 <div className="mt-2">
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${passwordStrength.color}`}
                         style={{
@@ -209,13 +210,13 @@ const Register: React.FC = () => {
                         }}
                       />
                     </div>
-                    <span className="text-xs font-medium text-gray-600 w-20 text-right">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-20 text-right">
                       {passwordStrength.label}
                     </span>
                   </div>
                 </div>
               )}
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Must be at least 12 characters with uppercase, lowercase,
                 number, and special character.
               </p>
@@ -224,7 +225,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Confirm Password
               </label>

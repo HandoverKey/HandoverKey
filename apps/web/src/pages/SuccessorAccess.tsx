@@ -174,7 +174,7 @@ const SuccessorAccess: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="flex justify-center">
           <div
             className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
@@ -188,14 +188,14 @@ const SuccessorAccess: React.FC = () => {
 
   if (status === "ERROR") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
             <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500" />
-            <h2 className="mt-6 text-2xl font-bold text-gray-900">
+            <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
               Invalid Link
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               The access link you used is invalid or has expired.
             </p>
             <button
@@ -212,14 +212,14 @@ const SuccessorAccess: React.FC = () => {
 
   if (status === "ACCESS_DENIED") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
             <ShieldCheckIcon className="mx-auto h-12 w-12 text-yellow-500" />
-            <h2 className="mt-6 text-2xl font-bold text-gray-900">
+            <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
               Access Not Yet Available
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {metadata.userName}'s vault is not yet open for successors. The
               handover process status is currently:{" "}
               <span className="font-semibold text-blue-600">
@@ -227,7 +227,7 @@ const SuccessorAccess: React.FC = () => {
               </span>
               .
             </p>
-            <p className="mt-4 text-xs text-gray-500 italic">
+            <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
               Access is only granted after the inactivity period and handover
               process has started.
             </p>
@@ -244,9 +244,9 @@ const SuccessorAccess: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6 bg-blue-600">
             <h3 className="text-lg leading-6 font-medium text-white flex items-center gap-2">
               <LockOpenIcon className="h-6 w-6" />
@@ -257,10 +257,10 @@ const SuccessorAccess: React.FC = () => {
             </p>
           </div>
 
-          <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-6">
             {decryptedEntries.length === 0 ? (
               <div className="space-y-8">
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4">
                   <div className="flex">
                     <div className="flex-shrink-0">
                       <ExclamationTriangleIcon
@@ -269,7 +269,7 @@ const SuccessorAccess: React.FC = () => {
                       />
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm text-yellow-700">
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
                         To unlock this vault, you need to combine your unique
                         key share with shares from other successors. The total
                         number of shares must meet the threshold set by the
@@ -283,7 +283,7 @@ const SuccessorAccess: React.FC = () => {
                   <div className="sm:col-span-2">
                     <label
                       htmlFor="my-share"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Your Key Share (Base64)
                     </label>
@@ -300,7 +300,7 @@ const SuccessorAccess: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Peer Key Shares
                     </label>
                     <div className="space-y-4">
@@ -357,7 +357,7 @@ const SuccessorAccess: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-600 p-4 mb-6">
                   <div className="flex">
                     <div className="flex-shrink-0">
                       <ShieldCheckIcon
@@ -366,7 +366,7 @@ const SuccessorAccess: React.FC = () => {
                       />
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm text-green-700">
+                      <p className="text-sm text-green-700 dark:text-green-300">
                         Vault successfully unlocked. Decrypted data is shown
                         below.
                         <span className="font-bold"> Important:</span> This data
@@ -385,10 +385,10 @@ const SuccessorAccess: React.FC = () => {
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 uppercase">
+                          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20 uppercase">
                             {entry.category}
                           </span>
-                          <h4 className="mt-2 text-lg font-bold text-gray-900">
+                          <h4 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">
                             {entry.decryptedData.title ||
                               entry.decryptedData.name ||
                               "Untitled Entry"}
@@ -396,9 +396,9 @@ const SuccessorAccess: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="prose prose-sm max-w-none text-gray-600">
+                      <div className="prose prose-sm max-w-none text-gray-600 dark:text-gray-400">
                         {typeof entry.decryptedData === "object" ? (
-                          <dl className="divide-y divide-gray-100">
+                          <dl className="divide-y divide-gray-100 dark:divide-gray-700">
                             {Object.entries(entry.decryptedData)
                               .filter(
                                 ([key]) => !["title", "name"].includes(key),
@@ -408,12 +408,12 @@ const SuccessorAccess: React.FC = () => {
                                   key={key}
                                   className="py-3 sm:grid sm:grid-cols-3 sm:gap-4"
                                 >
-                                  <dt className="text-sm font-medium text-gray-500 capitalize">
+                                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">
                                     {key
                                       .replace(/([A-Z])/g, " $1")
                                       .replace(/_/g, " ")}
                                   </dt>
-                                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 break-all font-mono">
+                                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200 sm:col-span-2 sm:mt-0 break-all font-mono">
                                     {typeof value === "string"
                                       ? value
                                       : JSON.stringify(value)}

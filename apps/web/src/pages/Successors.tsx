@@ -298,10 +298,10 @@ const Successors: React.FC = () => {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-6 text-gray-900">
+          <h1 className="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">
             Successors
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
             Manage the people who will receive access to your vault after the
             inactivity period.
           </p>
@@ -348,12 +348,12 @@ const Successors: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
         ) : successors.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-semibold text-gray-900">
+            <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
               No successors
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Get started by adding a trusted contact.
             </p>
           </div>
@@ -363,27 +363,29 @@ const Successors: React.FC = () => {
               <div key={successor.id} className="card p-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${successor.verified ? "bg-green-50 text-green-700 ring-green-600/20" : "bg-yellow-50 text-yellow-800 ring-yellow-600/20"}`}
+                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${successor.verified ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 ring-green-600/20 dark:ring-green-500/20" : "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 ring-yellow-600/20 dark:ring-yellow-500/20"}`}
                   >
                     {successor.verified ? "Verified" : "Pending"}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {successor.handoverDelayDays} days delay
                   </span>
                 </div>
                 {successor.restrictToAssignedEntries && (
-                  <p className="text-xs text-blue-700 mb-2">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
                     Access limited to assigned entries
                   </p>
                 )}
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {successor.name}
                 </h3>
-                <p className="text-sm text-gray-500 mb-4">{successor.email}</p>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  {successor.email}
+                </p>
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                   <button
                     onClick={() => openAssignmentModal(successor)}
-                    className="text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                    className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
                   >
                     Assign Entries
                   </button>
@@ -410,10 +412,10 @@ const Successors: React.FC = () => {
 
       {Object.keys(generatedShares).length > 0 && (
         <div className="mt-8 card p-6">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Generated Share Summary
           </h3>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
             Threshold: {shareThreshold} of {successors.length} shares required.
             Store copies of these shares in secure channels for your successors.
           </p>
@@ -428,12 +430,12 @@ const Successors: React.FC = () => {
               return (
                 <div
                   key={successor.id}
-                  className="rounded-md border border-gray-200 p-4"
+                  className="rounded-md border border-gray-200 dark:border-gray-700 p-4"
                 >
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {successor.name} ({successor.email})
                   </p>
-                  <p className="text-xs text-gray-500 mt-1 break-all font-mono">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-all font-mono">
                     {shareValue}
                   </p>
                 </div>
@@ -463,18 +465,18 @@ const Successors: React.FC = () => {
             >
               &#8203;
             </span>
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div>
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                   <h3
-                    className="text-lg leading-6 font-medium text-gray-900"
+                    className="text-lg leading-6 font-medium text-gray-900 dark:text-white"
                     id="modal-title"
                   >
                     Add New Successor
                   </h3>
                   <div className="mt-2">
                     {error && (
-                      <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                      <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
                         {error}
                       </div>
                     )}
@@ -482,7 +484,7 @@ const Successors: React.FC = () => {
                       <div>
                         <label
                           htmlFor="name"
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
                           Name
                         </label>
@@ -498,7 +500,7 @@ const Successors: React.FC = () => {
                       <div>
                         <label
                           htmlFor="email"
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
                           Email
                         </label>
@@ -514,7 +516,7 @@ const Successors: React.FC = () => {
                       <div>
                         <label
                           htmlFor="delay"
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >
                           Handover Delay (Days)
                         </label>
@@ -537,7 +539,7 @@ const Successors: React.FC = () => {
                         </button>
                         <button
                           type="button"
-                          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
                           onClick={() => setIsModalOpen(false)}
                         >
                           Cancel
@@ -569,11 +571,11 @@ const Successors: React.FC = () => {
             >
               &#8203;
             </span>
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Assign Vault Entries
               </h3>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Choose which encrypted entries{" "}
                 <span className="font-medium">{assignmentSuccessor?.name}</span>{" "}
                 can access when handover is active.
@@ -590,31 +592,33 @@ const Successors: React.FC = () => {
                 />
                 <label
                   htmlFor="restrict-to-assigned"
-                  className="text-sm text-gray-700"
+                  className="text-sm text-gray-700 dark:text-gray-300"
                 >
                   Restrict successor to selected entries only
                 </label>
               </div>
 
-              <div className="mt-4 max-h-80 overflow-auto border border-gray-200 rounded-md">
+              <div className="mt-4 max-h-80 overflow-auto border border-gray-200 dark:border-gray-700 rounded-md">
                 {assignmentLoading ? (
-                  <div className="p-4 text-sm text-gray-500">Loading...</div>
+                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                    Loading...
+                  </div>
                 ) : vaultOptions.length === 0 ? (
-                  <div className="p-4 text-sm text-gray-500">
+                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
                     No vault entries available.
                   </div>
                 ) : (
-                  <ul className="divide-y divide-gray-100">
+                  <ul className="divide-y divide-gray-100 dark:divide-gray-700">
                     {vaultOptions.map((entry) => (
                       <li
                         key={entry.id}
                         className="p-3 flex items-center justify-between"
                       >
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {entry.name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {entry.category || "Uncategorized"} ·{" "}
                             {entry.id.slice(0, 8)}
                           </p>
