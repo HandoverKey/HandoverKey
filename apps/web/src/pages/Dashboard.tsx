@@ -11,6 +11,7 @@ import { useToast } from "../contexts/ToastContext";
 import OnboardingChecklist, {
   type SetupStatus,
 } from "../components/OnboardingChecklist";
+import Skeleton from "../components/Skeleton";
 
 interface ActivityLog {
   id: string;
@@ -177,7 +178,7 @@ const Dashboard: React.FC = () => {
     <div>
       <div className="md:flex md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
             Welcome back, {user?.name || user?.email?.split("@")[0] || "User"}
           </h2>
         </div>
@@ -208,7 +209,7 @@ const Dashboard: React.FC = () => {
       )}
 
       <div className="mt-8">
-        <h3 className="text-base font-semibold leading-6 text-gray-900">
+        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
           Overview
         </h3>
         <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -221,12 +222,12 @@ const Dashboard: React.FC = () => {
                 <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div className="ml-5 w-0 flex-1">
-                <dt className="truncate text-sm font-medium text-gray-500">
+                <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">
                   {item.name}
                 </dt>
                 <dd>
-                  <div className="text-lg font-medium text-gray-900">
-                    {loading ? "..." : item.stat}
+                  <div className="text-lg font-medium text-gray-900 dark:text-white">
+                    {loading ? <Skeleton className="h-6 w-12" /> : item.stat}
                   </div>
                 </dd>
               </div>
@@ -236,22 +237,25 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="mt-8">
-        <h3 className="text-base font-semibold leading-6 text-gray-900">
+        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
           Recent Activity
         </h3>
         <div className="mt-4 card">
           {activities.length > 0 ? (
-            <ul role="list" className="divide-y divide-gray-100">
+            <ul
+              role="list"
+              className="divide-y divide-gray-100 dark:divide-gray-700"
+            >
               {activities.map((item) => (
                 <li
                   key={item.id}
-                  className="flex gap-x-4 py-5 px-6 hover:bg-gray-50"
+                  className="flex gap-x-4 py-5 px-6 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold leading-6 text-gray-900">
+                    <p className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
                       {formatActivityType(item.activity_type)}
                     </p>
-                    <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                    <p className="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-gray-400">
                       {formatDate(item.created_at)}
                     </p>
                   </div>
@@ -259,7 +263,7 @@ const Dashboard: React.FC = () => {
               ))}
             </ul>
           ) : (
-            <div className="p-6 text-center text-gray-500 text-sm">
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
               No recent activity found.
             </div>
           )}

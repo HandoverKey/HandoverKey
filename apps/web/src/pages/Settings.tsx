@@ -313,19 +313,21 @@ const Settings: React.FC = () => {
     <div className="max-w-3xl mx-auto">
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
             Settings
           </h2>
         </div>
       </div>
 
       <div className="card p-6 mb-8">
-        <h3 className="text-lg font-medium text-gray-900">Profile</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+          Profile
+        </h3>
         <form onSubmit={handleSaveProfile} className="mt-4 space-y-4">
           <div>
             <label
               htmlFor="profile-name"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Display Name
             </label>
@@ -349,14 +351,14 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="card p-6 mb-8">
-        <h3 className="text-lg font-medium text-gray-900">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Inactivity Controls
         </h3>
         <form onSubmit={handleSaveSettings} className="space-y-6 mt-4">
           <div>
             <label
               htmlFor="threshold"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Inactivity threshold (days)
             </label>
@@ -391,10 +393,13 @@ const Settings: React.FC = () => {
               />
             </div>
             <div className="ml-3 text-sm leading-6">
-              <label htmlFor="majority" className="font-medium text-gray-900">
+              <label
+                htmlFor="majority"
+                className="font-medium text-gray-900 dark:text-white"
+              >
                 Require majority successor consensus
               </label>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-gray-400">
                 If enabled, vault handover requires majority participation.
               </p>
             </div>
@@ -416,10 +421,13 @@ const Settings: React.FC = () => {
               />
             </div>
             <div className="ml-3 text-sm leading-6">
-              <label htmlFor="paused" className="font-medium text-gray-900">
+              <label
+                htmlFor="paused"
+                className="font-medium text-gray-900 dark:text-white"
+              >
                 Pause dead man's switch
               </label>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-gray-400">
                 Temporarily disable inactivity checks when needed.
               </p>
             </div>
@@ -438,8 +446,10 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="card p-6 mb-8">
-        <h3 className="text-lg font-medium text-gray-900">Change Password</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+          Change Password
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Changing your password rotates your vault encryption key and securely
           re-encrypts all vault entries.
         </p>
@@ -447,7 +457,7 @@ const Settings: React.FC = () => {
           <div>
             <label
               htmlFor="current-password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Current Password
             </label>
@@ -463,7 +473,7 @@ const Settings: React.FC = () => {
           <div>
             <label
               htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               New Password
             </label>
@@ -479,7 +489,7 @@ const Settings: React.FC = () => {
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Confirm New Password
             </label>
@@ -505,10 +515,10 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="card p-6 mb-8">
-        <h3 className="text-lg font-medium text-gray-900">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Two-Factor Authentication
         </h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Protect your account with time-based one-time passwords and recovery
           codes.
         </p>
@@ -526,7 +536,7 @@ const Settings: React.FC = () => {
             {setupQrCode && (
               <div className="mt-6 space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Scan this QR code with your authenticator app
                   </p>
                   <img
@@ -537,15 +547,18 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Recovery codes
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Save these codes now. Each code can be used once.
                   </p>
-                  <div className="mt-2 rounded-md border border-gray-200 p-3 bg-gray-50">
+                  <div className="mt-2 rounded-md border border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-700">
                     {setupRecoveryCodes.map((code) => (
-                      <p key={code} className="font-mono text-sm text-gray-700">
+                      <p
+                        key={code}
+                        className="font-mono text-sm text-gray-700 dark:text-gray-300"
+                      >
                         {code}
                       </p>
                     ))}
@@ -556,7 +569,7 @@ const Settings: React.FC = () => {
                   <div>
                     <label
                       htmlFor="setup-token"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Authenticator Code
                     </label>
@@ -589,13 +602,13 @@ const Settings: React.FC = () => {
           </div>
         ) : (
           <form onSubmit={handleDisableTwoFactor} className="mt-4 space-y-4">
-            <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
+            <p className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-3">
               Two-factor authentication is currently enabled.
             </p>
             <div>
               <label
                 htmlFor="disable-password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Current Password
               </label>
@@ -610,7 +623,7 @@ const Settings: React.FC = () => {
             <div>
               <label
                 htmlFor="disable-token"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 2FA Code (optional if using recovery code)
               </label>
@@ -630,7 +643,7 @@ const Settings: React.FC = () => {
             <div>
               <label
                 htmlFor="disable-recovery"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Recovery Code (optional if using 2FA code)
               </label>
@@ -660,11 +673,11 @@ const Settings: React.FC = () => {
         )}
       </div>
 
-      <div className="card p-6 border-red-200 bg-red-50">
-        <h3 className="text-lg font-medium leading-6 text-red-900">
+      <div className="card p-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+        <h3 className="text-lg font-medium leading-6 text-red-900 dark:text-red-400">
           Danger Zone
         </h3>
-        <div className="mt-2 max-w-xl text-sm text-red-700">
+        <div className="mt-2 max-w-xl text-sm text-red-700 dark:text-red-400">
           <p>
             Once you delete your account, there is no going back. Please be
             certain.

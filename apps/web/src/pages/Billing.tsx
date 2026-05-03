@@ -127,38 +127,40 @@ const Billing: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Billing
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Manage your subscription and billing details.
         </p>
       </div>
 
       {/* Current Plan */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Current Plan:{" "}
               <span className="text-blue-600">{currentDetails.name}</span>
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {currentDetails.description}
             </p>
           </div>
           {billing?.status === "past_due" && (
-            <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+            <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-medium">
               Payment Past Due
             </span>
           )}
           {billing?.status === "active" && currentTier !== "free" && (
-            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
               Active
             </span>
           )}
         </div>
 
         {billing?.endsAt && (
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Current period ends: {new Date(billing.endsAt).toLocaleDateString()}
           </p>
         )}
@@ -176,7 +178,7 @@ const Billing: React.FC = () => {
       {/* Upgrade Options */}
       {currentTier === "free" && billing?.stripeEnabled && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Upgrade Your Plan
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -187,21 +189,21 @@ const Billing: React.FC = () => {
                   key={tier}
                   className={`rounded-2xl border p-6 ${
                     tier === "pro"
-                      ? "border-blue-200 bg-blue-50/30"
-                      : "border-gray-200 bg-white"
+                      ? "border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/20"
+                      : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
                   }`}
                 >
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                     {details.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                     {details.description}
                   </p>
                   <ul className="space-y-2 mb-6">
                     {details.features.map((feature) => (
                       <li
                         key={feature}
-                        className="flex items-start gap-2 text-sm text-gray-700"
+                        className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                       >
                         <CheckIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                         {feature}
@@ -230,8 +232,8 @@ const Billing: React.FC = () => {
 
       {/* Billing not configured message */}
       {!billing?.stripeEnabled && currentTier === "free" && (
-        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6 text-center">
-          <p className="text-gray-600">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-center">
+          <p className="text-gray-600 dark:text-gray-400">
             Paid plans are coming soon. Join the waitlist on our homepage to be
             notified when they launch!
           </p>

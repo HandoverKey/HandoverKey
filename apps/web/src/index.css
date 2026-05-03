@@ -14,12 +14,25 @@
 
 .form-input:focus + .form-label,
 .form-input:not(:placeholder-shown) + .form-label {
-  @apply text-blue-600 scale-90 -translate-y-5 left-3 bg-white/80 px-1;
+  @apply text-blue-600 scale-90 -translate-y-5 left-3 bg-white/80 px-1 dark:text-blue-400 dark:bg-gray-800/80;
   background: rgba(255,255,255,0.8);
+}
+.dark .form-input:focus + .form-label,
+.dark .form-input:not(:placeholder-shown) + .form-label {
+  background: rgba(31,41,55,0.8);
 }
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
 
 @layer base {
   body {
@@ -51,11 +64,11 @@
   }
   
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200 shadow-sm hover:shadow-md;
+    @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200 shadow-sm hover:shadow-md dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500;
   }
 
   .input {
-    @apply block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500/20 sm:text-sm py-2.5 px-4 bg-white transition-all duration-200 border;
+    @apply block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500/20 sm:text-sm py-2.5 px-4 bg-white transition-all duration-200 border dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-500;
   }
 
   .card {
@@ -87,7 +100,7 @@
   }
 
   .input:focus {
-    @apply ring-2 ring-blue-400 border-blue-400 bg-blue-50/40 shadow-md;
+    @apply ring-2 ring-blue-400 border-blue-400 bg-blue-50/40 shadow-md dark:bg-gray-700/50 dark:border-blue-500 dark:ring-blue-500/30;
     transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
   }
 

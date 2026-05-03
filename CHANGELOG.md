@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/HandoverKey/HandoverKey/compare/v1.1.3...v1.2.0) (2026-05-02)
+
+
+### Features
+
+* add pricing, waitlist, Stripe billing, and tier-based gating ([#245](https://github.com/HandoverKey/HandoverKey/issues/245)) ([6758b1f](https://github.com/HandoverKey/HandoverKey/commit/6758b1ff90c02b20c37f11dcf7deb1b4d1bbc4ef))
+* UI polish accessibility ([#250](https://github.com/HandoverKey/HandoverKey/issues/250)) ([0fc2c44](https://github.com/HandoverKey/HandoverKey/commit/0fc2c4479b5a2f960f27a12edbce4c0601f2e11c))
+* **web:** add dark mode, skeleton loaders, and accessibility improvements ([#248](https://github.com/HandoverKey/HandoverKey/issues/248)) ([8ae8406](https://github.com/HandoverKey/HandoverKey/commit/8ae8406cce7ee270682cb70851697a4ae667ddd8))
+
 ## [1.1.3](https://github.com/HandoverKey/HandoverKey/compare/v1.1.2...v1.1.3) (2026-04-20)
 
 

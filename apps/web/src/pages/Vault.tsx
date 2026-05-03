@@ -256,10 +256,10 @@ const Vault: React.FC = () => {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-6 text-gray-900">
+          <h1 className="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">
             Vault
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
             A secure list of all your encrypted secrets, passwords, and
             documents.
           </p>
@@ -314,12 +314,12 @@ const Vault: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
         ) : filteredEntries.length === 0 && entries.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <LockClosedIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-semibold text-gray-900">
+            <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
               No secrets yet
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Get started by adding your first secret.
             </p>
             <button
@@ -334,12 +334,12 @@ const Vault: React.FC = () => {
             </button>
           </div>
         ) : filteredEntries.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <MagnifyingGlassIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-semibold text-gray-900">
+            <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
               No results found
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Try adjusting your search term.
             </p>
           </div>
@@ -352,17 +352,17 @@ const Vault: React.FC = () => {
                 onClick={() => handleEntryClick(entry)}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
                     {entry.category}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(entry.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                   {entry.name || "Untitled Secret"}
                 </h3>
-                <p className="mt-2 text-sm text-gray-500 line-clamp-2">
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                   Click to view details and decrypt.
                 </p>
               </div>
