@@ -6,6 +6,14 @@ import {
   NotFoundError as DbNotFoundError,
 } from "@handoverkey/database";
 import { logger } from "../config/logger";
+import { isNoisyProbePath } from "../utils/noisy-probe-paths";
+
+const NOT_FOUND_PROBE_SAMPLE_RATE = Math.max(
+  Number.parseInt(process.env.NOT_FOUND_PROBE_SAMPLE_RATE || "25", 10) || 25,
+  1,
+);
+
+let probeNotFoundCounter = 0;
 
 /**
  * Global error handler middleware
@@ -211,16 +219,38 @@ export function notFoundHandler(
   _next: NextFunction,
 ): void {
   const requestId = (req as Request & { id?: string }).id || "unknown";
+  const isProbePath = isNoisyProbePath(req.path);
 
-  logger.warn(
-    {
-      type: "not_found",
-      path: req.path,
-      method: req.method,
-      requestId,
-    },
-    `Route not found: ${req.method} ${req.path}`,
-  );
+  if (isProbePath) {
+    probeNotFoundCounter += 1;
+
+    if (
+      probeNotFoundCounter === 1 ||
+      probeNotFoundCounter % NOT_FOUND_PROBE_SAMPLE_RATE === 0
+    ) {
+      logger.info(
+        {
+          type: "not_found_probe",
+          path: req.path,
+          method: req.method,
+          requestId,
+          totalProbe404s: probeNotFoundCounter,
+          sampleRate: NOT_FOUND_PROBE_SAMPLE_RATE,
+        },
+        `Noisy probe route not found: ${req.method} ${req.path}`,
+      );
+    }
+  } else {
+    logger.warn(
+      {
+        type: "not_found",
+        path: req.path,
+        method: req.method,
+        requestId,
+      },
+      `Route not found: ${req.method} ${req.path}`,
+    );
+  }
 
   res.status(404).json({
     error: {

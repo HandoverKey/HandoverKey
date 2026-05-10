@@ -3,6 +3,17 @@ import { logger } from "./logger";
 
 let redisClient: RedisClientType | null = null;
 let redisInitPromise: Promise<void> | null = null;
+let lastRetryLogAt = 0;
+
+function shouldLogRetry(attempt: number): boolean {
+  const now = Date.now();
+  const minIntervalMs = attempt <= 2 ? 15000 : 5000;
+  const shouldLog = now - lastRetryLogAt >= minIntervalMs || attempt % 5 === 0;
+  if (shouldLog) {
+    lastRetryLogAt = now;
+  }
+  return shouldLog;
+}
 
 /**
  * Initialize Redis client. Concurrency-safe: concurrent callers share a
@@ -18,13 +29,24 @@ export async function initializeRedis(): Promise<void> {
   }
 
   redisInitPromise = (async () => {
+    const redisHost = process.env.REDIS_HOST || "localhost";
+    const redisPort = parseInt(process.env.REDIS_PORT || "6379");
+
     const client: RedisClientType = createClient({
       socket: {
-        host: process.env.REDIS_HOST || "localhost",
-        port: parseInt(process.env.REDIS_PORT || "6379"),
+        host: redisHost,
+        port: redisPort,
         reconnectStrategy: (retries) => {
+          const attempt = retries + 1;
           const delay = Math.min(Math.pow(2, retries) * 1000, 30000);
-          logger.warn({ attempt: retries, delay }, "Retrying Redis connection");
+
+          if (shouldLogRetry(attempt)) {
+            logger.warn(
+              { attempt, delay, host: redisHost, port: redisPort },
+              "Retrying Redis connection",
+            );
+          }
+
           return delay;
         },
       },
@@ -50,6 +72,7 @@ export async function initializeRedis(): Promise<void> {
     try {
       await client.connect();
       redisClient = client;
+      redisInitPromise = null;
     } catch (error) {
       redisInitPromise = null;
       throw error;
@@ -80,6 +103,8 @@ export async function closeRedis(): Promise<void> {
     redisClient = null;
     logger.info("Redis client closed");
   }
+
+  redisInitPromise = null;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { getDatabaseClient } from "@handoverkey/database";
+import { DatabaseClient, getDatabaseClient } from "@handoverkey/database";
 
 const MIGRATION_FILES = [
   "users.sql",
@@ -31,29 +31,170 @@ interface Migration {
   applied_at: Date;
 }
 
+function parsePositiveIntEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const DB_INIT_MAX_RETRIES = parsePositiveIntEnv("DB_INIT_MAX_RETRIES", 15);
+const DB_INIT_RETRY_BASE_MS = parsePositiveIntEnv(
+  "DB_INIT_RETRY_BASE_MS",
+  1000,
+);
+const DB_INIT_RETRY_MAX_MS = parsePositiveIntEnv("DB_INIT_RETRY_MAX_MS", 30000);
+
+const TRANSIENT_ERROR_CODES = new Set([
+  "57P01",
+  "57P03",
+  "EAI_AGAIN",
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ENOTFOUND",
+  "ETIMEDOUT",
+]);
+
+const TRANSIENT_ERROR_MESSAGES = [
+  "database system is in recovery mode",
+  "database system is not accepting connections",
+  "database system is starting up",
+  "terminating connection due to administrator command",
+  "connection terminated unexpectedly",
+  "getaddrinfo eai_again",
+  "connection refused",
+  "connection reset",
+  "timed out",
+];
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function extractErrorCode(error: unknown, depth = 0): string | undefined {
+  if (!(error instanceof Error) || depth > 4) {
+    return undefined;
+  }
+
+  const directCode = (error as Error & { code?: unknown }).code;
+  if (typeof directCode === "string" && directCode.length > 0) {
+    return directCode;
+  }
+
+  const originalError = (error as Error & { originalError?: unknown })
+    .originalError;
+  if (originalError instanceof Error) {
+    return extractErrorCode(originalError, depth + 1);
+  }
+
+  const cause = (error as Error & { cause?: unknown }).cause;
+  if (cause instanceof Error) {
+    return extractErrorCode(cause, depth + 1);
+  }
+
+  return undefined;
+}
+
+function extractErrorMessage(error: unknown, depth = 0): string {
+  if (!(error instanceof Error) || depth > 4) {
+    return String(error);
+  }
+
+  const originalError = (error as Error & { originalError?: unknown })
+    .originalError;
+  if (originalError instanceof Error) {
+    return `${error.message} | ${extractErrorMessage(originalError, depth + 1)}`;
+  }
+
+  return error.message;
+}
+
+function isTransientInitError(error: unknown): boolean {
+  const code = extractErrorCode(error)?.toUpperCase();
+  if (code && TRANSIENT_ERROR_CODES.has(code)) {
+    return true;
+  }
+
+  const message = extractErrorMessage(error).toLowerCase();
+  return TRANSIENT_ERROR_MESSAGES.some((fragment) =>
+    message.includes(fragment),
+  );
+}
+
+function calculateRetryDelay(attempt: number): number {
+  const exponentialDelay = Math.min(
+    DB_INIT_RETRY_BASE_MS * Math.pow(2, attempt - 1),
+    DB_INIT_RETRY_MAX_MS,
+  );
+  const jitter = Math.floor(
+    Math.random() * Math.max(250, exponentialDelay * 0.2),
+  );
+  return exponentialDelay + jitter;
+}
+
+async function initializeDatabaseWithRetry(
+  dbClient: DatabaseClient,
+): Promise<void> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= DB_INIT_MAX_RETRIES; attempt++) {
+    try {
+      await dbClient.initialize({
+        host: process.env.DB_HOST || "localhost",
+        port: parseInt(process.env.DB_PORT || "5432"),
+        database: process.env.DB_NAME || "handoverkey_dev",
+        user: process.env.DB_USER || "postgres",
+        password: process.env.DB_PASSWORD || "postgres",
+        min: 2,
+        max: 10,
+      });
+
+      const isConnected = await dbClient.healthCheck();
+      if (!isConnected) {
+        throw new Error("Database health check failed after initialization");
+      }
+
+      if (attempt > 1) {
+        console.log(
+          `Database connection established after ${attempt} attempts`,
+        );
+      } else {
+        console.log("Database connection established");
+      }
+
+      return;
+    } catch (error) {
+      lastError = error;
+      await dbClient.close();
+
+      const retryable = isTransientInitError(error);
+      const hasAttemptsLeft = attempt < DB_INIT_MAX_RETRIES;
+      if (!retryable || !hasAttemptsLeft) {
+        throw error;
+      }
+
+      const delay = calculateRetryDelay(attempt);
+      console.warn(
+        `Database initialization attempt ${attempt}/${DB_INIT_MAX_RETRIES} failed: ${extractErrorMessage(error)}. Retrying in ${delay}ms...`,
+      );
+      await sleep(delay);
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Database initialization failed with an unknown error");
+}
+
 async function runMigrations(): Promise<void> {
   const dbClient = getDatabaseClient();
 
   try {
     console.log("Starting database migrations...");
-
-    // Initialize database connection
-    await dbClient.initialize({
-      host: process.env.DB_HOST || "localhost",
-      port: parseInt(process.env.DB_PORT || "5432"),
-      database: process.env.DB_NAME || "handoverkey_dev",
-      user: process.env.DB_USER || "postgres",
-      password: process.env.DB_PASSWORD || "postgres",
-      min: 2,
-      max: 10,
-    });
-
-    const isConnected = await dbClient.healthCheck();
-    if (!isConnected) {
-      throw new Error("Failed to connect to database");
-    }
-
-    console.log("Database connection established");
+    await initializeDatabaseWithRetry(dbClient);
 
     // Ensure the migrations table exists before proceeding
     const createMigrationsTableSQL = readFileSync(
@@ -108,16 +249,16 @@ async function runMigrations(): Promise<void> {
     }
 
     console.log("All migrations completed successfully");
-  } catch (error) {
-    console.error("Migration failed:", error);
-    process.exit(1);
   } finally {
     await dbClient.close();
   }
 }
 
 if (require.main === module) {
-  runMigrations();
+  runMigrations().catch((error) => {
+    console.error("Migration failed:", error);
+    process.exit(1);
+  });
 }
 
 export { runMigrations };

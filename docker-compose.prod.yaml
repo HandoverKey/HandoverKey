@@ -11,6 +11,23 @@ services:
       timeout: 3s
       retries: 5
 
+  api-migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: [ "npm", "run", "migrate:prod" ]
+    environment:
+      NODE_ENV: production
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_INIT_MAX_RETRIES: ${DB_INIT_MAX_RETRIES:-20}
+    networks:
+      - handoverkey-network
+    restart: on-failure
+
   api:
     build:
       context: .
@@ -51,6 +68,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
     networks:
       - handoverkey-network
     restart: unless-stopped

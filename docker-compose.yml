@@ -31,6 +31,26 @@ services:
       timeout: 3s
       retries: 5
 
+  api-migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: [ "npm", "run", "migrate:prod" ]
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-handoverkey_dev}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_INIT_MAX_RETRIES: ${DB_INIT_MAX_RETRIES:-20}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - handoverkey-network
+    restart: on-failure
+
   api:
     build:
       context: .
@@ -65,6 +85,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
     networks:
       - handoverkey-network
     restart: unless-stopped

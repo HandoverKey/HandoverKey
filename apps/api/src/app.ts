@@ -207,8 +207,7 @@ app.use(cookieParser() as unknown as express.RequestHandler);
 app.use(validateContentType);
 app.use(sanitizeInput);
 
-// Health check endpoint
-app.get("/health", async (req, res) => {
+const healthCheckHandler: express.RequestHandler = async (_req, res) => {
   try {
     const [dbHealthy, redisHealthy] = await Promise.all([
       dbClient.healthCheck(),
@@ -262,7 +261,11 @@ app.get("/health", async (req, res) => {
       error: "Health check failed",
     });
   }
-});
+};
+
+// Health check endpoints
+app.get("/health", healthCheckHandler);
+app.get("/api/health", healthCheckHandler);
 
 // Prometheus metrics endpoint (protected -- requires authentication)
 app.get("/metrics", authenticateJWT, requireAuth, async (req, res) => {
@@ -305,10 +308,33 @@ app.use(errorHandler);
  */
 export async function shutdownServices(): Promise<void> {
   jobManager.stop();
-  await JobProcessor.close();
-  await closeAllQueues();
-  await closeRedis();
-  await dbClient.close();
+
+  const shutdownErrors: string[] = [];
+
+  const shutdownSteps: Array<{
+    name: string;
+    run: () => Promise<void>;
+  }> = [
+    { name: "JobProcessor", run: () => JobProcessor.close() },
+    { name: "Queues", run: () => closeAllQueues() },
+    { name: "Redis", run: () => closeRedis() },
+    { name: "Database", run: () => dbClient.close() },
+  ];
+
+  for (const step of shutdownSteps) {
+    try {
+      await step.run();
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      shutdownErrors.push(`${step.name}: ${reason}`);
+    }
+  }
+
+  if (shutdownErrors.length > 0) {
+    throw new Error(
+      `One or more services failed to shutdown cleanly: ${shutdownErrors.join("; ")}`,
+    );
+  }
 }
 
 export default app;
