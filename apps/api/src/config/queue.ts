@@ -7,6 +7,8 @@
 import { Queue, Worker, QueueEvents, ConnectionOptions } from "bullmq";
 import { logger } from "./logger";
 
+let lastQueueRetryLogAt = 0;
+
 /**
  * Redis connection configuration
  */
@@ -18,8 +20,28 @@ export const redisConnection: ConnectionOptions = {
   enableReadyCheck: false,
   retryStrategy: (times: number) => {
     // Exponential backoff: 1s, 2s, 4s, 8s, max 30s
+    const attempt = Math.max(times, 1);
     const delay = Math.min(Math.pow(2, times) * 1000, 30000);
-    logger.warn({ attempt: times, delay }, "Retrying Redis connection");
+
+    const now = Date.now();
+    const minIntervalMs = attempt <= 2 ? 15000 : 5000;
+    const shouldLog =
+      now - lastQueueRetryLogAt >= minIntervalMs || attempt % 5 === 0;
+
+    if (shouldLog) {
+      lastQueueRetryLogAt = now;
+      logger.warn(
+        {
+          attempt,
+          delay,
+          source: "bullmq",
+          host: process.env.REDIS_HOST || "localhost",
+          port: parseInt(process.env.REDIS_PORT || "6379"),
+        },
+        "Retrying Redis connection",
+      );
+    }
+
     return delay;
   },
 };

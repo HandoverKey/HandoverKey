@@ -28,11 +28,13 @@ async function start() {
 async function shutdown(signal: string) {
   if (shuttingDown) return;
   shuttingDown = true;
+  let exitCode = 0;
 
   logger.info(`${signal} received, shutting down gracefully`);
 
   const timeout = setTimeout(() => {
     logger.error("Shutdown timed out, forcing exit");
+    server?.closeAllConnections?.();
     process.exit(1);
   }, SHUTDOWN_TIMEOUT_MS);
 
@@ -40,8 +42,14 @@ async function shutdown(signal: string) {
     realtimeService.close();
 
     if (server) {
-      await new Promise<void>((resolve) => {
-        server!.close(() => resolve());
+      await new Promise<void>((resolve, reject) => {
+        server!.close((error) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve();
+        });
       });
     }
 
@@ -49,10 +57,11 @@ async function shutdown(signal: string) {
 
     logger.info("Shutdown complete");
   } catch (err) {
+    exitCode = 1;
     logger.error({ err }, "Error during shutdown");
   } finally {
     clearTimeout(timeout);
-    process.exit(0);
+    process.exit(exitCode);
   }
 }
 

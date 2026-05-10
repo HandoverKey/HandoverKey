@@ -19,6 +19,17 @@ export class DatabaseClient {
   private pool: Pool | null = null;
   private kysely: Kysely<Database> | null = null;
   private config: DatabaseConfig | null = null;
+  private shuttingDown = false;
+
+  private readonly handlePoolError = (error: Error): void => {
+    if (this.shuttingDown && this.isExpectedShutdownError(error)) {
+      return;
+    }
+
+    // Keep a listener attached so pool errors do not surface as unhandled events.
+    // Unexpected errors are still visible for diagnostics.
+    console.error("Database pool error", error);
+  };
 
   /**
    * Initializes the database connection pool
@@ -28,6 +39,7 @@ export class DatabaseClient {
       throw new ConnectionError("Database already initialized");
     }
 
+    this.shuttingDown = false;
     this.config = config;
 
     const poolConfig: PoolConfig = {
@@ -44,6 +56,7 @@ export class DatabaseClient {
 
     try {
       this.pool = new Pool(poolConfig);
+      this.pool.on("error", this.handlePoolError);
 
       // Test connection
       const client = await this.pool.connect();
@@ -56,6 +69,25 @@ export class DatabaseClient {
         }),
       });
     } catch (error) {
+      if (this.kysely) {
+        try {
+          await this.kysely.destroy();
+        } catch {
+          // Ignore cleanup errors while handling initialization failure.
+        }
+        this.kysely = null;
+      }
+
+      if (this.pool) {
+        this.pool.off("error", this.handlePoolError);
+        try {
+          await this.pool.end();
+        } catch {
+          // Ignore cleanup errors while handling initialization failure.
+        }
+        this.pool = null;
+      }
+
       throw new ConnectionError(
         `Failed to initialize database: ${error instanceof Error ? error.message : "Unknown error"}`,
         error instanceof Error ? error : undefined,
@@ -141,13 +173,15 @@ export class DatabaseClient {
       return false;
     }
 
+    let client;
     try {
-      const client = await this.pool.connect();
+      client = await this.pool.connect();
       await client.query("SELECT 1");
-      client.release();
       return true;
     } catch {
       return false;
+    } finally {
+      client?.release();
     }
   }
 
@@ -155,19 +189,31 @@ export class DatabaseClient {
    * Closes the database connection
    */
   async close(): Promise<void> {
+    this.shuttingDown = true;
+
     if (this.kysely) {
-      await this.kysely.destroy();
+      try {
+        await this.kysely.destroy();
+      } catch {
+        // Ignore errors during shutdown.
+      }
       this.kysely = null;
     }
 
     if (this.pool) {
       try {
         await this.pool.end();
-      } catch {
-        // Ignore error if pool is already closed
+      } catch (error) {
+        if (!this.isExpectedShutdownError(error)) {
+          // Ignore unexpected close errors to keep shutdown idempotent.
+        }
+      } finally {
+        this.pool.off("error", this.handlePoolError);
+        this.pool = null;
       }
-      this.pool = null;
     }
+
+    this.shuttingDown = false;
   }
 
   /**
@@ -188,6 +234,32 @@ export class DatabaseClient {
       message.includes("foreign key") ||
       message.includes("not null violation")
     );
+  }
+
+  /**
+   * Errors that are expected while the database or process is shutting down.
+   */
+  private isExpectedShutdownError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+      return false;
+    }
+
+    const code = this.getErrorCode(error);
+    if (code === "57P01") {
+      return true;
+    }
+
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("terminating connection due to administrator command") ||
+      message.includes("connection terminated unexpectedly") ||
+      message.includes("connection closed")
+    );
+  }
+
+  private getErrorCode(error: Error): string | undefined {
+    const code = (error as Error & { code?: unknown }).code;
+    return typeof code === "string" ? code : undefined;
   }
 }
 

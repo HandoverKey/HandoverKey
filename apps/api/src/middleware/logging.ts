@@ -8,6 +8,10 @@
 import { Request, Response, NextFunction } from "express";
 import pinoHttp from "pino-http";
 import { logger } from "../config/logger";
+import {
+  isNoisyProbePath,
+  normalizeRequestPath,
+} from "../utils/noisy-probe-paths";
 
 /**
  * Create pino-http middleware instance
@@ -20,9 +24,16 @@ const httpLogger = pinoHttp({
 
   // Custom request logging
   customLogLevel: (req, res, err) => {
+    const requestPath = normalizeRequestPath(req.url || "/");
+
     if (res.statusCode >= 500 || err) {
       return "error";
     }
+
+    if (res.statusCode === 404 && isNoisyProbePath(requestPath)) {
+      return "info";
+    }
+
     if (res.statusCode >= 400) {
       return "warn";
     }
@@ -85,7 +96,12 @@ const httpLogger = pinoHttp({
   // Don't log health check endpoints to reduce noise
   autoLogging: {
     ignore: (req) => {
-      return req.url === "/health" || req.url === "/metrics";
+      const requestPath = normalizeRequestPath(req.url || "/");
+      return (
+        requestPath === "/health" ||
+        requestPath === "/api/health" ||
+        requestPath === "/metrics"
+      );
     },
   },
 });

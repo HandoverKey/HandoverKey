@@ -50,5 +50,5 @@ ENV NODE_ENV=production
 ENV API_PORT=3001
 EXPOSE 3001
 
-# Start the application using a script that runs migrations first
+# Start the API server (run migrations via a separate one-shot task)
 CMD ["npm", "run", "start:prod"]

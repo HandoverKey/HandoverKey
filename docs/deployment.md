@@ -182,6 +182,7 @@ If the web app and API run on different origins:
 Expose and monitor:
 
 - `GET /health`
+- `GET /api/health` (compatibility alias)
 - `GET /metrics`
 - application logs
 - Redis and PostgreSQL health
@@ -192,8 +193,13 @@ Reverse proxies or load balancers must forward upgrade requests for `/ws`.
 
 ### Database migrations
 
-Run migrations before or during startup. The production API start command runs the
-migration bundle before launching the server.
+Run migrations as a separate one-shot step before the API server starts.
+
+- `npm run migrate:prod` applies migrations
+- `npm run start:prod` starts the API server
+
+Both compose files include an `api-migrate` service and gate `api` startup on
+`service_completed_successfully` so migration and runtime concerns stay decoupled.
 
 ## Recommended Production Checklist
 
