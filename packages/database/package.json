@@ -12,9 +12,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit",
-    "migrate:latest": "node dist/migrations/runner.js",
-    "migrate:rollback": "node dist/migrations/runner.js rollback"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "kysely": "^0.28.14",

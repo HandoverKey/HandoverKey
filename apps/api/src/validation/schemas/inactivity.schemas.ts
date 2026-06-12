@@ -43,16 +43,38 @@ export const UpdateInactivitySettingsSchema = z
   );
 
 /**
+ * Maximum duration the dead man's switch can be paused for in a single request.
+ * Prevents indefinitely disabling the switch via a far-future pause date.
+ */
+export const MAX_PAUSE_DAYS = 90;
+
+/**
  * Schema for pausing the dead man's switch
  */
-export const PauseSwitchSchema = z.object({
-  pauseUntil: z
-    .string()
-    .datetime("Invalid date format")
-    .or(z.date())
-    .optional()
-    .transform((val) => (val ? new Date(val) : undefined)),
-});
+export const PauseSwitchSchema = z
+  .object({
+    pauseUntil: z
+      .string()
+      .datetime("Invalid date format")
+      .or(z.date())
+      .optional()
+      .transform((val) => (val ? new Date(val) : undefined)),
+  })
+  .refine(
+    (data) => {
+      if (!data.pauseUntil) {
+        return true;
+      }
+      const t = data.pauseUntil.getTime();
+      const now = Date.now();
+      const max = now + MAX_PAUSE_DAYS * 24 * 60 * 60 * 1000;
+      return t > now && t <= max;
+    },
+    {
+      message: `pauseUntil must be in the future and at most ${MAX_PAUSE_DAYS} days away`,
+      path: ["pauseUntil"],
+    },
+  );
 
 /**
  * Schema for resume switch (no body required, but validate empty object)

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { useToast } from "../contexts/ToastContext";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 interface SessionItem {
   id: string;
@@ -18,6 +19,8 @@ const Sessions: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [invalidatingOthers, setInvalidatingOthers] = useState(false);
+  const [sessionToRevoke, setSessionToRevoke] = useState<string | null>(null);
+  const [confirmRevokeOthers, setConfirmRevokeOthers] = useState(false);
 
   const fetchSessions = async () => {
     try {
@@ -73,7 +76,7 @@ const Sessions: React.FC = () => {
         </div>
         <div className="mt-4 md:mt-0">
           <button
-            onClick={handleInvalidateOthers}
+            onClick={() => setConfirmRevokeOthers(true)}
             disabled={invalidatingOthers}
             className="btn btn-primary"
           >
@@ -116,7 +119,7 @@ const Sessions: React.FC = () => {
                   </span>
                 ) : (
                   <button
-                    onClick={() => handleInvalidateSession(session.id)}
+                    onClick={() => setSessionToRevoke(session.id)}
                     disabled={busyId === session.id}
                     className="text-sm text-red-600 hover:text-red-700 font-medium"
                   >
@@ -128,6 +131,35 @@ const Sessions: React.FC = () => {
           </ul>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={sessionToRevoke !== null}
+        onClose={() => setSessionToRevoke(null)}
+        onConfirm={async () => {
+          const id = sessionToRevoke;
+          setSessionToRevoke(null);
+          if (id) {
+            await handleInvalidateSession(id);
+          }
+        }}
+        title="Revoke this session?"
+        message="This device will be signed out and will need to log in again. Continue?"
+        confirmText="Revoke session"
+        type="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={confirmRevokeOthers}
+        onClose={() => setConfirmRevokeOthers(false)}
+        onConfirm={async () => {
+          setConfirmRevokeOthers(false);
+          await handleInvalidateOthers();
+        }}
+        title="Revoke all other sessions?"
+        message="Every other device signed into your account will be signed out immediately. This session stays active. Continue?"
+        confirmText="Revoke others"
+        type="danger"
+      />
     </div>
   );
 };

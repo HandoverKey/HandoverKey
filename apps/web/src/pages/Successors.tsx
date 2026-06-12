@@ -6,7 +6,11 @@ import { getApiErrorMessage } from "../services/api-error";
 import { useToast } from "../contexts/ToastContext";
 import ConfirmationModal from "../components/ConfirmationModal";
 import UpgradeModal from "../components/UpgradeModal";
-import { splitSecret } from "@handoverkey/crypto";
+import {
+  splitSecret,
+  wrapShare,
+  generateSharePassphrase,
+} from "@handoverkey/crypto";
 import {
   exportRawMasterKey,
   arrayBufferToBase64,
@@ -46,7 +50,8 @@ const Successors: React.FC = () => {
   const [delay, setDelay] = useState(30);
   const [error, setError] = useState<string | null>(null);
   const [generatingShares, setGeneratingShares] = useState(false);
-  const [generatedShares, setGeneratedShares] = useState<
+  // Maps successor id -> the out-of-band passphrase the owner must deliver.
+  const [generatedPassphrases, setGeneratedPassphrases] = useState<
     Record<string, string>
   >({});
   const [shareThreshold, setShareThreshold] = useState<number | null>(null);
@@ -156,23 +161,28 @@ const Successors: React.FC = () => {
         : Math.min(2, successors.length);
 
       const shares = splitSecret(rawMasterKey, successors.length, threshold);
-      const sharePayload = successors.map((successor, index) => ({
-        id: successor.id,
-        encryptedShare: arrayBufferToBase64(shares[index]),
-      }));
+
+      // Zero-knowledge custody: each share is wrapped (encrypted) with a unique
+      // per-successor passphrase BEFORE it ever leaves this browser. The server
+      // only ever receives the wrapped (unreadable) envelope -- never the
+      // passphrase -- so it can never reconstruct the master key.
+      const passphrases: Record<string, string> = {};
+      const sharePayload = await Promise.all(
+        successors.map(async (successor, index) => {
+          const passphrase = generateSharePassphrase();
+          passphrases[successor.id] = passphrase;
+          const wrapped = await wrapShare(shares[index], passphrase);
+          return { id: successor.id, encryptedShare: wrapped };
+        }),
+      );
 
       await api.put("/successors/shares", { shares: sharePayload });
 
-      setGeneratedShares(
-        sharePayload.reduce<Record<string, string>>((acc, item) => {
-          acc[item.id] = item.encryptedShare;
-          return acc;
-        }, {}),
-      );
+      setGeneratedPassphrases(passphrases);
       setShareThreshold(threshold);
 
       success(
-        `Distributed ${successors.length} shares (threshold: ${threshold}). Share values are now stored securely for handover.`,
+        `Wrapped ${successors.length} shares (threshold: ${threshold}). Deliver each recovery passphrase to its successor through a separate secure channel.`,
       );
       await fetchSuccessors();
     } catch (err) {
@@ -410,20 +420,31 @@ const Successors: React.FC = () => {
         )}
       </div>
 
-      {Object.keys(generatedShares).length > 0 && (
+      {Object.keys(generatedPassphrases).length > 0 && (
         <div className="mt-8 card p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Generated Share Summary
+            Deliver Recovery Passphrases
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Threshold: {shareThreshold} of {successors.length} shares required.
-            Store copies of these shares in secure channels for your successors.
-          </p>
+          <div className="mt-2 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+            <p className="text-sm text-amber-800 dark:text-amber-300">
+              Threshold: <strong>{shareThreshold}</strong> of{" "}
+              {successors.length} successors required to unlock your vault.
+            </p>
+            <p className="text-sm text-amber-800 dark:text-amber-300 mt-2">
+              Each successor&apos;s encrypted share is now stored, but it is
+              useless without the matching passphrase below. HandoverKey never
+              sees these passphrases. Give each one to its successor through a{" "}
+              <strong>separate, secure channel</strong> (in person, a sealed
+              letter, or a password manager). They are shown{" "}
+              <strong>once</strong> and cannot be recovered &mdash; if you lose
+              them, regenerate the shares.
+            </p>
+          </div>
 
           <div className="mt-4 space-y-3">
             {successors.map((successor) => {
-              const shareValue = generatedShares[successor.id];
-              if (!shareValue) {
+              const passphrase = generatedPassphrases[successor.id];
+              if (!passphrase) {
                 return null;
               }
 
@@ -435,9 +456,29 @@ const Successors: React.FC = () => {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {successor.name} ({successor.email})
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-all font-mono">
-                    {shareValue}
-                  </p>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <code className="text-sm text-gray-900 dark:text-gray-100 break-all font-mono tracking-wider">
+                      {passphrase}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!navigator.clipboard?.writeText) {
+                          showError(
+                            "Clipboard not available. Copy the passphrase manually.",
+                          );
+                          return;
+                        }
+                        navigator.clipboard
+                          .writeText(passphrase)
+                          .then(() => success("Passphrase copied"))
+                          .catch(() => showError("Failed to copy"));
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -625,6 +666,7 @@ const Successors: React.FC = () => {
                         </div>
                         <input
                           type="checkbox"
+                          aria-label={`Assign entry ${entry.name}`}
                           checked={selectedEntryIds.includes(entry.id)}
                           onChange={() => toggleEntrySelection(entry.id)}
                         />

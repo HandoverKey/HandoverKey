@@ -2,6 +2,7 @@ import {
   getDatabaseClient,
   UserRepository,
   ActivityRepository,
+  InactivitySettingsRepository,
   type Database,
   type Transaction,
 } from "@handoverkey/database";
@@ -40,6 +41,37 @@ export class UserService {
   private static getActivityRepository(): ActivityRepository {
     const dbClient = getDatabaseClient();
     return new ActivityRepository(dbClient.getKysely());
+  }
+
+  private static getInactivitySettingsRepository(): InactivitySettingsRepository {
+    const dbClient = getDatabaseClient();
+    return new InactivitySettingsRepository(dbClient.getKysely());
+  }
+
+  /**
+   * Ensures a user has a default inactivity_settings row so the dead-man's
+   * switch actually monitors them. Safe to call repeatedly (no-op if exists).
+   */
+  static async ensureInactivitySettings(userId: string): Promise<void> {
+    const settingsRepo = this.getInactivitySettingsRepository();
+    try {
+      const existing = await settingsRepo.findByUserId(userId);
+      if (existing) {
+        return;
+      }
+      await settingsRepo.create({
+        user_id: userId,
+        threshold_days: 90,
+        notification_methods: ["email"],
+        is_paused: false,
+      });
+    } catch (error) {
+      // A concurrent insert (unique PK violation) is fine; otherwise log.
+      logger.warn(
+        { err: error, userId },
+        "Failed to ensure default inactivity settings",
+      );
+    }
   }
 
   static async createUser(
@@ -94,6 +126,10 @@ export class UserService {
       }
       throw error;
     }
+
+    // Enroll the new user in the dead-man's switch by creating default
+    // inactivity settings, so the inactivity monitor tracks them immediately.
+    await this.ensureInactivitySettings(dbUser.id);
 
     // Send verification email (don't fail registration if email fails)
     try {
@@ -501,7 +537,7 @@ export class UserService {
     newPassword: string,
     newSalt?: string,
     email?: string,
-  ): Promise<void> {
+  ): Promise<string> {
     const redis = getRedisClient();
     const userId = await redis.get(`RESET_TOKEN:${token}`);
 
@@ -559,6 +595,8 @@ export class UserService {
 
     // Log activity (no IP for system operations)
     await this.logActivity(userId, "PASSWORD_RESET");
+
+    return userId;
   }
 
   static async verifyUserByToken(

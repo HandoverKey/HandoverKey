@@ -77,6 +77,27 @@ export class SuccessorNotificationRepository {
     }
   }
 
+  async findBySuccessor(
+    handoverProcessId: string,
+    successorId: string,
+  ): Promise<SuccessorNotification | null> {
+    try {
+      const notification = await this.db
+        .selectFrom("successor_notifications")
+        .selectAll()
+        .where("handover_process_id", "=", handoverProcessId)
+        .where("successor_id", "=", successorId)
+        .executeTakeFirst();
+
+      return notification ?? null;
+    } catch (error) {
+      throw new QueryError(
+        `Failed to find successor notification: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error instanceof Error ? error : undefined,
+      );
+    }
+  }
+
   async findPendingVerifications(): Promise<SuccessorNotification[]> {
     try {
       const notifications = await this.db

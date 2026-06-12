@@ -1,10 +1,12 @@
 import jwt from "jsonwebtoken";
+import { randomUUID } from "node:crypto";
 import { SessionService } from "../services/session-service";
 
 export interface JWTPayload {
   userId: string;
   email: string;
   sessionId: string;
+  jti?: string;
   iat?: number;
   exp?: number;
 }
@@ -93,11 +95,24 @@ export class JWTManager {
       userId,
       email,
       sessionId: "refresh", // Special marker for refresh tokens
+      // Unique id so each refresh token (and thus its stored hash) is distinct,
+      // even when two are issued within the same second. Enables rotation.
+      jti: randomUUID(),
     };
 
     return jwt.sign(payload, this.getJwtSecret(), {
       expiresIn: this.REFRESH_TOKEN_EXPIRES_IN,
     } as jwt.SignOptions);
+  }
+
+  /**
+   * Absolute expiry for a freshly issued refresh token, based on
+   * JWT_REFRESH_EXPIRES_IN. Used for server-side refresh token tracking.
+   */
+  static getRefreshTokenExpiry(now: Date = new Date()): Date {
+    return new Date(
+      now.getTime() + this.parseDurationMs(this.REFRESH_TOKEN_EXPIRES_IN),
+    );
   }
 
   static verifyToken(token: string): JWTPayload {
