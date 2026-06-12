@@ -139,6 +139,7 @@ describe("Handover Routes Integration", () => {
 
       const orchestrator = new HandoverOrchestrator();
       const handover = await orchestrator.initiateHandover(user.userId);
+      // Grace expiration creates the successor_notifications rows itself.
       await orchestrator.processGracePeriodExpiration(handover.id);
 
       const db = getDatabaseClient().getKysely();
@@ -148,25 +149,6 @@ describe("Handover Routes Integration", () => {
         .select("verification_token")
         .where("user_id", "=", user.userId)
         .executeTakeFirstOrThrow();
-
-      const deadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      const successorRows = await db
-        .selectFrom("successors")
-        .select("id")
-        .where("user_id", "=", user.userId)
-        .execute();
-
-      await db
-        .insertInto("successor_notifications")
-        .values(
-          successorRows.map((s) => ({
-            handover_process_id: handover.id,
-            successor_id: s.id,
-            response_deadline: deadline,
-            verification_token: null,
-          })),
-        )
-        .execute();
 
       const res = await request(app).post("/api/v1/handover/respond").send({
         token: successor.verification_token,

@@ -84,6 +84,22 @@ describe("Handover Flow Integration", () => {
     await getDatabaseClient().close();
   });
 
+  it("should create default inactivity settings on registration", async () => {
+    const email = `enroll-test-${Date.now()}@example.com`;
+    const { userId } = await register(email);
+
+    const db = getDatabaseClient().getKysely();
+    const settings = await db
+      .selectFrom("inactivity_settings")
+      .selectAll()
+      .where("user_id", "=", userId)
+      .executeTakeFirst();
+
+    expect(settings).toBeDefined();
+    expect(settings!.threshold_days).toBe(90);
+    expect(settings!.is_paused).toBe(false);
+  });
+
   it("should store encrypted key share when adding a successor", async () => {
     const email = `share-test-${Date.now()}@example.com`;
     await register(email);
@@ -189,7 +205,7 @@ describe("Handover Flow Integration", () => {
     // Since we are monitoring logs in the run output, we can see if it worked.
   });
 
-  it("should deny successor access during grace period and allow after expiration", async () => {
+  it("should deny successor access until the successor accepts (1-of-1)", async () => {
     const email = `access-test-${Date.now()}@example.com`;
     const { userId } = await register(email);
     const token = await login(email);
@@ -232,24 +248,36 @@ describe("Handover Flow Integration", () => {
     const process = await orchestrator.initiateHandover(userId);
     expect(process.status).toBe(HandoverProcessStatus.GRACE_PERIOD);
 
-    // 5. Successor tries to verify/access -> Should fail (403 or logic specific)
-    // Actually, verify endpoint might work (to show status), but access endpoint should fail.
+    // 5. Email-verify the successor (confirms ownership of email).
     const verifyRes = await request(app).get(
       `/api/v1/successors/verify?token=${verificationToken}`,
     );
     expect(verifyRes.status).toBe(200);
 
-    // 6. Successor tries to GET vault entries -> Should be 403 Forbidden
+    // 6. Access during grace period -> 403 (not yet open).
     const accessRes = await request(app).get(
       `/api/v1/vault/successor-access?token=${verificationToken}`,
     );
     expect(accessRes.status).toBe(403);
     expect(accessRes.body.error).toMatch(/not yet open/i);
 
-    // 7. Expire Grace Period
+    // 7. Expire grace period -> AWAITING_SUCCESSORS + notifications created.
     await orchestrator.processGracePeriodExpiration(process.id);
 
-    // 8. Successor tries to GET vault entries -> Should be 200 OK
+    // 8. Access after expiration but BEFORE accepting -> 403 (must accept).
+    const beforeAccept = await request(app).get(
+      `/api/v1/vault/successor-access?token=${verificationToken}`,
+    );
+    expect(beforeAccept.status).toBe(403);
+    expect(beforeAccept.body.error).toMatch(/accept the handover/i);
+
+    // 9. Successor accepts the handover.
+    const respondRes = await request(app)
+      .post("/api/v1/handover/respond")
+      .send({ token: verificationToken, accepted: true });
+    expect(respondRes.status).toBe(200);
+
+    // 10. Now access is allowed (1-of-1 threshold met -> released).
     const accessResAllowed = await request(app).get(
       `/api/v1/vault/successor-access?token=${verificationToken}`,
     );
@@ -260,13 +288,13 @@ describe("Handover Flow Integration", () => {
     );
   });
 
-  it("should complete handover when all successors respond via processSuccessorResponse", async () => {
+  it("should require the K-of-N acceptance threshold before completing", async () => {
     const email = `respond-test-${Date.now()}@example.com`;
     const { userId } = await register(email);
     const token = await login(email);
     const auth = { Authorization: `Bearer ${token}` };
 
-    // 1. Add two successors
+    // 1. Add two successors (default threshold = min(2, N) = 2-of-2).
     const s1 = await request(app).post("/api/v1/successors").set(auth).send({
       email: "resp-successor-1@example.com",
       name: "Resp Successor 1",
@@ -283,34 +311,21 @@ describe("Handover Flow Integration", () => {
     const successorId1 = s1.body.successor.id;
     const successorId2 = s2.body.successor.id;
 
-    // 2. Initiate handover and move past grace period
+    // 2. Initiate handover and move past grace period (orchestrator creates
+    //    the successor_notifications rows itself).
     const orchestrator = new HandoverOrchestrator();
     const handover = await orchestrator.initiateHandover(userId);
     await orchestrator.processGracePeriodExpiration(handover.id);
 
-    // 3. Create successor_notifications for both successors
     const db = getDatabaseClient().getKysely();
-    const deadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-    await db
-      .insertInto("successor_notifications")
-      .values([
-        {
-          handover_process_id: handover.id,
-          successor_id: successorId1,
-          response_deadline: deadline,
-          verification_token: null,
-        },
-        {
-          handover_process_id: handover.id,
-          successor_id: successorId2,
-          response_deadline: deadline,
-          verification_token: null,
-        },
-      ])
+    const notifications = await db
+      .selectFrom("successor_notifications")
+      .selectAll()
+      .where("handover_process_id", "=", handover.id)
       .execute();
+    expect(notifications).toHaveLength(2);
 
-    // 4. First successor responds -- handover should NOT complete yet
+    // 3. First successor accepts -- below threshold, must NOT complete.
     await orchestrator.processSuccessorResponse(handover.id, successorId1, {
       accepted: true,
     });
@@ -322,18 +337,9 @@ describe("Handover Flow Integration", () => {
       .executeTakeFirstOrThrow();
     expect(afterFirst.status).toBe(HandoverProcessStatus.AWAITING_SUCCESSORS);
 
-    // Verify notification status updated to VERIFIED
-    const n1 = await db
-      .selectFrom("successor_notifications")
-      .select("verification_status")
-      .where("handover_process_id", "=", handover.id)
-      .where("successor_id", "=", successorId1)
-      .executeTakeFirstOrThrow();
-    expect(n1.verification_status).toBe("VERIFIED");
-
-    // 5. Second successor responds -- handover should now COMPLETE
+    // 4. Second successor accepts -- threshold reached -> COMPLETED.
     await orchestrator.processSuccessorResponse(handover.id, successorId2, {
-      accepted: false,
+      accepted: true,
     });
 
     const afterSecond = await db
@@ -342,15 +348,55 @@ describe("Handover Flow Integration", () => {
       .where("id", "=", handover.id)
       .executeTakeFirstOrThrow();
     expect(afterSecond.status).toBe(HandoverProcessStatus.COMPLETED);
+  });
 
-    // Verify second notification status is DECLINED
-    const n2 = await db
-      .selectFrom("successor_notifications")
-      .select("verification_status")
-      .where("handover_process_id", "=", handover.id)
-      .where("successor_id", "=", successorId2)
+  it("should expire (not complete) when not enough successors accept", async () => {
+    const email = `decline-test-${Date.now()}@example.com`;
+    const { userId } = await register(email);
+    const token = await login(email);
+    const auth = { Authorization: `Bearer ${token}` };
+
+    const s1 = await request(app).post("/api/v1/successors").set(auth).send({
+      email: "decline-successor-1@example.com",
+      name: "Decline Successor 1",
+      handoverDelayDays: 7,
+      encryptedShare: "share-1",
+    });
+    const s2 = await request(app).post("/api/v1/successors").set(auth).send({
+      email: "decline-successor-2@example.com",
+      name: "Decline Successor 2",
+      handoverDelayDays: 7,
+      encryptedShare: "share-2",
+    });
+
+    const orchestrator = new HandoverOrchestrator();
+    const handover = await orchestrator.initiateHandover(userId);
+    await orchestrator.processGracePeriodExpiration(handover.id);
+
+    // One accepts, one declines: acceptedCount (1) < threshold (2) and all
+    // responded -> EXPIRED, vault never released.
+    await orchestrator.processSuccessorResponse(
+      handover.id,
+      s1.body.successor.id,
+      {
+        accepted: true,
+      },
+    );
+    await orchestrator.processSuccessorResponse(
+      handover.id,
+      s2.body.successor.id,
+      {
+        accepted: false,
+      },
+    );
+
+    const db = getDatabaseClient().getKysely();
+    const final = await db
+      .selectFrom("handover_processes")
+      .select("status")
+      .where("id", "=", handover.id)
       .executeTakeFirstOrThrow();
-    expect(n2.verification_status).toBe("DECLINED");
+    expect(final.status).toBe(HandoverProcessStatus.EXPIRED);
   });
 
   it("should handle bulk update of successor shares", async () => {

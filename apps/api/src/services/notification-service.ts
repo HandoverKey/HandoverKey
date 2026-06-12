@@ -156,7 +156,6 @@ export class NotificationService implements INotificationService {
         const content = this.createHandoverAlertContent(
           successor.name || "Successor",
           successor.email,
-          successor.encrypted_share,
           successor.verification_token,
         );
 
@@ -457,20 +456,27 @@ export class NotificationService implements INotificationService {
   private createHandoverAlertContent(
     successorName: string,
     _successorEmail: string,
-    encryptedShare?: string | null,
     verificationToken?: string | null,
   ): { subject: string; html: string } {
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const successorAccessLink = verificationToken
       ? `${baseUrl}/successor-access?token=${verificationToken}`
       : `${baseUrl}/verify-successor`;
-    const shareSection = encryptedShare
-      ? `YOUR KEY SHARE:\n${encryptedShare}\n\nStore this securely.`
-      : "No key share was attached to this notification.";
 
-    const securityWarning = encryptedShare
-      ? "Security warning: this share is sensitive. Store it in a secure channel."
-      : "If you expected a key share, contact support.";
+    // Zero-knowledge: key shares are NEVER sent by email. The encrypted share
+    // lives in the successor portal and can only be unwrapped with the recovery
+    // passphrase the account owner gave you separately (in person, sealed
+    // letter, password manager, etc.).
+    const shareSection =
+      "No key share is included in this email for your security. " +
+      "Your encrypted share is waiting in the successor portal and can only be " +
+      "unlocked with the recovery passphrase the account owner shared with you " +
+      "separately.";
+
+    const securityWarning =
+      "HandoverKey will never email you a key share or ask for your recovery " +
+      "passphrase. Open the successor portal and follow the guided steps to " +
+      "unlock the vault.";
 
     return {
       subject: "HandoverKey: Digital Asset Handover Initiated",
