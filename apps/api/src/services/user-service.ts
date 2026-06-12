@@ -537,7 +537,7 @@ export class UserService {
     newPassword: string,
     newSalt?: string,
     email?: string,
-  ): Promise<void> {
+  ): Promise<string> {
     const redis = getRedisClient();
     const userId = await redis.get(`RESET_TOKEN:${token}`);
 
@@ -595,6 +595,8 @@ export class UserService {
 
     // Log activity (no IP for system operations)
     await this.logActivity(userId, "PASSWORD_RESET");
+
+    return userId;
   }
 
   static async verifyUserByToken(

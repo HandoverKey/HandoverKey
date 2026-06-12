@@ -1,6 +1,7 @@
 export * from "./user-repository";
 export * from "./vault-repository";
 export * from "./session-repository";
+export * from "./refresh-token-repository";
 export * from "./activity-repository";
 export * from "./inactivity-settings-repository";
 export * from "./handover-process-repository";

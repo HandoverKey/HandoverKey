@@ -63,6 +63,25 @@ export type Session = Selectable<SessionsTable>;
 export type NewSession = Insertable<SessionsTable>;
 export type SessionUpdate = Updateable<SessionsTable>;
 
+// Refresh token table types (server-side tracking so refresh tokens are
+// revocable and rotated on use).
+export interface RefreshTokensTable {
+  id: Generated<string>;
+  user_id: string;
+  token_hash: string;
+  expires_at: ColumnType<Date, Date | string, Date | string>;
+  revoked_at: ColumnType<
+    Date | null,
+    Date | string | null,
+    Date | string | null
+  >;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+}
+
+export type RefreshToken = Selectable<RefreshTokensTable>;
+export type NewRefreshToken = Insertable<RefreshTokensTable>;
+export type RefreshTokenUpdate = Updateable<RefreshTokensTable>;
+
 // Vault entries table types
 export interface VaultEntriesTable {
   id: Generated<string>;
@@ -318,6 +337,7 @@ export type NewWaitlistEntry = Insertable<WaitlistTable>;
 export interface Database {
   users: UsersTable;
   sessions: SessionsTable;
+  refresh_tokens: RefreshTokensTable;
   vault_entries: VaultEntriesTable;
   activity_logs: ActivityLogsTable;
   activity_records: ActivityRecordsTable;

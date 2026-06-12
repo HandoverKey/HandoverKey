@@ -24,6 +24,7 @@ const MIGRATION_FILES = [
   "add_subscription_fields.sql",
   "create_waitlist_table.sql",
   "hard_delete_cascades.sql",
+  "create_refresh_tokens.sql",
 ];
 
 import { Generated } from "kysely";
