@@ -28,7 +28,9 @@ BEGIN
         FROM information_schema.table_constraints tc
         JOIN information_schema.key_column_usage kcu
           ON kcu.constraint_name = tc.constraint_name
-        WHERE tc.table_name = target_table
+          AND kcu.constraint_schema = tc.constraint_schema
+        WHERE tc.table_schema = 'public'
+          AND tc.table_name = target_table
           AND tc.constraint_type = 'FOREIGN KEY'
           AND kcu.column_name = 'user_id'
       LOOP

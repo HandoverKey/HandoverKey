@@ -298,8 +298,15 @@ Add a new idempotent `.sql` file under `apps/api/src/database/schema/` (use
 `CREATE TABLE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`) and
 append its filename to the `MIGRATION_FILES` array in
 `apps/api/src/database/migrate.ts`. The test bootstrap
-(`apps/api/src/__tests__/global-setup.ts`) applies the same ordered list, so
-keep the two arrays in sync.
+(`apps/api/src/__tests__/global-setup.ts`) applies the migrations in the same
+order, so add it there too and keep the ordering of the shared migrations in
+sync between the two arrays.
+
+> Note: the two arrays are not byte-for-byte identical. `migrate.ts` applies
+> `migrations_table.sql` separately (before the loop) and therefore omits it
+> from `MIGRATION_FILES`, whereas `global-setup.ts` lists `migrations_table.sql`
+> as the first entry and applies it inline without recording it. Only the
+> ordinary migrations after the migrations table need to be kept in sync.
 
 ## Connection Management
 

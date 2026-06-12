@@ -92,9 +92,15 @@ export class RealtimeService {
         logger.warn({ err: error }, "Realtime subscriber error");
       });
       await subscriber.connect();
-      await subscriber.subscribe(CLUSTER_CHANNEL, (raw: string) => {
-        this.handleClusterMessage(raw);
-      });
+      try {
+        await subscriber.subscribe(CLUSTER_CHANNEL, (raw: string) => {
+          this.handleClusterMessage(raw);
+        });
+      } catch (subscribeError) {
+        // Don't leak the duplicated connection if subscribe fails after connect.
+        await subscriber.quit().catch(() => {});
+        throw subscribeError;
+      }
       this.subscriber = subscriber;
       logger.info("Realtime clustering enabled (Redis pub/sub)");
     } catch (error) {
