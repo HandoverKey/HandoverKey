@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 import { setMasterKey, deriveAuthKey } from "../services/encryption";
@@ -15,13 +16,24 @@ const Login: React.FC = () => {
   const [useRecoveryCode, setUseRecoveryCode] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
+  const twoFactorInputRef = useRef<HTMLInputElement>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // When the 2FA field is revealed, move focus to it so the user can type the
+  // code immediately without hunting for the input.
+  useEffect(() => {
+    if (show2FA && !useRecoveryCode) {
+      twoFactorInputRef.current?.focus();
+    }
+  }, [show2FA, useRecoveryCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
     try {
       // 1. Derive Auth Key (Client-side Hashing)
@@ -51,6 +63,18 @@ const Login: React.FC = () => {
       login(userData);
       navigate("/dashboard");
     } catch (err: unknown) {
+      // If the server says a second factor is required, reveal the 2FA field
+      // and keep the entered credentials so the user can finish signing in.
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.status === 401 &&
+        err.response.data?.twoFactorRequired
+      ) {
+        setShow2FA(true);
+        setError("");
+        setInfo("Enter your two-factor code to finish signing in.");
+        return;
+      }
       setError(getApiErrorMessage(err, "Failed to login"));
     } finally {
       setLoading(false);
@@ -101,6 +125,15 @@ const Login: React.FC = () => {
             {error && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
+              </div>
+            )}
+
+            {info && (
+              <div
+                role="status"
+                className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg text-sm"
+              >
+                {info}
               </div>
             )}
 
@@ -181,6 +214,7 @@ const Login: React.FC = () => {
                     </label>
                     <input
                       id="two-factor-code"
+                      ref={twoFactorInputRef}
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]{6}"

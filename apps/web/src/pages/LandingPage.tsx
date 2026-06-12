@@ -749,11 +749,17 @@ function ConflictCard({
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const answerId = `faq-answer-${question
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")}`;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={answerId}
         className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
         <span className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
@@ -770,6 +776,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
+            id={answerId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
