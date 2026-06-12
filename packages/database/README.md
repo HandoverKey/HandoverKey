@@ -278,35 +278,35 @@ All repositories follow the same pattern:
 
 ## Migrations
 
+This package no longer owns a separate migration runner. There is a **single**
+migration system for the whole project: the ordered SQL files in
+`apps/api/src/database/schema/` applied by `apps/api/src/database/migrate.ts`.
+
 ### Running Migrations
 
 ```bash
-# Run all pending migrations
-npm run migrate:latest
+# Apply all pending schema migrations (dev / CI)
+npm run migrate -w @handoverkey/api
 
-# Rollback last migration
-npm run migrate:rollback
+# Production (bundled): applies migrations, then starts the API
+npm run start:prod:migrate-and-start -w @handoverkey/api
 ```
 
 ### Creating Migrations
 
-Migrations are TypeScript files in `src/migrations/`:
+Add a new idempotent `.sql` file under `apps/api/src/database/schema/` (use
+`CREATE TABLE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`) and
+append its filename to the `MIGRATION_FILES` array in
+`apps/api/src/database/migrate.ts`. The test bootstrap
+(`apps/api/src/__tests__/global-setup.ts`) applies the migrations in the same
+order, so add it there too and keep the ordering of the shared migrations in
+sync between the two arrays.
 
-```typescript
-import { Kysely } from "kysely";
-
-export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable("new_table")
-    .addColumn("id", "uuid", (col) => col.primaryKey())
-    .addColumn("name", "varchar(255)", (col) => col.notNull())
-    .execute();
-}
-
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("new_table").execute();
-}
-```
+> Note: the two arrays are not byte-for-byte identical. `migrate.ts` applies
+> `migrations_table.sql` separately (before the loop) and therefore omits it
+> from `MIGRATION_FILES`, whereas `global-setup.ts` lists `migrations_table.sql`
+> as the first entry and applies it inline without recording it. Only the
+> ordinary migrations after the migrations table need to be kept in sync.
 
 ## Connection Management
 
