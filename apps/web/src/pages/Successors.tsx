@@ -666,6 +666,7 @@ const Successors: React.FC = () => {
                         </div>
                         <input
                           type="checkbox"
+                          aria-label={`Assign entry ${entry.name}`}
                           checked={selectedEntryIds.includes(entry.id)}
                           onChange={() => toggleEntrySelection(entry.id)}
                         />

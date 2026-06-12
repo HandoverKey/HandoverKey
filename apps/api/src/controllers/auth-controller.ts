@@ -140,6 +140,17 @@ export class AuthController {
 
       // Secure 2FA check
       if (user.twoFactorEnabled === true) {
+        // Password was correct but no second factor was supplied yet. Signal
+        // the client to reveal the 2FA field WITHOUT recording a failed login
+        // attempt (the user has not actually failed authentication).
+        if (!twoFactorCode && !recoveryCode) {
+          res.status(401).json({
+            error: "Two-factor authentication required",
+            twoFactorRequired: true,
+          });
+          return;
+        }
+
         await UserService.verifyTwoFactorChallenge({
           userId: user.id,
           twoFactorSecret: user.twoFactorSecret,
