@@ -238,6 +238,12 @@ describe("Vault and Successors Integration", () => {
     const process = await orchestrator.initiateHandover(userId);
     await orchestrator.processGracePeriodExpiration(process.id);
 
+    // Successor must accept before access is granted (1-of-1 threshold).
+    const respondRes = await request(app)
+      .post("/api/v1/handover/respond")
+      .send({ token: verificationToken, accepted: true });
+    expect(respondRes.status).toBe(200);
+
     const successorAccess = await request(app).get(
       `/api/v1/vault/successor-access?token=${verificationToken}`,
     );

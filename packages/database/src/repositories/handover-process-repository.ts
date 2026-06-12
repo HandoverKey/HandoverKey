@@ -51,7 +51,7 @@ export class HandoverProcessRepository {
         .selectFrom("handover_processes")
         .selectAll()
         .where("user_id", "=", userId)
-        .where("status", "not in", ["completed", "cancelled"])
+        .where("status", "not in", ["completed", "cancelled", "expired"])
         .orderBy("created_at", "desc")
         .limit(1)
         .executeTakeFirst();
@@ -60,6 +60,29 @@ export class HandoverProcessRepository {
     } catch (error) {
       throw new QueryError(
         `Failed to find active handover process: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error instanceof Error ? error : undefined,
+      );
+    }
+  }
+
+  /**
+   * Returns the most recent handover process for a user regardless of status
+   * (including terminal states such as completed/expired/cancelled).
+   */
+  async findLatestByUserId(userId: string): Promise<HandoverProcess | null> {
+    try {
+      const process = await this.db
+        .selectFrom("handover_processes")
+        .selectAll()
+        .where("user_id", "=", userId)
+        .orderBy("created_at", "desc")
+        .limit(1)
+        .executeTakeFirst();
+
+      return process ?? null;
+    } catch (error) {
+      throw new QueryError(
+        `Failed to find latest handover process: ${error instanceof Error ? error.message : "Unknown error"}`,
         error instanceof Error ? error : undefined,
       );
     }

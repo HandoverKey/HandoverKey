@@ -161,6 +161,9 @@ export enum HandoverProcessStatus {
   READY_FOR_TRANSFER = "ready_for_transfer",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
+  // Terminal state when the response window closed without enough successors
+  // accepting (e.g. all declined). The vault is never released in this state.
+  EXPIRED = "expired",
 }
 
 export enum ReminderType {
