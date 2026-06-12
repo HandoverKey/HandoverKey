@@ -35,7 +35,10 @@ The platform works as a dead man's switch:
 
 `v1.2.0` is the current release. <!-- x-release-please-version -->
 
-The repository now ships a production-grade web app and API with:
+HandoverKey is an actively developed, feature-rich web app and API. It is
+beyond a prototype but is **not yet a hardened, audited production service** —
+treat it as an advanced beta and review the [security docs](docs/security.md)
+before trusting it with irreplaceable secrets. The current build includes:
 
 - client-side encrypted vault storage
 - TOTP 2FA with recovery codes and password strength enforcement
@@ -51,6 +54,24 @@ The repository now ships a production-grade web app and API with:
 
 Roadmap items such as mobile clients, passkeys, and broader multi-platform support
 remain future work.
+
+## Plans & the dead man's switch
+
+The automated dead man's switch hands a master key to your successors by
+splitting it with Shamir's Secret Sharing, which **requires at least two
+successors** (a `K`-of-`N` scheme where `N ≥ 2`).
+
+| Plan   | Vault entries | Successors | Automated Shamir handover           |
+| ------ | ------------- | ---------- | ----------------------------------- |
+| Free   | up to 5       | 1          | Not available (needs 2+ successors) |
+| Pro    | expanded      | multiple   | Available                           |
+| Family | expanded      | multiple   | Available                           |
+
+The **Free** tier is a fully client-side encrypted vault with a single
+designated successor for record-keeping; the **multi-successor automated
+key-share handover is a paid feature** because it needs two or more successors
+to function. Supporting a single-successor (`1`-of-`1`) handover is tracked as a
+potential future enhancement.
 
 ## Key Features
 

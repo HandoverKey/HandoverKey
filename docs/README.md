@@ -1,7 +1,7 @@
 # Documentation Index
 
 This folder contains the maintained technical and operational documentation for
-HandoverKey `v2.0.0`.
+HandoverKey `v1.2.0`.
 
 ## Start Here
 

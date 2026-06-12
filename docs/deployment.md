@@ -228,4 +228,4 @@ what the repository actually ships today.
 ---
 
 **Last Updated**: 2026-03-18
-**Version**: 2.0.0
+**Version**: 1.2.0
