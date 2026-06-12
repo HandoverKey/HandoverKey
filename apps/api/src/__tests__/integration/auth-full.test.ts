@@ -197,6 +197,9 @@ describe("Auth Full Flow Integration", () => {
       .post("/api/v1/auth/login")
       .send({ email, password });
     expect(loginWithout2fa.status).toBe(401);
+    // The client relies on this flag to reveal the 2FA input instead of
+    // treating the 401 as a credential failure.
+    expect(loginWithout2fa.body.twoFactorRequired).toBe(true);
 
     const loginWith2fa = await request(app)
       .post("/api/v1/auth/login")

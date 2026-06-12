@@ -258,11 +258,15 @@ const Vault: React.FC = () => {
     if (!pendingReplaceImport) {
       return;
     }
+    // Capture the entries and close the modal immediately so the confirm
+    // button can't be clicked repeatedly to fire duplicate replace requests.
+    const entries = pendingReplaceImport;
+    setPendingReplaceImport(null);
     setImporting(true);
     try {
       await api.post("/vault/import", {
         mode: "replace",
-        entries: pendingReplaceImport,
+        entries,
       });
       success("Vault replaced from import file");
       await fetchEntries();
@@ -270,7 +274,6 @@ const Vault: React.FC = () => {
       showError("Failed to import vault file");
     } finally {
       setImporting(false);
-      setPendingReplaceImport(null);
     }
   };
 

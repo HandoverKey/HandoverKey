@@ -67,6 +67,8 @@ const Dashboard: React.FC = () => {
   const [setupStatus, setSetupStatus] = useState<SetupStatus | null>(null);
   const [safety, setSafety] = useState<SafetyStatus | null>(null);
   const [handover, setHandover] = useState<HandoverStatus | null>(null);
+  const [handoverStatusUnavailable, setHandoverStatusUnavailable] =
+    useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   useEffect(() => {
@@ -80,6 +82,10 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const fetchData = useCallback(async () => {
+    // Track handover-status failures separately: silently assuming "no
+    // handover" could hide a genuinely active handover from the user, so we
+    // surface the uncertainty instead of dropping the red banner.
+    let handoverStatusFailed = false;
     try {
       const [vaultRes, successorsRes, activityRes, inactivityRes, handoverRes] =
         await Promise.all([
@@ -92,7 +98,10 @@ const Dashboard: React.FC = () => {
             if (status === 404) return null;
             throw err;
           }),
-          api.get("/handover/status").catch(() => null),
+          api.get("/handover/status").catch(() => {
+            handoverStatusFailed = true;
+            return null;
+          }),
         ]);
 
       // Vault returns array directly
@@ -145,6 +154,7 @@ const Dashboard: React.FC = () => {
       });
 
       const handoverData = handoverRes?.data;
+      setHandoverStatusUnavailable(handoverStatusFailed);
       setHandover(
         handoverData?.active
           ? {
@@ -284,6 +294,37 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {!loading && handoverStatusUnavailable && (
+        <div
+          role="alert"
+          className="mt-8 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-5"
+        >
+          <div className="flex items-start gap-3">
+            <ExclamationTriangleIcon
+              className="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400"
+              aria-hidden="true"
+            />
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-amber-800 dark:text-amber-300">
+                Handover status unavailable
+              </h3>
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                We couldn&apos;t check whether a handover is currently in
+                progress. If you were expecting a notice here, refresh the page
+                to try again.
+              </p>
+              <button
+                onClick={fetchData}
+                className="mt-3 btn btn-secondary"
+                type="button"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!loading && handover?.active && (
         <div className="mt-8 rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-5">
           <div className="flex items-start gap-3">
@@ -293,7 +334,7 @@ const Dashboard: React.FC = () => {
             />
             <div className="flex-1">
               <h3 className="text-base font-semibold text-red-800 dark:text-red-300">
-                {handover.status === "grace_period"
+                {handover.status?.toUpperCase() === "GRACE_PERIOD"
                   ? "Handover grace period in progress"
                   : "Handover in progress"}
               </h3>
