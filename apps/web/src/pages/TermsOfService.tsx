@@ -34,7 +34,7 @@ export default function TermsOfService() {
         </h1>
         <div className="prose prose-blue max-w-none bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Last updated: {new Date().toLocaleDateString()}
+            Last updated: June 12, 2026
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">
