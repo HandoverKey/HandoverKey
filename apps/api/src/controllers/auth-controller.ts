@@ -359,9 +359,11 @@ export class AuthController {
       }
 
       // Revoke the presented refresh token so it cannot mint new access tokens.
+      // Surface revocation failures instead of reporting a false-positive
+      // logout: a stolen token must not remain active while we claim success.
       const refreshToken = req.cookies?.refreshToken;
       if (refreshToken) {
-        await RefreshTokenService.revoke(refreshToken).catch(() => {});
+        await RefreshTokenService.revoke(refreshToken);
       }
 
       // Log logout (req.user is validated by SessionService)
@@ -390,17 +392,28 @@ export class AuthController {
 
       const decoded = JWTManager.verifyToken(refreshToken);
 
-      // The refresh token must be tracked server-side and not revoked/expired.
-      // This makes refresh tokens revocable (logout, password reset, etc.).
-      const isActive = await RefreshTokenService.isActive(refreshToken);
-      if (!isActive) {
-        throw new AuthenticationError("Invalid or revoked refresh token");
-      }
-
       const user = await UserService.findUserById(decoded.userId);
 
       if (!user) {
         throw new AuthenticationError("Invalid refresh token");
+      }
+
+      const newRefreshToken = JWTManager.generateRefreshToken(
+        user.id,
+        user.email,
+      );
+
+      // Rotate atomically: the presented token is revoked and the replacement
+      // stored in a single race-safe step. Two concurrent refreshes with the
+      // same token can no longer both succeed -- only the caller that wins the
+      // revocation proceeds; the loser is rejected as a replay.
+      const rotated = await RefreshTokenService.rotate(
+        user.id,
+        refreshToken,
+        newRefreshToken,
+      );
+      if (!rotated) {
+        throw new AuthenticationError("Invalid or revoked refresh token");
       }
 
       const { token: newAccessToken } = await JWTManager.generateAccessToken(
@@ -411,12 +424,6 @@ export class AuthController {
           userAgent: req.get("user-agent"),
         },
       );
-      const newRefreshToken = JWTManager.generateRefreshToken(
-        user.id,
-        user.email,
-      );
-      // Rotate: revoke the used token and persist the replacement.
-      await RefreshTokenService.rotate(user.id, refreshToken, newRefreshToken);
 
       res.cookie("accessToken", newAccessToken, cookieOpts(60 * 60 * 1000));
       res.cookie(

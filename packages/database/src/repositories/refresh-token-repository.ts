@@ -42,14 +42,21 @@ export class RefreshTokenRepository {
     }
   }
 
-  async revokeByTokenHash(tokenHash: string): Promise<void> {
+  /**
+   * Atomically revokes a token only if it is currently active. Returns true if
+   * this call is the one that flipped it to revoked, false if it was already
+   * revoked/absent. The `revoked_at IS NULL` predicate makes concurrent
+   * refreshes of the same token race-safe: only one caller observes `true`.
+   */
+  async revokeByTokenHash(tokenHash: string): Promise<boolean> {
     try {
-      await this.db
+      const result = await this.db
         .updateTable("refresh_tokens")
         .set({ revoked_at: new Date() })
         .where("token_hash", "=", tokenHash)
         .where("revoked_at", "is", null)
-        .execute();
+        .executeTakeFirst();
+      return Number(result.numUpdatedRows) > 0;
     } catch (error) {
       throw new QueryError(
         `Failed to revoke refresh token: ${error instanceof Error ? error.message : "Unknown error"}`,

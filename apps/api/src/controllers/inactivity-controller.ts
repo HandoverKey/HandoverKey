@@ -69,12 +69,15 @@ export class InactivityController {
       const { pauseUntil } = req.body;
       const pauseDate = pauseUntil ? new Date(pauseUntil) : undefined;
 
-      await InactivityService.pauseSwitch(req.user.userId, pauseDate);
+      const effectivePauseUntil = await InactivityService.pauseSwitch(
+        req.user.userId,
+        pauseDate,
+      );
       await UserService.logActivity(req.user.userId, "SWITCH_PAUSED", req.ip);
 
       res.json({
         message: "Dead man's switch paused successfully",
-        pausedUntil: pauseDate,
+        pausedUntil: effectivePauseUntil,
       });
     } catch (error) {
       next(error);

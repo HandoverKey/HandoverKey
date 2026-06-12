@@ -44,8 +44,12 @@ export class RefreshTokenService {
     return row !== null;
   }
 
-  static async revoke(token: string): Promise<void> {
-    await this.getRepository().revokeByTokenHash(this.hashToken(token));
+  /**
+   * Revokes a token if active. Returns true when this call performed the
+   * revocation (i.e. won the race), false if it was already revoked/unknown.
+   */
+  static async revoke(token: string): Promise<boolean> {
+    return await this.getRepository().revokeByTokenHash(this.hashToken(token));
   }
 
   static async revokeAllForUser(userId: string): Promise<void> {
@@ -53,14 +57,21 @@ export class RefreshTokenService {
   }
 
   /**
-   * Rotates a refresh token: revokes the presented token and stores the new one.
+   * Rotates a refresh token: atomically revokes the presented token and, only
+   * if this call won the revocation race, stores the replacement. Returns false
+   * if the presented token was already revoked (replay/concurrent use), in which
+   * case no new token is issued.
    */
   static async rotate(
     userId: string,
     oldToken: string,
     newToken: string,
-  ): Promise<void> {
-    await this.revoke(oldToken);
+  ): Promise<boolean> {
+    const revoked = await this.revoke(oldToken);
+    if (!revoked) {
+      return false;
+    }
     await this.store(userId, newToken);
+    return true;
   }
 }

@@ -180,7 +180,10 @@ export class InactivityService {
    * Pauses the dead man's switch for a user. Any pause date beyond
    * MAX_PAUSE_DAYS is clamped so the switch can never be disabled indefinitely.
    */
-  static async pauseSwitch(userId: string, pauseUntil?: Date): Promise<void> {
+  static async pauseSwitch(
+    userId: string,
+    pauseUntil?: Date,
+  ): Promise<Date | undefined> {
     const settingsRepo = this.getInactivitySettingsRepository();
 
     let effectivePauseUntil = pauseUntil;
@@ -197,6 +200,10 @@ export class InactivityService {
       is_paused: true,
       paused_until: effectivePauseUntil,
     });
+
+    // Return the effective (clamped) value so callers report what was actually
+    // applied rather than the unclamped requested date.
+    return effectivePauseUntil;
   }
 
   /**
