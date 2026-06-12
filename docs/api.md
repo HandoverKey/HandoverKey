@@ -1,6 +1,6 @@
 # HandoverKey API Reference
 
-This document describes the current `v2.0.0` API surface implemented in
+This document describes the current `v1.2.0` API surface implemented in
 `apps/api`.
 
 ## Base URLs
@@ -263,4 +263,4 @@ For shipped behavior, prefer:
 ---
 
 **Last Updated**: 2026-03-18
-**Version**: 2.0.0
+**Version**: 1.2.0

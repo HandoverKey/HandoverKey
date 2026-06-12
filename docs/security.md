@@ -134,4 +134,4 @@ Please follow [`../SECURITY.md`](../SECURITY.md) and email
 ---
 
 **Last Updated**: 2026-03-18
-**Version**: 2.0.0
+**Version**: 1.2.0
