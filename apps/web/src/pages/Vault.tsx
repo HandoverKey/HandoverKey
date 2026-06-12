@@ -40,6 +40,11 @@ const Vault: React.FC = () => {
   const [selectedEntry, setSelectedEntry] = useState<VaultEntry | null>(null);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  // Holds a parsed "replace" import awaiting explicit confirmation, since it
+  // wipes the existing vault before importing.
+  const [pendingReplaceImport, setPendingReplaceImport] = useState<
+    unknown[] | null
+  >(null);
   const [upgradeModal, setUpgradeModal] = useState<{
     open: boolean;
     tier: string;
@@ -101,6 +106,7 @@ const Vault: React.FC = () => {
       setEntries(decryptedEntries);
     } catch (error) {
       console.error("Failed to fetch vault entries", error);
+      showError("Failed to load your vault. Please refresh and try again.");
     } finally {
       setLoading(false);
     }
@@ -228,13 +234,15 @@ const Vault: React.FC = () => {
         throw new Error("Invalid import file format");
       }
 
-      await api.post("/vault/import", {
-        mode:
-          !Array.isArray(parsed) && parsed.mode === "replace"
-            ? "replace"
-            : "merge",
-        entries,
-      });
+      const isReplace = !Array.isArray(parsed) && parsed.mode === "replace";
+
+      if (isReplace) {
+        // Don't destroy the existing vault without explicit confirmation.
+        setPendingReplaceImport(entries);
+        return;
+      }
+
+      await api.post("/vault/import", { mode: "merge", entries });
 
       success("Vault import completed");
       await fetchEntries();
@@ -243,6 +251,26 @@ const Vault: React.FC = () => {
     } finally {
       setImporting(false);
       event.target.value = "";
+    }
+  };
+
+  const confirmReplaceImport = async () => {
+    if (!pendingReplaceImport) {
+      return;
+    }
+    setImporting(true);
+    try {
+      await api.post("/vault/import", {
+        mode: "replace",
+        entries: pendingReplaceImport,
+      });
+      success("Vault replaced from import file");
+      await fetchEntries();
+    } catch {
+      showError("Failed to import vault file");
+    } finally {
+      setImporting(false);
+      setPendingReplaceImport(null);
     }
   };
 
@@ -348,8 +376,17 @@ const Vault: React.FC = () => {
             {filteredEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="card p-6 hover:shadow-apple-lg transition-shadow cursor-pointer group"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open secret ${entry.name || "Untitled Secret"}`}
+                className="card p-6 hover:shadow-apple-lg transition-shadow cursor-pointer group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 onClick={() => handleEntryClick(entry)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleEntryClick(entry);
+                  }
+                }}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
@@ -417,6 +454,16 @@ const Vault: React.FC = () => {
         accept="application/json"
         className="hidden"
         onChange={handleImportFile}
+      />
+
+      <ConfirmationModal
+        isOpen={pendingReplaceImport !== null}
+        onClose={() => setPendingReplaceImport(null)}
+        onConfirm={confirmReplaceImport}
+        title="Replace entire vault?"
+        message="This import is set to REPLACE mode. All of your current secrets will be permanently deleted and replaced with the contents of this file. This cannot be undone."
+        confirmText="Replace vault"
+        type="danger"
       />
 
       <UpgradeModal
