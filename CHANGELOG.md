@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/HandoverKey/HandoverKey/compare/v1.2.0...v1.3.0) (2026-06-12)
+
+
+### Features
+
+* trust UX & accessibility ([#261](https://github.com/HandoverKey/HandoverKey/issues/261)) ([ce805e0](https://github.com/HandoverKey/HandoverKey/commit/ce805e0ca744bc4f45a7baa36e83e9a154d0f261))
+
+
+### Bug Fixes
+
+* close critical zero-knowledge & dead-man's-switch trust gaps ([#258](https://github.com/HandoverKey/HandoverKey/issues/258)) ([c5e7956](https://github.com/HandoverKey/HandoverKey/commit/c5e79565bc3c83b608e7843bdab9f3b83e4f7a43))
+* consolidate migrations & make horizontal scaling safe ([#259](https://github.com/HandoverKey/HandoverKey/issues/259)) ([8a42a78](https://github.com/HandoverKey/HandoverKey/commit/8a42a7821a432c497a40e69fa6ddc56ff137512c))
+* harden sessions, refresh tokens & pause limits ([#260](https://github.com/HandoverKey/HandoverKey/issues/260)) ([eba8eae](https://github.com/HandoverKey/HandoverKey/commit/eba8eae37199df13165b9cc45da24ec18de144ca))
+
 ## [1.2.0](https://github.com/HandoverKey/HandoverKey/compare/v1.1.3...v1.2.0) (2026-05-02)
 
 

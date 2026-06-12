@@ -33,7 +33,7 @@ The platform works as a dead man's switch:
 
 ## Project Status
 
-`v1.2.0` is the current release. <!-- x-release-please-version -->
+`v1.3.0` is the current release. <!-- x-release-please-version -->
 
 HandoverKey is an actively developed, feature-rich web app and API. It is
 beyond a prototype but is **not yet a hardened, audited production service** —
