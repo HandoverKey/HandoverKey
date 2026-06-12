@@ -117,7 +117,16 @@ const SuccessorAccess: React.FC = () => {
   };
 
   const base64ToBytes = (value: string): Uint8Array => {
-    const binary = atob(value.trim());
+    // Strip all whitespace/newlines that may have crept in when a share was
+    // copied around, so a stray line break doesn't surface as a cryptic
+    // DOMException from atob().
+    const sanitized = value.replace(/\s+/g, "");
+    let binary: string;
+    try {
+      binary = atob(sanitized);
+    } catch {
+      throw new Error("Invalid share: not valid Base64 data.");
+    }
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);

@@ -385,7 +385,7 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         const now = Date.now();
         for (const successor of successors) {
           const windowDays =
-            successor.handover_delay_days || DEFAULT_RESPONSE_WINDOW_DAYS;
+            successor.handover_delay_days ?? DEFAULT_RESPONSE_WINDOW_DAYS;
           await notificationRepo.create({
             handover_process_id: handoverId,
             successor_id: successor.id,

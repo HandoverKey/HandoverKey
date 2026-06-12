@@ -463,8 +463,14 @@ const Successors: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
+                        if (!navigator.clipboard?.writeText) {
+                          showError(
+                            "Clipboard not available. Copy the passphrase manually.",
+                          );
+                          return;
+                        }
                         navigator.clipboard
-                          ?.writeText(passphrase)
+                          .writeText(passphrase)
                           .then(() => success("Passphrase copied"))
                           .catch(() => showError("Failed to copy"));
                       }}

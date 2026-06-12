@@ -35,15 +35,27 @@ export function generateSharePassphrase(groups: number = 4): string {
   }
 
   const charCount = groups * 5;
-  const randomBytes = crypto.getRandomValues(new Uint8Array(charCount));
+  const alphabetLength = PASSPHRASE_ALPHABET.length;
+  // Reject bytes in the final, incomplete cycle of the alphabet so that
+  // `byte % alphabetLength` is uniform (avoids modulo bias from a CSPRNG).
+  const unbiasedCeiling = Math.floor(256 / alphabetLength) * alphabetLength;
   const chars: string[] = [];
 
-  for (let i = 0; i < charCount; i++) {
-    chars.push(
-      PASSPHRASE_ALPHABET[randomBytes[i] % PASSPHRASE_ALPHABET.length],
+  let produced = 0;
+  while (produced < charCount) {
+    const randomBytes = crypto.getRandomValues(
+      new Uint8Array(charCount - produced),
     );
-    if ((i + 1) % 5 === 0 && i + 1 < charCount) {
-      chars.push("-");
+    for (let i = 0; i < randomBytes.length && produced < charCount; i++) {
+      const byte = randomBytes[i];
+      if (byte >= unbiasedCeiling) {
+        continue;
+      }
+      chars.push(PASSPHRASE_ALPHABET[byte % alphabetLength]);
+      produced++;
+      if (produced % 5 === 0 && produced < charCount) {
+        chars.push("-");
+      }
     }
   }
 
