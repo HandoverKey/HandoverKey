@@ -1,10 +1,13 @@
 import { IncomingMessage, Server as HttpServer } from "http";
 import { URL } from "node:url";
+import { randomUUID } from "node:crypto";
 import { parse as parseCookie } from "cookie";
 import { WebSocketServer, WebSocket } from "ws";
+import type { RedisClientType } from "redis";
 import { JWTManager } from "../auth/jwt";
 import { SessionService } from "./session-service";
 import { logger } from "../config/logger";
+import { getRedisClient } from "../config/redis";
 
 interface AuthedSocket extends WebSocket {
   userId?: string;
@@ -18,11 +21,19 @@ interface RealtimeEnvelope {
   timestamp: string;
 }
 
+// Redis channel used to fan realtime messages out to every API instance so a
+// notification produced on one instance reaches a user's socket on another.
+const CLUSTER_CHANNEL = "realtime:user-broadcast";
+
 export class RealtimeService {
   private static instance: RealtimeService;
   private wss: WebSocketServer | null = null;
   private socketsByUser: Map<string, Set<AuthedSocket>> = new Map();
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  // Unique per process, used to skip re-delivering our own published messages.
+  private readonly instanceId: string = randomUUID();
+  private publisher: RedisClientType | null = null;
+  private subscriber: RedisClientType | null = null;
 
   static getInstance(): RealtimeService {
     if (!RealtimeService.instance) {
@@ -56,7 +67,44 @@ export class RealtimeService {
       });
     }, 30000);
 
+    // Best-effort: wire up Redis pub/sub so broadcasts reach sockets on other
+    // API instances. If Redis is unavailable we transparently fall back to
+    // single-instance (local-only) delivery.
+    void this.enableClustering();
+
     logger.info("Realtime WebSocket service initialized");
+  }
+
+  /**
+   * Subscribes to the Redis fan-out channel so this instance delivers messages
+   * published by other instances to its local sockets. Idempotent + safe to
+   * call when Redis is not configured.
+   */
+  async enableClustering(): Promise<void> {
+    if (this.subscriber) {
+      return;
+    }
+    try {
+      const base = getRedisClient();
+      this.publisher = base;
+      const subscriber = base.duplicate();
+      subscriber.on("error", (error) => {
+        logger.warn({ err: error }, "Realtime subscriber error");
+      });
+      await subscriber.connect();
+      await subscriber.subscribe(CLUSTER_CHANNEL, (raw: string) => {
+        this.handleClusterMessage(raw);
+      });
+      this.subscriber = subscriber;
+      logger.info("Realtime clustering enabled (Redis pub/sub)");
+    } catch (error) {
+      this.publisher = null;
+      this.subscriber = null;
+      logger.warn(
+        { err: error },
+        "Realtime clustering disabled; falling back to single-instance delivery",
+      );
+    }
   }
 
   close(): void {
@@ -64,6 +112,15 @@ export class RealtimeService {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
+    if (this.subscriber) {
+      this.subscriber
+        .quit()
+        .catch((error) =>
+          logger.warn({ err: error }, "Failed to close realtime subscriber"),
+        );
+      this.subscriber = null;
+    }
+    this.publisher = null;
     if (this.wss) {
       this.wss.close();
       this.wss = null;
@@ -76,23 +133,63 @@ export class RealtimeService {
     event: string,
     payload: Record<string, unknown>,
   ): void {
-    const sockets = this.socketsByUser.get(userId);
-    if (!sockets || sockets.size === 0) {
-      return;
-    }
-
     const message: RealtimeEnvelope = {
       event,
       payload,
       timestamp: new Date().toISOString(),
     };
-    const serialized = JSON.stringify(message);
 
+    // Deliver to sockets connected to THIS instance immediately.
+    this.deliverToLocalSockets(userId, message);
+
+    // Fan out to other instances via Redis (if clustering is enabled). Other
+    // instances skip messages they originated to avoid double delivery.
+    if (this.publisher) {
+      const envelope = JSON.stringify({
+        originId: this.instanceId,
+        userId,
+        message,
+      });
+      this.publisher
+        .publish(CLUSTER_CHANNEL, envelope)
+        .catch((error) =>
+          logger.warn({ err: error }, "Failed to publish realtime broadcast"),
+        );
+    }
+  }
+
+  private deliverToLocalSockets(
+    userId: string,
+    message: RealtimeEnvelope,
+  ): void {
+    const sockets = this.socketsByUser.get(userId);
+    if (!sockets || sockets.size === 0) {
+      return;
+    }
+
+    const serialized = JSON.stringify(message);
     sockets.forEach((socket) => {
       if (socket.readyState === WebSocket.OPEN) {
         socket.send(serialized);
       }
     });
+  }
+
+  private handleClusterMessage(raw: string): void {
+    try {
+      const parsed = JSON.parse(raw) as {
+        originId: string;
+        userId: string;
+        message: RealtimeEnvelope;
+      };
+      // We already delivered locally when we published, so ignore our own.
+      if (parsed.originId === this.instanceId) {
+        return;
+      }
+      this.deliverToLocalSockets(parsed.userId, parsed.message);
+    } catch (error) {
+      logger.warn({ err: error }, "Failed to handle realtime cluster message");
+    }
   }
 
   getStats(): { connectedUsers: number; totalConnections: number } {

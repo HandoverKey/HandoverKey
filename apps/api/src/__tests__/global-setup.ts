@@ -23,6 +23,8 @@ const MIGRATION_FILES = [
   "add_two_factor_recovery_codes.sql",
   "add_successor_vault_assignments.sql",
   "add_subscription_fields.sql",
+  "create_waitlist_table.sql",
+  "hard_delete_cascades.sql",
 ];
 
 export default async function globalSetup() {

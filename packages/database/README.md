@@ -278,35 +278,28 @@ All repositories follow the same pattern:
 
 ## Migrations
 
+This package no longer owns a separate migration runner. There is a **single**
+migration system for the whole project: the ordered SQL files in
+`apps/api/src/database/schema/` applied by `apps/api/src/database/migrate.ts`.
+
 ### Running Migrations
 
 ```bash
-# Run all pending migrations
-npm run migrate:latest
+# Apply all pending schema migrations (dev / CI)
+npm run migrate -w @handoverkey/api
 
-# Rollback last migration
-npm run migrate:rollback
+# Production (bundled): applies migrations, then starts the API
+npm run start:prod:migrate-and-start -w @handoverkey/api
 ```
 
 ### Creating Migrations
 
-Migrations are TypeScript files in `src/migrations/`:
-
-```typescript
-import { Kysely } from "kysely";
-
-export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable("new_table")
-    .addColumn("id", "uuid", (col) => col.primaryKey())
-    .addColumn("name", "varchar(255)", (col) => col.notNull())
-    .execute();
-}
-
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("new_table").execute();
-}
-```
+Add a new idempotent `.sql` file under `apps/api/src/database/schema/` (use
+`CREATE TABLE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`) and
+append its filename to the `MIGRATION_FILES` array in
+`apps/api/src/database/migrate.ts`. The test bootstrap
+(`apps/api/src/__tests__/global-setup.ts`) applies the same ordered list, so
+keep the two arrays in sync.
 
 ## Connection Management
 

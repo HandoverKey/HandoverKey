@@ -42,6 +42,13 @@ const envSchema = z.object({
   TWO_FACTOR_ISSUER: z.string().default("HandoverKey"),
   GRACE_PERIOD_HOURS: z.coerce.number().int().positive().default(48),
 
+  // How inactivity checks are scheduled across instances.
+  //  - "queue" (default): a single BullMQ repeatable job is the only scheduler,
+  //    deduplicated via Redis, so it is safe to run many API instances.
+  //  - "in-process": each instance also runs its own setInterval loop. Only
+  //    safe for a single instance; causes duplicate work when scaled out.
+  INACTIVITY_MONITOR_MODE: z.enum(["queue", "in-process"]).default("queue"),
+
   // Stripe (optional — billing disabled if not set)
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
