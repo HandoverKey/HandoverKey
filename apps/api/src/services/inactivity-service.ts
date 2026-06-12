@@ -171,13 +171,31 @@ export class InactivityService {
   }
 
   /**
-   * Pauses the dead man's switch for a user
+   * Maximum pause duration (days) enforced server-side as defense in depth, in
+   * addition to request validation.
+   */
+  static readonly MAX_PAUSE_DAYS = 90;
+
+  /**
+   * Pauses the dead man's switch for a user. Any pause date beyond
+   * MAX_PAUSE_DAYS is clamped so the switch can never be disabled indefinitely.
    */
   static async pauseSwitch(userId: string, pauseUntil?: Date): Promise<void> {
     const settingsRepo = this.getInactivitySettingsRepository();
+
+    let effectivePauseUntil = pauseUntil;
+    if (effectivePauseUntil) {
+      const maxDate = new Date(
+        Date.now() + InactivityService.MAX_PAUSE_DAYS * 24 * 60 * 60 * 1000,
+      );
+      if (effectivePauseUntil.getTime() > maxDate.getTime()) {
+        effectivePauseUntil = maxDate;
+      }
+    }
+
     await settingsRepo.update(userId, {
       is_paused: true,
-      paused_until: pauseUntil,
+      paused_until: effectivePauseUntil,
     });
   }
 

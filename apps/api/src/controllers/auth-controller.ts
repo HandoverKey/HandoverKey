@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UserService } from "../services/user-service";
 import { SessionService } from "../services/session-service";
+import { RefreshTokenService } from "../services/refresh-token-service";
 import { SuccessorService } from "../services/successor-service";
 import { emailService } from "../services/email-service";
 import { JWTManager } from "../auth/jwt";
@@ -175,6 +176,8 @@ export class AuthController {
         },
       );
       const refreshToken = JWTManager.generateRefreshToken(user.id, user.email);
+      // Track the refresh token server-side so it can be rotated and revoked.
+      await RefreshTokenService.store(user.id, refreshToken);
 
       res.cookie("accessToken", accessToken, cookieOpts(60 * 60 * 1000));
       res.cookie(
@@ -355,6 +358,12 @@ export class AuthController {
         await SessionService.invalidateSession(req.user.sessionId);
       }
 
+      // Revoke the presented refresh token so it cannot mint new access tokens.
+      const refreshToken = req.cookies?.refreshToken;
+      if (refreshToken) {
+        await RefreshTokenService.revoke(refreshToken).catch(() => {});
+      }
+
       // Log logout (req.user is validated by SessionService)
       await UserService.logActivity(req.user!.userId, "USER_LOGOUT", req.ip);
 
@@ -380,6 +389,14 @@ export class AuthController {
       }
 
       const decoded = JWTManager.verifyToken(refreshToken);
+
+      // The refresh token must be tracked server-side and not revoked/expired.
+      // This makes refresh tokens revocable (logout, password reset, etc.).
+      const isActive = await RefreshTokenService.isActive(refreshToken);
+      if (!isActive) {
+        throw new AuthenticationError("Invalid or revoked refresh token");
+      }
+
       const user = await UserService.findUserById(decoded.userId);
 
       if (!user) {
@@ -398,6 +415,8 @@ export class AuthController {
         user.id,
         user.email,
       );
+      // Rotate: revoke the used token and persist the replacement.
+      await RefreshTokenService.rotate(user.id, refreshToken, newRefreshToken);
 
       res.cookie("accessToken", newAccessToken, cookieOpts(60 * 60 * 1000));
       res.cookie(
@@ -511,8 +530,9 @@ export class AuthController {
         reEncryptedEntries,
       );
 
-      // Invalidate all sessions after password change.
+      // Invalidate all sessions and refresh tokens after a password change.
       await SessionService.invalidateAllUserSessions(req.user!.userId);
+      await RefreshTokenService.revokeAllForUser(req.user!.userId);
       res.clearCookie("accessToken", cookieOpts(0));
       res.clearCookie("refreshToken", cookieOpts(0, "/api/v1/auth/refresh"));
 
@@ -596,7 +616,20 @@ export class AuthController {
   ): Promise<void> {
     try {
       const { token, password, salt, email } = req.body;
-      await UserService.resetPassword(token, password, salt, email);
+      const userId = await UserService.resetPassword(
+        token,
+        password,
+        salt,
+        email,
+      );
+
+      // Invalidate every existing session and refresh token so a password
+      // reset fully locks out any attacker who still holds old credentials.
+      await SessionService.invalidateAllUserSessions(userId);
+      await RefreshTokenService.revokeAllForUser(userId);
+
+      res.clearCookie("accessToken", cookieOpts(0));
+      res.clearCookie("refreshToken", cookieOpts(0, "/api/v1/auth/refresh"));
 
       res.json({
         message: "Password has been reset successfully. You can now login.",

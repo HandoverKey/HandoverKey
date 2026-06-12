@@ -23,7 +23,6 @@
         "REDIS_HOST",
         "REDIS_PORT",
         "JWT_SECRET",
-        "JWT_REFRESH_SECRET",
         "FRONTEND_URL",
         "ENCRYPTION_KEY_SALT"
       ]
@@ -31,7 +30,7 @@
     "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "passThroughEnv": ["NODE_ENV", "JWT_SECRET", "JWT_REFRESH_SECRET"]
+      "passThroughEnv": ["NODE_ENV", "JWT_SECRET"]
     },
     "test:watch": {
       "cache": false,
