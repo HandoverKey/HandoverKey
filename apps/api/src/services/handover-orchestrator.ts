@@ -2,6 +2,8 @@ import {
   getDatabaseClient,
   HandoverProcessRepository,
   SuccessorNotificationRepository,
+  SuccessorRepository,
+  InactivitySettingsRepository,
 } from "@handoverkey/database";
 import {
   HandoverOrchestrator as IHandoverOrchestrator,
@@ -14,6 +16,16 @@ import { logger } from "../config/logger";
 import { realtimeService } from "./realtime-service";
 
 const GRACE_PERIOD_HOURS = parseInt(process.env.GRACE_PERIOD_HOURS || "48", 10);
+const DEFAULT_RESPONSE_WINDOW_DAYS = 14;
+
+export interface SuccessorAccessDecision {
+  allowed: boolean;
+  reason?: string;
+  status?: string;
+  acceptedCount: number;
+  threshold: number;
+  totalNotified: number;
+}
 
 export class HandoverOrchestrator implements IHandoverOrchestrator {
   private static getHandoverProcessRepository(): HandoverProcessRepository {
@@ -24,6 +36,38 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
   private static getSuccessorNotificationRepository(): SuccessorNotificationRepository {
     const dbClient = getDatabaseClient();
     return new SuccessorNotificationRepository(dbClient.getKysely());
+  }
+
+  private static getSuccessorRepository(): SuccessorRepository {
+    const dbClient = getDatabaseClient();
+    return new SuccessorRepository(dbClient.getKysely());
+  }
+
+  private static getInactivitySettingsRepository(): InactivitySettingsRepository {
+    const dbClient = getDatabaseClient();
+    return new InactivitySettingsRepository(dbClient.getKysely());
+  }
+
+  /**
+   * Computes the K-of-N threshold required to release the vault, mirroring the
+   * client-side share-splitting logic so the server can enforce it.
+   */
+  static computeThreshold(
+    successorCount: number,
+    requireMajority: boolean,
+  ): number {
+    if (successorCount <= 1) {
+      return successorCount;
+    }
+    return requireMajority
+      ? Math.floor(successorCount / 2) + 1
+      : Math.min(2, successorCount);
+  }
+
+  private async getRequireMajority(userId: string): Promise<boolean> {
+    const settingsRepo = HandoverOrchestrator.getInactivitySettingsRepository();
+    const settings = await settingsRepo.findByUserId(userId);
+    return Boolean(settings?.require_majority);
   }
 
   /**
@@ -184,6 +228,19 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         return;
       }
 
+      const terminalStatuses: string[] = [
+        HandoverProcessStatus.COMPLETED,
+        HandoverProcessStatus.CANCELLED,
+        HandoverProcessStatus.EXPIRED,
+      ];
+      if (terminalStatuses.includes(handoverProcess.status)) {
+        logger.info(
+          { handoverId, status: handoverProcess.status },
+          "Ignoring successor response -- handover already in terminal state",
+        );
+        return;
+      }
+
       const notificationRepo =
         HandoverOrchestrator.getSuccessorNotificationRepository();
       await notificationRepo.update(handoverId, successorId, {
@@ -199,24 +256,26 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
 
       const allNotifications =
         await notificationRepo.findByHandoverProcess(handoverId);
-      const allResponded = allNotifications.every(
+      const acceptedCount = allNotifications.filter(
+        (n) => n.verification_status === "VERIFIED",
+      ).length;
+      const respondedCount = allNotifications.filter(
         (n) =>
           n.verification_status === "VERIFIED" ||
           n.verification_status === "DECLINED",
+      ).length;
+      const totalNotified = allNotifications.length;
+
+      const requireMajority = await this.getRequireMajority(
+        handoverProcess.user_id,
+      );
+      const threshold = HandoverOrchestrator.computeThreshold(
+        totalNotified,
+        requireMajority,
       );
 
-      if (allResponded) {
-        if (
-          handoverProcess.status === HandoverProcessStatus.COMPLETED ||
-          handoverProcess.status === HandoverProcessStatus.CANCELLED
-        ) {
-          logger.info(
-            { handoverId, status: handoverProcess.status },
-            "Skipping completion -- handover already in terminal state",
-          );
-          return;
-        }
-
+      // Vault is only released once the K-of-N acceptance threshold is met.
+      if (acceptedCount >= threshold && threshold > 0) {
         await handoverRepo.update(handoverId, {
           status: HandoverProcessStatus.COMPLETED,
           completed_at: new Date(),
@@ -228,7 +287,30 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
           { handoverId, status: HandoverProcessStatus.COMPLETED },
         );
 
-        logger.info({ handoverId }, "Handover process completed");
+        logger.info(
+          { handoverId, acceptedCount, threshold },
+          "Handover process completed -- acceptance threshold reached",
+        );
+        return;
+      }
+
+      // Everyone responded but not enough accepted (e.g. all declined): the
+      // handover expires WITHOUT releasing the vault.
+      if (respondedCount === totalNotified && acceptedCount < threshold) {
+        await handoverRepo.update(handoverId, {
+          status: HandoverProcessStatus.EXPIRED,
+        });
+
+        realtimeService.broadcastToUser(
+          handoverProcess.user_id,
+          "handover.status_changed",
+          { handoverId, status: HandoverProcessStatus.EXPIRED },
+        );
+
+        logger.info(
+          { handoverId, acceptedCount, threshold },
+          "Handover expired -- not enough successors accepted",
+        );
       }
     } catch (error) {
       if (process.env.NODE_ENV !== "test") {
@@ -291,20 +373,38 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
         `Grace period expired for handover ${handoverId}, notifying successors`,
       );
 
-      // Notify successors
-      const dbClient = getDatabaseClient();
-      const successorRepo = new (
-        await import("@handoverkey/database")
-      ).SuccessorRepository(dbClient.getKysely());
+      const successorRepo = HandoverOrchestrator.getSuccessorRepository();
       const successors = await successorRepo.findByUserId(process.user_id);
-      // Notification sent with key share
+
+      // Create successor_notification rows so accept/decline + K-of-N
+      // completion works in the real handover path (not just in tests).
+      const notificationRepo =
+        HandoverOrchestrator.getSuccessorNotificationRepository();
+      const existing = await notificationRepo.findByHandoverProcess(handoverId);
+      if (existing.length === 0) {
+        const now = Date.now();
+        for (const successor of successors) {
+          const windowDays =
+            successor.handover_delay_days || DEFAULT_RESPONSE_WINDOW_DAYS;
+          await notificationRepo.create({
+            handover_process_id: handoverId,
+            successor_id: successor.id,
+            response_deadline: new Date(now + windowDays * 24 * 60 * 60 * 1000),
+            verification_status: "PENDING",
+            verification_token: null,
+          });
+        }
+      }
+
+      // Notify successors. The email NEVER contains the key share itself; it
+      // only links to the access page where the successor unwraps their share
+      // with the out-of-band passphrase provided by the owner.
       const notificationService = new NotificationService();
       await notificationService.sendHandoverAlert(
         process.user_id,
         successors.map((s) => ({
           name: s.name,
           email: s.email,
-          encrypted_share: s.encrypted_share,
           verification_token: s.verification_token,
         })),
         handoverId,
@@ -369,6 +469,87 @@ export class HandoverOrchestrator implements IHandoverOrchestrator {
       }
       return [];
     }
+  }
+
+  /**
+   * Determines whether a specific (already email-verified) successor may access
+   * the owner's vault. Access requires:
+   *   1. A handover that has moved past the grace period.
+   *   2. This successor having ACCEPTED (verification_status = VERIFIED).
+   *   3. The K-of-N acceptance threshold being met across all successors.
+   */
+  async getSuccessorAccessDecision(
+    userId: string,
+    successorId: string,
+  ): Promise<SuccessorAccessDecision> {
+    const handoverRepo = HandoverOrchestrator.getHandoverProcessRepository();
+    const latest = await handoverRepo.findLatestByUserId(userId);
+
+    const base = { acceptedCount: 0, threshold: 0, totalNotified: 0 };
+
+    const openStatuses: string[] = [
+      HandoverProcessStatus.AWAITING_SUCCESSORS,
+      HandoverProcessStatus.VERIFICATION_PENDING,
+      HandoverProcessStatus.READY_FOR_TRANSFER,
+      HandoverProcessStatus.COMPLETED,
+    ];
+
+    if (!latest || !openStatuses.includes(latest.status)) {
+      return {
+        ...base,
+        allowed: false,
+        reason: "Handover access is not yet open",
+        status: latest?.status,
+      };
+    }
+
+    const notificationRepo =
+      HandoverOrchestrator.getSuccessorNotificationRepository();
+    const notifications = await notificationRepo.findByHandoverProcess(
+      latest.id,
+    );
+    const totalNotified = notifications.length;
+    const acceptedCount = notifications.filter(
+      (n) => n.verification_status === "VERIFIED",
+    ).length;
+    const requireMajority = await this.getRequireMajority(userId);
+    const threshold = HandoverOrchestrator.computeThreshold(
+      totalNotified,
+      requireMajority,
+    );
+
+    const mine = notifications.find((n) => n.successor_id === successorId);
+    if (!mine || mine.verification_status !== "VERIFIED") {
+      return {
+        ...base,
+        allowed: false,
+        reason: "You must accept the handover before accessing the vault",
+        status: latest.status,
+        acceptedCount,
+        threshold,
+        totalNotified,
+      };
+    }
+
+    if (acceptedCount < threshold) {
+      return {
+        allowed: false,
+        reason:
+          "Waiting for enough successors to accept before the vault can be released",
+        status: latest.status,
+        acceptedCount,
+        threshold,
+        totalNotified,
+      };
+    }
+
+    return {
+      allowed: true,
+      status: latest.status,
+      acceptedCount,
+      threshold,
+      totalNotified,
+    };
   }
 
   /**

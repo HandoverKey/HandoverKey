@@ -6,8 +6,9 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import api from "../services/api";
+import { getApiErrorMessage } from "../services/api-error";
 import { useToast } from "../contexts/ToastContext";
-import { reconstructSecret } from "@handoverkey/crypto";
+import { reconstructSecret, unwrapShare } from "@handoverkey/crypto";
 import { importRawMasterKey, decryptDataWithKey } from "../services/encryption";
 
 interface VaultEntry {
@@ -51,8 +52,10 @@ const SuccessorAccess: React.FC = () => {
     handoverStatus?: string;
   }>({});
 
-  const [myShare, setMyShare] = useState("");
+  const [myPassphrase, setMyPassphrase] = useState("");
   const [peerShares, setPeerShares] = useState<string[]>([""]);
+  const [accepting, setAccepting] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [decryptedEntries, setDecryptedEntries] = useState<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Array<VaultEntry & { decryptedData: any }>
@@ -113,43 +116,72 @@ const SuccessorAccess: React.FC = () => {
     setPeerShares(newShares);
   };
 
+  const base64ToBytes = (value: string): Uint8Array => {
+    const binary = atob(value.trim());
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  };
+
+  const handleAcceptHandover = async () => {
+    setAccepting(true);
+    try {
+      await api.post("/handover/respond", { token, accepted: true });
+      setAccepted(true);
+      success("Handover accepted. You can now unlock the vault below.");
+    } catch (err) {
+      showError(getApiErrorMessage(err, "Failed to accept the handover"));
+    } finally {
+      setAccepting(false);
+    }
+  };
+
   const handleUnlockVault = async () => {
-    if (!myShare) {
-      showError("Please enter your key share.");
+    if (!myPassphrase) {
+      showError("Please enter your recovery passphrase.");
       return;
     }
-
-    const allShares = [myShare, ...peerShares.filter((s) => s.trim() !== "")];
 
     setUnlocking(true);
     info("Reconstructing key and decrypting vault...");
 
     try {
-      // 1. Fetch encrypted entries
+      // 1. Fetch encrypted entries + this successor's wrapped share. Returns
+      //    403 until the K-of-N acceptance threshold is met.
       const response = await api.get(`/vault/successor-access?token=${token}`);
       const encryptedEntries: VaultEntry[] = response.data.entries;
+      const wrappedShare: string | null = response.data.wrappedShare;
 
-      // 2. Convert shares from Base64 string to Uint8Array
-      const shareBuffers = allShares.map((s) => {
-        try {
-          const binary = atob(s);
-          const bytes = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-          }
-          return bytes;
-        } catch {
-          throw new Error("Invalid base64 share provided");
-        }
-      });
+      if (!wrappedShare) {
+        showError(
+          "No key share is on file for you. Ask the account owner to (re)generate and distribute shares.",
+        );
+        return;
+      }
 
-      // 3. Reconstruct secret
-      const rawMasterKey = reconstructSecret(shareBuffers);
+      // 2. Unwrap our own share with the out-of-band recovery passphrase.
+      let myShareBytes: Uint8Array;
+      try {
+        myShareBytes = await unwrapShare(wrappedShare, myPassphrase.trim());
+      } catch {
+        showError(
+          "Could not unlock your share. Double-check the recovery passphrase the owner gave you.",
+        );
+        return;
+      }
 
-      // 4. Import key
+      // 3. Combine with any peer shares (already-unwrapped Base64 values that
+      //    co-successors shared out-of-band).
+      const peerBytes = peerShares
+        .filter((s) => s.trim() !== "")
+        .map((s) => base64ToBytes(s));
+
+      const rawMasterKey = reconstructSecret([myShareBytes, ...peerBytes]);
+
+      // 4. Import key + decrypt entries locally.
       const masterKey = await importRawMasterKey(rawMasterKey);
-
-      // 5. Decrypt entries
       const decrypted = await Promise.all(
         encryptedEntries.map(async (entry) => {
           const data = await decryptDataWithKey(
@@ -165,7 +197,10 @@ const SuccessorAccess: React.FC = () => {
     } catch (err) {
       console.error("Unlock failed", err);
       showError(
-        "Failed to unlock vault. Please check if you have entered enough valid shares.",
+        getApiErrorMessage(
+          err,
+          "Failed to unlock vault. Make sure you and enough co-successors have accepted, and that your shares are correct.",
+        ),
       );
     } finally {
       setUnlocking(false);
@@ -270,38 +305,69 @@ const SuccessorAccess: React.FC = () => {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                        To unlock this vault, you need to combine your unique
-                        key share with shares from other successors. The total
-                        number of shares must meet the threshold set by the
-                        owner.
+                        First confirm you are taking over this account. Then
+                        unlock your encrypted share with the recovery passphrase
+                        the owner gave you separately, and combine it with
+                        shares from enough co-successors to meet the
+                        owner&apos;s threshold.
                       </p>
                     </div>
                   </div>
                 </div>
 
+                <div className="rounded-md border border-gray-200 dark:border-gray-700 p-4">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Step 1 &mdash; Confirm the handover
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    The vault is only released once enough successors confirm.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAcceptHandover}
+                    disabled={accepting || accepted}
+                    className="mt-3 btn btn-secondary"
+                  >
+                    {accepted
+                      ? "Handover accepted"
+                      : accepting
+                        ? "Accepting..."
+                        : "Accept handover"}
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
                   <div className="sm:col-span-2">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      Step 2 &mdash; Unlock the vault
+                    </p>
                     <label
-                      htmlFor="my-share"
+                      htmlFor="my-passphrase"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      Your Key Share (Base64)
+                      Your recovery passphrase
                     </label>
                     <div className="mt-1">
-                      <textarea
-                        id="my-share"
-                        rows={3}
-                        className="input font-mono text-xs"
-                        placeholder="Paste your share here..."
-                        value={myShare}
-                        onChange={(e) => setMyShare(e.target.value)}
+                      <input
+                        id="my-passphrase"
+                        type="text"
+                        autoComplete="off"
+                        className="input font-mono"
+                        placeholder="e.g. ABCDE-FGHJK-LMNPQ-RSTUV"
+                        value={myPassphrase}
+                        onChange={(e) => setMyPassphrase(e.target.value)}
                       />
                     </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      This is the passphrase the account owner gave you in
+                      person, by letter, or via a password manager &mdash; not a
+                      HandoverKey password.
+                    </p>
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Peer Key Shares
+                      Co-successor key shares (Base64)
                     </label>
                     <div className="space-y-4">
                       {peerShares.map((share, index) => (
@@ -338,7 +404,7 @@ const SuccessorAccess: React.FC = () => {
                 <div className="pt-5">
                   <button
                     onClick={handleUnlockVault}
-                    disabled={unlocking || !myShare}
+                    disabled={unlocking || !myPassphrase}
                     className="w-full btn btn-primary py-3 text-lg flex justify-center items-center gap-2"
                   >
                     {unlocking ? (

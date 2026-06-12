@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { VaultService } from "../services/vault-service";
 import { UserService } from "../services/user-service";
 import { SuccessorService } from "../services/successor-service";
+import { HandoverOrchestrator } from "../services/handover-orchestrator";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { AuthenticationError, NotFoundError } from "../errors";
-import { HandoverProcessStatus } from "@handoverkey/shared/src/types/dead-mans-switch";
 
 export class VaultController {
   static async createEntry(
@@ -249,31 +249,35 @@ export class VaultController {
       // 1. Verify successor token and get metadata
       const result = await SuccessorService.verifySuccessorByToken(token);
 
-      if (!result.success || !result.userId) {
+      if (!result.success || !result.userId || !result.successorId) {
         throw new AuthenticationError("Invalid or expired verification token");
       }
 
-      // 2. Check handover status
-      const allowedStatuses: string[] = [
-        HandoverProcessStatus.AWAITING_SUCCESSORS,
-        HandoverProcessStatus.COMPLETED,
-      ];
-      if (
-        !result.handoverStatus ||
-        !allowedStatuses.includes(result.handoverStatus)
-      ) {
+      // 2. Gate access on: handover past grace period, THIS successor having
+      //    accepted, and the K-of-N acceptance threshold being met.
+      const orchestrator = new HandoverOrchestrator();
+      const decision = await orchestrator.getSuccessorAccessDecision(
+        result.userId,
+        result.successorId,
+      );
+
+      if (!decision.allowed) {
         res.status(403).json({
-          error: "Handover access is not yet open",
-          status: result.handoverStatus,
+          error: decision.reason || "Handover access is not yet open",
+          status: decision.status,
+          acceptedCount: decision.acceptedCount,
+          threshold: decision.threshold,
         });
         return;
       }
 
-      // 3. Get encrypted entries
-      const entries = await VaultService.getSuccessorEntries(
-        result.userId,
-        result.successorId,
-      );
+      // 3. Get encrypted entries and the successor's own wrapped share. The
+      //    wrapped share is useless without the out-of-band passphrase, so it
+      //    is safe to return here for client-side unwrap + reconstruction.
+      const [entries, successor] = await Promise.all([
+        VaultService.getSuccessorEntries(result.userId, result.successorId),
+        SuccessorService.getSuccessor(result.userId, result.successorId),
+      ]);
 
       // Log the access
       await UserService.logActivity(
@@ -300,6 +304,9 @@ export class VaultController {
 
       res.json({
         ownerName: result.userName,
+        wrappedShare: successor?.encryptedShare ?? null,
+        threshold: decision.threshold,
+        acceptedCount: decision.acceptedCount,
         entries: responseEntries,
       });
     } catch (error) {
