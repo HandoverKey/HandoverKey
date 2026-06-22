@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "kysely": "^0.28.17",
-    "pg": "^8.20.0"
+    "pg": "^8.22.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
