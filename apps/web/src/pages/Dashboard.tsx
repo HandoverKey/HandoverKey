@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
       name: "Total Secrets",
       stat: "...",
       icon: ShieldCheckIcon,
-      color: "bg-blue-500",
+      color: "bg-amber-500",
     },
     {
       name: "Successors",
@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
           name: "Total Secrets",
           stat: vaultCount.toString(),
           icon: ShieldCheckIcon,
-          color: "bg-blue-500",
+          color: "bg-amber-500",
         },
         {
           name: "Successors",

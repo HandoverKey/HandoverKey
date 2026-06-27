@@ -42,9 +42,9 @@ const Toast: React.FC<ToastProps> = ({
       className={clsx(
         "flex items-center w-full max-w-sm p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800 border-l-4",
         {
-          "border-green-500": type === "success",
-          "border-red-500": type === "error",
-          "border-blue-500": type === "info",
+          "border-emerald-500": type === "success",
+          "border-rose-500": type === "error",
+          "border-amber-500": type === "info",
         },
       )}
       role="alert"
@@ -53,11 +53,11 @@ const Toast: React.FC<ToastProps> = ({
         className={clsx(
           "inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg",
           {
-            "text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200":
+            "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300":
               type === "success",
-            "text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200":
+            "text-rose-600 bg-rose-100 dark:bg-rose-900/40 dark:text-rose-300":
               type === "error",
-            "text-blue-500 bg-blue-100 dark:bg-blue-800 dark:text-blue-200":
+            "text-amber-600 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300":
               type === "info",
           },
         )}

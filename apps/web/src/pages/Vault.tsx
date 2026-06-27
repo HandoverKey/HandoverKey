@@ -342,7 +342,7 @@ const Vault: React.FC = () => {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
           </div>
         ) : filteredEntries.length === 0 && entries.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -382,7 +382,7 @@ const Vault: React.FC = () => {
                 role="button"
                 tabIndex={0}
                 aria-label={`Open secret ${entry.name || "Untitled Secret"}`}
-                className="card p-6 hover:shadow-apple-lg transition-shadow cursor-pointer group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="card p-6 hover:shadow-apple-lg transition-shadow cursor-pointer group focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 onClick={() => handleEntryClick(entry)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -392,14 +392,14 @@ const Vault: React.FC = () => {
                 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
+                  <span className="inline-flex items-center rounded-full bg-stone-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-stone-300 dark:ring-gray-700">
                     {entry.category}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(entry.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                   {entry.name || "Untitled Secret"}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">

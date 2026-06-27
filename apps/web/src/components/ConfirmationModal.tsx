@@ -35,7 +35,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-gray-900/60 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -49,33 +49,45 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 ring-1 ring-stone-200 dark:ring-gray-700 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div
+                    className={`mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 ${
+                      type === "danger"
+                        ? "bg-rose-100 dark:bg-rose-900/30"
+                        : "bg-amber-100 dark:bg-amber-900/30"
+                    }`}
+                  >
                     <ExclamationTriangleIcon
-                      className="h-6 w-6 text-red-600"
+                      className={`h-6 w-6 ${
+                        type === "danger"
+                          ? "text-rose-600 dark:text-rose-400"
+                          : "text-amber-600 dark:text-amber-400"
+                      }`}
                       aria-hidden="true"
                     />
                   </div>
                   <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <Dialog.Title
                       as="h3"
-                      className="text-base font-semibold leading-6 text-gray-900"
+                      className="text-base font-semibold leading-6 text-gray-900 dark:text-white"
                     >
                       {title}
                     </Dialog.Title>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">{message}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {message}
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                   <button
                     type="button"
-                    className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
+                    className={`inline-flex w-full justify-center rounded-full px-4 py-2 text-sm font-medium text-white shadow-sm transition sm:ml-3 sm:w-auto ${
                       type === "danger"
-                        ? "bg-red-600 hover:bg-red-500"
-                        : "bg-blue-600 hover:bg-blue-500"
+                        ? "bg-rose-600 hover:bg-rose-500"
+                        : "bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                     }`}
                     onClick={onConfirm}
                   >
@@ -83,7 +95,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                   </button>
                   <button
                     type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                    className="mt-3 inline-flex w-full justify-center rounded-full bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 ring-1 ring-stone-200 dark:ring-gray-700 hover:bg-stone-50 dark:hover:bg-gray-700 transition sm:mt-0 sm:w-auto"
                     onClick={onClose}
                   >
                     {cancelText}
