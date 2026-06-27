@@ -83,37 +83,35 @@ const Login: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <Spinner className="h-8 w-8 text-blue-500" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2] dark:bg-gray-900">
+        <Spinner className="h-8 w-8 text-amber-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2] dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
+              className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
+              <ShieldCheckIcon className="h-10 w-10 text-amber-600 dark:text-amber-400" />
             </Link>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
             Welcome back
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 font-medium tracking-tight">
-            Sign in to{" "}
-            <span className="text-gray-900 dark:text-white">Handover</span>
-            <span className="text-blue-600">Key</span>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            Sign in to Handoverkey
           </p>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Or{" "}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
             >
               create a new account
             </Link>
@@ -123,7 +121,7 @@ const Login: React.FC = () => {
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-rose-50 dark:bg-rose-900/20 ring-1 ring-rose-200 dark:ring-rose-800/40 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -131,7 +129,7 @@ const Login: React.FC = () => {
             {info && (
               <div
                 role="status"
-                className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg text-sm"
+                className="bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/80 dark:ring-amber-800/40 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-lg text-sm"
               >
                 {info}
               </div>
@@ -170,7 +168,7 @@ const Login: React.FC = () => {
                 <div className="text-sm">
                   <Link
                     to="/forgot-password"
-                    className="font-medium text-blue-600 hover:text-blue-500"
+                    className="font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   >
                     Forgot your password?
                   </Link>
@@ -201,7 +199,7 @@ const Login: React.FC = () => {
                     type="checkbox"
                     checked={useRecoveryCode}
                     onChange={(e) => setUseRecoveryCode(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                    className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
                   />
                 </div>
                 {!useRecoveryCode ? (
@@ -258,7 +256,7 @@ const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShow2FA(true)}
-                className="text-sm text-blue-600 hover:text-blue-500 font-medium"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium underline underline-offset-4 decoration-stone-300 hover:decoration-amber-500"
               >
                 Have a two-factor or recovery code?
               </button>

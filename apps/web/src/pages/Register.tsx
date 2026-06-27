@@ -91,30 +91,28 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2] dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
+              className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
+              <ShieldCheckIcon className="h-10 w-10 text-amber-600 dark:text-amber-400" />
             </Link>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
             Secure your legacy
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 font-medium tracking-tight">
-            Create your{" "}
-            <span className="text-gray-900 dark:text-white">Handover</span>
-            <span className="text-blue-600">Key</span> account
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            Create your Handoverkey account
           </p>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
             >
               Sign in
             </Link>
@@ -124,13 +122,13 @@ const Register: React.FC = () => {
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-rose-50 dark:bg-rose-900/20 ring-1 ring-rose-200 dark:ring-rose-800/40 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200 dark:ring-emerald-800/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg text-sm">
                 {success}
               </div>
             )}
