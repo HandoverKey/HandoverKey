@@ -88,7 +88,7 @@ const Sessions: React.FC = () => {
       <div className="mt-8 card">
         {loading ? (
           <div className="p-6 flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
           </div>
         ) : sessions.length === 0 ? (
           <div className="p-6 text-sm text-gray-500 dark:text-gray-400">
@@ -114,7 +114,7 @@ const Sessions: React.FC = () => {
                   </p>
                 </div>
                 {session.isCurrent ? (
-                  <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
+                  <span className="inline-flex items-center rounded-full bg-stone-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-stone-300 dark:ring-gray-700">
                     Current
                   </span>
                 ) : (

@@ -302,7 +302,7 @@ const Settings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
       </div>
     );
   }
@@ -382,7 +382,7 @@ const Settings: React.FC = () => {
               <input
                 id="majority"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-400"
                 checked={settings.requireMajority}
                 onChange={(e) =>
                   setSettings({
@@ -410,7 +410,7 @@ const Settings: React.FC = () => {
               <input
                 id="paused"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-400"
                 checked={settings.isPaused}
                 onChange={(e) =>
                   setSettings({

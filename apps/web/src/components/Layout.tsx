@@ -22,6 +22,8 @@ import { useTheme } from "../contexts/ThemeContext";
 import { realtimeClient } from "../services/realtime";
 import clsx from "clsx";
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import BrandMark from "./BrandMark";
+import Footer from "./Footer";
 import SkipLink from "./SkipLink";
 
 const baseNavigation = [
@@ -82,6 +84,125 @@ const Layout: React.FC = () => {
     };
   }, [success]);
 
+  const sidebarContent = (
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-6 pb-4 ring-1 ring-stone-200 dark:ring-gray-800 lg:ring-0 lg:border-r lg:border-stone-200 lg:dark:border-gray-800">
+      <div className="flex h-16 shrink-0 items-center">
+        <Link
+          to={user ? "/dashboard" : "/"}
+          className="flex items-center gap-2"
+        >
+          <BrandMark className="h-6 w-6" />
+          <span className="text-[15px] font-semibold tracking-tight text-gray-900 dark:text-white">
+            Handoverkey
+          </span>
+        </Link>
+      </div>
+      <nav className="flex flex-1 flex-col">
+        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+          <li>
+            <ul role="list" className="-mx-2 space-y-0.5">
+              {navigation.map((item) => {
+                const active = location.pathname === item.href;
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={clsx(
+                        active
+                          ? "bg-stone-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                          : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-gray-800/60",
+                        "group flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      )}
+                    >
+                      <item.icon
+                        className={clsx(
+                          active
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300",
+                          "h-5 w-5 shrink-0 transition-colors",
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+          <li className="mt-auto">
+            {isFreeTier && (
+              <Link
+                to="/billing"
+                className="mb-4 -mx-2 flex items-center gap-3 rounded-xl bg-amber-50/70 dark:bg-amber-900/20 ring-1 ring-amber-200/80 dark:ring-amber-800/40 p-3 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors group"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/90 group-hover:bg-amber-500 transition-colors">
+                  <SparklesIcon className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    Upgrade to Pro
+                  </span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    Unlimited secrets
+                  </span>
+                </div>
+              </Link>
+            )}
+            <div className="-mx-2 flex flex-col gap-y-1 border-t border-stone-200 dark:border-gray-800 pt-4 mt-4">
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
+                <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-700 dark:text-amber-300 font-medium text-sm shrink-0">
+                  {user?.name?.[0]?.toUpperCase() ||
+                    user?.email?.[0]?.toUpperCase() ||
+                    "U"}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {user?.name || "User"}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {user?.email}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="group flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-stone-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white w-full transition-colors"
+                aria-pressed={theme === "dark" ? "true" : "false"}
+              >
+                {theme === "dark" ? (
+                  <SunIcon
+                    className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-amber-500"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <MoonIcon
+                    className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                    aria-hidden="true"
+                  />
+                )}
+                {theme === "dark" ? "Light mode" : "Dark mode"}
+              </button>
+              <button
+                type="button"
+                onClick={logout}
+                className="group flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 dark:hover:text-rose-400 w-full transition-colors"
+              >
+                <ArrowRightOnRectangleIcon
+                  className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-rose-500"
+                  aria-hidden="true"
+                />
+                Log out
+              </button>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+
   return (
     <>
       <SkipLink />
@@ -101,7 +222,7 @@ const Layout: React.FC = () => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <div className="fixed inset-0 bg-gray-900/80" />
+              <div className="fixed inset-0 bg-gray-900/60" />
             </Transition.Child>
 
             <div className="fixed inset-0 flex">
@@ -138,118 +259,7 @@ const Layout: React.FC = () => {
                       </button>
                     </div>
                   </Transition.Child>
-                  {/* Sidebar component, swap this element with another sidebar if you like */}
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-6 pb-4">
-                    <div className="flex h-16 shrink-0 items-center gap-x-2 focus:outline-none justify-between">
-                      <Link
-                        to={user ? "/dashboard" : "/"}
-                        className="flex items-center gap-x-2"
-                      >
-                        <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-                        <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                          Handover<span className="text-blue-600">Key</span>
-                        </span>
-                      </Link>
-                    </div>
-                    <nav className="flex flex-1 flex-col">
-                      <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
-                          <ul role="list" className="-mx-2 space-y-1">
-                            {navigation.map((item) => (
-                              <li key={item.name}>
-                                <Link
-                                  to={item.href}
-                                  className={clsx(
-                                    location.pathname === item.href
-                                      ? "bg-gray-50 dark:bg-gray-800 text-blue-600"
-                                      : "text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800",
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold",
-                                  )}
-                                >
-                                  <item.icon
-                                    className={clsx(
-                                      location.pathname === item.href
-                                        ? "text-blue-600"
-                                        : "text-gray-400 group-hover:text-blue-600",
-                                      "h-6 w-6 shrink-0",
-                                    )}
-                                    aria-hidden="true"
-                                  />
-                                  {item.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </li>
-                        <li className="mt-auto">
-                          {isFreeTier && (
-                            <Link
-                              to="/billing"
-                              className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 text-sm hover:shadow-md transition-all group"
-                            >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
-                                <SparklesIcon className="h-4 w-4 text-white" />
-                              </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="font-semibold text-gray-900 dark:text-white">
-                                  Upgrade to Pro
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  Unlock unlimited secrets
-                                </span>
-                              </div>
-                            </Link>
-                          )}
-                          <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                            <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                              <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
-                                {user?.name?.[0]?.toUpperCase() ||
-                                  user?.email?.[0]?.toUpperCase() ||
-                                  "U"}
-                              </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                  {user?.name || "User"}
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                  {user?.email}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={toggleTheme}
-                              className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
-                              aria-pressed={theme === "dark"}
-                            >
-                              {theme === "dark" ? (
-                                <SunIcon
-                                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-yellow-500 transition-colors"
-                                  aria-hidden="true"
-                                />
-                              ) : (
-                                <MoonIcon
-                                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-600 transition-colors"
-                                  aria-hidden="true"
-                                />
-                              )}
-                              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                            </button>
-                            <button
-                              onClick={logout}
-                              className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 w-full transition-colors"
-                            >
-                              <ArrowRightOnRectangleIcon
-                                className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-red-600 transition-colors"
-                                aria-hidden="true"
-                              />
-                              Log out
-                            </button>
-                          </div>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
+                  {sidebarContent}
                 </Dialog.Panel>
               </Transition.Child>
             </div>
@@ -258,121 +268,11 @@ const Layout: React.FC = () => {
 
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 pb-4">
-            <div className="flex h-16 shrink-0 items-center gap-x-2 focus:outline-none justify-between">
-              <Link
-                to={user ? "/dashboard" : "/"}
-                className="flex items-center gap-x-2"
-              >
-                <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  Handover<span className="text-blue-600">Key</span>
-                </span>
-              </Link>
-            </div>
-            <nav className="flex flex-1 flex-col">
-              <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                <li>
-                  <ul role="list" className="-mx-2 space-y-1">
-                    {navigation.map((item) => (
-                      <li key={item.name}>
-                        <Link
-                          to={item.href}
-                          className={clsx(
-                            location.pathname === item.href
-                              ? "bg-gray-50 dark:bg-gray-800 text-blue-600"
-                              : "text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold",
-                          )}
-                        >
-                          <item.icon
-                            className={clsx(
-                              location.pathname === item.href
-                                ? "text-blue-600"
-                                : "text-gray-400 group-hover:text-blue-600",
-                              "h-6 w-6 shrink-0",
-                            )}
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-                <li className="mt-auto">
-                  {isFreeTier && (
-                    <Link
-                      to="/billing"
-                      className="mb-4 -mx-2 flex items-center gap-x-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 text-sm hover:shadow-md transition-all group"
-                    >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 group-hover:scale-110 transition-transform">
-                        <SparklesIcon className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          Upgrade to Pro
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Unlock unlimited secrets
-                        </span>
-                      </div>
-                    </Link>
-                  )}
-                  <div className="-mx-2 flex flex-col gap-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                    <div className="flex items-center gap-x-3 px-2 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                      <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
-                        {user?.name?.[0]?.toUpperCase() ||
-                          user?.email?.[0]?.toUpperCase() ||
-                          "U"}
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                          {user?.name || "User"}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          {user?.email}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={toggleTheme}
-                      className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 w-full transition-colors"
-                      aria-pressed={theme === "dark"}
-                    >
-                      {theme === "dark" ? (
-                        <SunIcon
-                          className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-yellow-500 transition-colors"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <MoonIcon
-                          className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-600 transition-colors"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                    </button>
-                    <button
-                      onClick={logout}
-                      className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 w-full transition-colors"
-                    >
-                      <ArrowRightOnRectangleIcon
-                        className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-red-600 transition-colors"
-                        aria-hidden="true"
-                      />
-                      Log out
-                    </button>
-                  </div>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          {sidebarContent}
         </div>
 
         <div className="lg:pl-72">
-          <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 lg:hidden">
+          <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-stone-200 dark:border-gray-800 bg-[#FAF7F2]/80 dark:bg-gray-900/80 backdrop-blur-md px-4 sm:px-6 lg:px-8 lg:hidden">
             <button
               type="button"
               className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden"
@@ -382,45 +282,48 @@ const Layout: React.FC = () => {
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </button>
 
-            <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-              <div className="flex flex-1" />
-              <div className="flex items-center gap-x-4 lg:gap-x-6">
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                  aria-label={
-                    theme === "dark"
-                      ? "Switch to light mode"
-                      : "Switch to dark mode"
-                  }
-                  aria-pressed={theme === "dark"}
-                >
-                  {theme === "dark" ? (
-                    <SunIcon className="h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <MoonIcon className="h-6 w-6" aria-hidden="true" />
-                  )}
-                </button>
-                <div className="flex items-center gap-x-3 px-4 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-white">
-                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
-                    {user?.name?.[0]?.toUpperCase() ||
-                      user?.email?.[0]?.toUpperCase() ||
-                      "U"}
-                  </div>
-                  <span aria-hidden="true">{user?.name || user?.email}</span>
+            <div className="flex flex-1 items-center justify-end gap-x-3">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="-m-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                aria-label={
+                  theme === "dark"
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+                }
+                aria-pressed={theme === "dark" ? "true" : "false"}
+              >
+                {theme === "dark" ? (
+                  <SunIcon className="h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" aria-hidden="true" />
+                )}
+              </button>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-700 dark:text-amber-300 font-medium text-sm shrink-0">
+                  {user?.name?.[0]?.toUpperCase() ||
+                    user?.email?.[0]?.toUpperCase() ||
+                    "U"}
                 </div>
+                <span
+                  aria-hidden="true"
+                  className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]"
+                >
+                  {user?.name || user?.email}
+                </span>
               </div>
             </div>
           </div>
 
           <main
             id="main-content"
-            className="py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors"
+            className="bg-[#FAF7F2] dark:bg-gray-900 min-h-screen flex flex-col transition-colors"
           >
-            <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex-1 px-4 sm:px-6 lg:px-8 py-10 max-w-6xl w-full mx-auto">
               <Outlet />
             </div>
+            <Footer />
           </main>
         </div>
       </div>

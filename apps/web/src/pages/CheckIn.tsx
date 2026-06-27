@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 import api from "../services/api";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -64,50 +65,53 @@ const CheckIn: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="card p-8 text-center">
-          <div className="flex justify-center mb-6">
-            <Link
-              to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
-            >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
-            </Link>
-          </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Secure Check-In
-          </h1>
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-            {message}
-          </p>
-
-          {status === "loading" && (
-            <div className="mt-6 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          )}
-
-          {status === "ready" && (
-            <button
-              onClick={handleConfirm}
-              disabled={submitting}
-              className="mt-6 w-full btn btn-primary"
-            >
-              {submitting ? "Confirming..." : "Confirm Check-In"}
-            </button>
-          )}
-
-          {(status === "success" || status === "error") && (
-            <div className="mt-6">
-              <Link to="/login" className="btn btn-primary w-full">
-                Go to Login
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-md w-full">
+          <div className="card p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <Link
+                to="/"
+                className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
+              >
+                <BrandMark className="h-10 w-10" />
               </Link>
             </div>
-          )}
+
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Secure Check-In
+            </h1>
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+              {message}
+            </p>
+
+            {status === "loading" && (
+              <div className="mt-6 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+              </div>
+            )}
+
+            {status === "ready" && (
+              <button
+                onClick={handleConfirm}
+                disabled={submitting}
+                className="mt-6 w-full btn btn-primary"
+              >
+                {submitting ? "Confirming..." : "Confirm Check-In"}
+              </button>
+            )}
+
+            {(status === "success" || status === "error") && (
+              <div className="mt-6">
+                <Link to="/login" className="btn btn-primary w-full">
+                  Go to Login
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

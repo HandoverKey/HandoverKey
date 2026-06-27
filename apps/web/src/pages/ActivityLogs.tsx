@@ -64,7 +64,7 @@ const ActivityLogs: React.FC = () => {
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
           </div>
         ) : items.length === 0 ? (
           <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">

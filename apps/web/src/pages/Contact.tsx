@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheckIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 import api from "../services/api";
 
 export default function Contact() {
@@ -42,53 +44,55 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link to="/" className="flex items-center">
-              <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-                HandoverKey
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <nav className="bg-[#FAF7F2]/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-stone-200/70 dark:border-gray-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8">
+          <div className="flex justify-between h-14 items-center">
+            <Link to="/" className="flex items-center gap-2">
+              <BrandMark className="h-6 w-6" />
+              <span className="text-[15px] font-semibold tracking-tight text-gray-900 dark:text-white">
+                Handoverkey
               </span>
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to="/login"
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-1.5"
               >
                 Log in
               </Link>
               <Link to="/register" className="btn btn-primary">
-                Get Started
+                Get started
               </Link>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="flex-1 max-w-4xl w-full mx-auto px-5 sm:px-8 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white mb-4">
             Contact Us
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Have questions? We'd love to hear from you.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-apple border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800/40 rounded-2xl ring-1 ring-stone-200 dark:ring-gray-700 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="p-8 bg-blue-600 text-white">
-              <h2 className="text-2xl font-bold mb-6">Get in touch</h2>
-              <p className="text-blue-100 mb-8">
+            <div className="p-8 bg-gray-900 text-white">
+              <h2 className="text-2xl font-semibold tracking-tight mb-6">
+                Get in touch
+              </h2>
+              <p className="text-gray-300 mb-8">
                 Fill out the form and our team will get back to you within 24
                 hours.
               </p>
 
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
-                  <EnvelopeIcon className="w-6 h-6 text-blue-200" />
+                  <EnvelopeIcon className="w-6 h-6 text-amber-400" />
                   <span>info@handoverkey.com</span>
                 </div>
               </div>
@@ -169,6 +173,7 @@ export default function Contact() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
