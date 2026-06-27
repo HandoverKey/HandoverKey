@@ -27,6 +27,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 text-gray-900 dark:text-gray-100 selection:bg-amber-200/60 dark:selection:bg-amber-300/30">
       <Nav />
       <Hero />
+      <WhatItIs />
       <HowItWorks />
       <Principles />
       <KeySharing />
@@ -306,30 +307,313 @@ function HeroIllustration() {
   );
 }
 
-// --- How it works (3-step flow) ---
+// --- What it is (plain-English intro with a 4-actor flow diagram) ---
+
+function WhatItIs() {
+  return (
+    <section className="py-20 sm:py-28 border-t border-stone-200/70 dark:border-gray-800">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          <div className="lg:col-span-5">
+            <motion.div {...fadeIn}>
+              <p className="text-xs font-medium tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
+                What it is
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-[1.1]">
+                A safety net for the things only you can unlock.
+              </h2>
+              <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                If you go missing, get hospitalized, or simply stop responding,
+                the passwords and keys in your head go with you. Handoverkey is
+                the boring, durable plan B: an encrypted vault that quietly
+                hands itself to the people you chose &mdash; only after enough
+                time has passed.
+              </p>
+              <ul className="mt-7 space-y-3 text-[15px] text-gray-700 dark:text-gray-300">
+                <li className="flex gap-3">
+                  <span className="mt-0.5 h-5 w-5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-[11px] font-semibold shrink-0">
+                    1
+                  </span>
+                  <span>
+                    <strong className="font-semibold text-gray-900 dark:text-white">
+                      You
+                    </strong>{" "}
+                    store encrypted secrets and pick your successors.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 h-5 w-5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-[11px] font-semibold shrink-0">
+                    2
+                  </span>
+                  <span>
+                    A{" "}
+                    <strong className="font-semibold text-gray-900 dark:text-white">
+                      timer
+                    </strong>{" "}
+                    waits for your silence. Every login resets it.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 h-5 w-5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-[11px] font-semibold shrink-0">
+                    3
+                  </span>
+                  <span>
+                    When the timer expires, your{" "}
+                    <strong className="font-semibold text-gray-900 dark:text-white">
+                      successors
+                    </strong>{" "}
+                    each get a piece. Combined, they unlock the vault.
+                  </span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+          <div className="lg:col-span-7">
+            <FlowDiagram />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// A 4-stage horizontal flow: You -> Vault -> Silence -> Successors
+function FlowDiagram() {
+  const ringStroke = "stroke-stone-300 dark:stroke-gray-600";
+  const labelClass =
+    "fill-gray-900 dark:fill-gray-100 text-[11px] font-semibold";
+  const subLabelClass = "fill-gray-500 dark:fill-gray-400 text-[9px]";
+
+  return (
+    <motion.div {...fadeIn} className="relative">
+      <svg
+        viewBox="0 0 560 280"
+        className="w-full h-auto"
+        aria-label="You store secrets in a vault; a timer waits for your silence; if the timer expires, your successors combine their shares to unlock the vault."
+      >
+        {/* connecting line */}
+        <line
+          x1="70"
+          y1="140"
+          x2="490"
+          y2="140"
+          className={ringStroke}
+          strokeWidth="1"
+          strokeDasharray="3 4"
+        />
+
+        {/* arrowheads between nodes */}
+        {[180, 320, 460].map((x) => (
+          <path
+            key={x}
+            d={`M ${x - 5} 136 L ${x + 1} 140 L ${x - 5} 144`}
+            className="fill-none stroke-stone-400 dark:stroke-gray-500"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
+
+        {/* 1. You */}
+        <g>
+          <circle
+            cx="70"
+            cy="140"
+            r="36"
+            className="fill-white dark:fill-gray-800"
+          />
+          <circle
+            cx="70"
+            cy="140"
+            r="36"
+            className={ringStroke}
+            fill="none"
+            strokeWidth="1.5"
+          />
+          {/* person silhouette */}
+          <circle
+            cx="70"
+            cy="130"
+            r="6"
+            className="fill-gray-700 dark:fill-gray-200"
+          />
+          <path
+            d="M 56 156 C 56 146, 84 146, 84 156 L 84 158 L 56 158 Z"
+            className="fill-gray-700 dark:fill-gray-200"
+          />
+          <text x="70" y="208" textAnchor="middle" className={labelClass}>
+            You
+          </text>
+          <text x="70" y="222" textAnchor="middle" className={subLabelClass}>
+            store secrets
+          </text>
+        </g>
+
+        {/* 2. Vault */}
+        <g>
+          <circle
+            cx="250"
+            cy="140"
+            r="36"
+            className="fill-white dark:fill-gray-800"
+          />
+          <circle
+            cx="250"
+            cy="140"
+            r="36"
+            className={ringStroke}
+            fill="none"
+            strokeWidth="1.5"
+          />
+          {/* vault face: dial */}
+          <circle
+            cx="250"
+            cy="140"
+            r="18"
+            className="fill-stone-100 dark:fill-gray-700"
+          />
+          <circle
+            cx="250"
+            cy="140"
+            r="18"
+            className={ringStroke}
+            fill="none"
+            strokeWidth="1"
+          />
+          <line
+            x1="250"
+            y1="140"
+            x2="250"
+            y2="128"
+            className="stroke-gray-900 dark:stroke-gray-100"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          <circle
+            cx="250"
+            cy="140"
+            r="2"
+            className="fill-gray-900 dark:fill-gray-100"
+          />
+          <text x="250" y="208" textAnchor="middle" className={labelClass}>
+            Vault
+          </text>
+          <text x="250" y="222" textAnchor="middle" className={subLabelClass}>
+            zero-knowledge
+          </text>
+        </g>
+
+        {/* 3. Timer (silence) */}
+        <g>
+          <circle
+            cx="390"
+            cy="140"
+            r="36"
+            className="fill-white dark:fill-gray-800"
+          />
+          <circle
+            cx="390"
+            cy="140"
+            r="36"
+            className={ringStroke}
+            fill="none"
+            strokeWidth="1.5"
+          />
+          {/* timer ring fill */}
+          <motion.circle
+            cx="390"
+            cy="140"
+            r="22"
+            stroke="currentColor"
+            className="text-stone-200 dark:text-gray-700"
+            strokeWidth="3"
+            fill="none"
+          />
+          <motion.circle
+            cx="390"
+            cy="140"
+            r="22"
+            stroke="currentColor"
+            className="text-amber-500"
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray="138"
+            initial={{ strokeDashoffset: 138 }}
+            whileInView={{ strokeDashoffset: 35 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.6, ease: "easeInOut" }}
+            transform="rotate(-90 390 140)"
+          />
+          <text
+            x="390"
+            y="144"
+            textAnchor="middle"
+            className="fill-gray-900 dark:fill-gray-100 text-[10px] font-semibold"
+          >
+            75%
+          </text>
+          <text x="390" y="208" textAnchor="middle" className={labelClass}>
+            Silence
+          </text>
+          <text x="390" y="222" textAnchor="middle" className={subLabelClass}>
+            timer counts down
+          </text>
+        </g>
+
+        {/* 4. Successors */}
+        <g>
+          <circle
+            cx="510"
+            cy="140"
+            r="36"
+            className="fill-white dark:fill-gray-800"
+          />
+          <circle
+            cx="510"
+            cy="140"
+            r="36"
+            className={ringStroke}
+            fill="none"
+            strokeWidth="1.5"
+          />
+          {/* three small avatars */}
+          <circle cx="498" cy="135" r="7" className="fill-amber-500" />
+          <circle cx="510" cy="130" r="7" className="fill-amber-500" />
+          <circle cx="522" cy="135" r="7" className="fill-amber-500" />
+          <circle
+            cx="498"
+            cy="148"
+            r="3"
+            className="fill-stone-300 dark:fill-gray-600"
+          />
+          <circle
+            cx="510"
+            cy="143"
+            r="3"
+            className="fill-stone-300 dark:fill-gray-600"
+          />
+          <circle
+            cx="522"
+            cy="148"
+            r="3"
+            className="fill-stone-300 dark:fill-gray-600"
+          />
+          <text x="510" y="208" textAnchor="middle" className={labelClass}>
+            Successors
+          </text>
+          <text x="510" y="222" textAnchor="middle" className={subLabelClass}>
+            unlock together
+          </text>
+        </g>
+      </svg>
+    </motion.div>
+  );
+}
+
+// --- How it works (three illustrated scenes) ---
 
 function HowItWorks() {
-  const steps = [
-    {
-      label: "Store",
-      title: "Drop your secrets in.",
-      body: "Passwords, keys, documents, notes. Encrypted on your device before they leave.",
-      art: <VaultGlyph />,
-    },
-    {
-      label: "Wait",
-      title: "Check in, or don't.",
-      body: "Every login resets your timer. We only act after you've been silent for the window you set.",
-      art: <ClockGlyph />,
-    },
-    {
-      label: "Hand over",
-      title: "Successors get the key.",
-      body: "When the timer runs out, the people you chose receive their share. Together, they unlock.",
-      art: <EnvelopeKeyGlyph />,
-    },
-  ];
-
   return (
     <section
       id="how-it-works"
@@ -340,41 +624,631 @@ function HowItWorks() {
           <p className="text-xs font-medium tracking-wider uppercase text-amber-700 dark:text-amber-400 mb-3">
             How it works
           </p>
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            Three things happen, in order.
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-[1.1]">
+            Set it up once. It quietly does its job for years.
           </h2>
         </motion.div>
 
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 relative">
-          {/* horizontal connector on md+ */}
-          <div className="hidden md:block absolute left-[16%] right-[16%] top-[44px] h-px bg-stone-300 dark:bg-gray-700" />
+        <div className="mt-16 space-y-24 sm:space-y-32">
+          <Step
+            index={1}
+            label="Store"
+            title="Your secrets are encrypted before they ever leave your browser."
+            body={[
+              "Add passwords, recovery phrases, files, and notes to your vault. Your master password derives an encryption key locally — the server only sees ciphertext.",
+              "If we get hacked, breached, or subpoenaed, attackers and lawyers see the same thing: encrypted blobs we cannot decrypt.",
+            ]}
+            scene={<EncryptionScene />}
+            highlight={[
+              "Argon2id key derivation",
+              "AES-256-GCM",
+              "No plaintext leaves your device",
+            ]}
+            align="left"
+          />
 
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.label}
-              {...fadeIn}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative"
-            >
-              <div className="relative flex items-center justify-center md:justify-start mb-6">
-                <div className="relative h-[88px] w-[88px] bg-[#FAF7F2] dark:bg-gray-900 flex items-center justify-center rounded-full ring-1 ring-stone-200 dark:ring-gray-700">
-                  {step.art}
-                </div>
-              </div>
-              <p className="text-xs font-medium tracking-wider uppercase text-gray-500 dark:text-gray-400">
-                {step.label}
-              </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                {step.body}
-              </p>
-            </motion.div>
-          ))}
+          <Step
+            index={2}
+            label="Wait"
+            title="The dead man's switch watches for your silence."
+            body={[
+              "You set the inactivity window — 30 days, 6 months, 5 years. Every time you log in, click a check-in link, or use the vault, the timer resets to zero.",
+              "As the window closes, you get email reminders at 75%, 85%, and 95%. One click is enough to reset the timer for another full cycle.",
+            ]}
+            scene={<CountdownScene />}
+            highlight={[
+              "30-365 day window",
+              "Three graduated reminders",
+              "Pause anytime for vacation",
+            ]}
+            align="right"
+          />
+
+          <Step
+            index={3}
+            label="Hand over"
+            title="The vault opens only when enough successors agree."
+            body={[
+              "When the timer fully expires and a 48-hour grace period passes, each successor receives a unique encrypted share and a secure link.",
+              "Using Shamir's Secret Sharing, the key is mathematically split: any quorum (say, 3 of 5) can reconstruct it together — but no single successor ever holds enough to act alone.",
+            ]}
+            scene={<ReconstructScene />}
+            highlight={[
+              "Shamir's Secret Sharing",
+              "Quorum you choose (k-of-n)",
+              "Decrypted in their browser, not ours",
+            ]}
+            align="left"
+          />
         </div>
       </div>
     </section>
+  );
+}
+
+function Step({
+  index,
+  label,
+  title,
+  body,
+  scene,
+  highlight,
+  align,
+}: {
+  index: number;
+  label: string;
+  title: string;
+  body: string[];
+  scene: React.ReactNode;
+  highlight: string[];
+  align: "left" | "right";
+}) {
+  return (
+    <motion.div
+      {...fadeIn}
+      className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center"
+    >
+      <div className={`lg:col-span-6 ${align === "right" ? "lg:order-2" : ""}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold">
+            {index}
+          </span>
+          <span className="text-xs font-medium tracking-wider uppercase text-amber-700 dark:text-amber-400">
+            {label}
+          </span>
+        </div>
+        <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-[1.15]">
+          {title}
+        </h3>
+        <div className="mt-5 space-y-4">
+          {body.map((p, i) => (
+            <p
+              key={i}
+              className="text-[15px] sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed"
+            >
+              {p}
+            </p>
+          ))}
+        </div>
+        <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
+          {highlight.map((h) => (
+            <li
+              key={h}
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              {h}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className={`lg:col-span-6 ${align === "right" ? "lg:order-1" : ""}`}>
+        <div className="relative rounded-2xl bg-white dark:bg-gray-800/40 ring-1 ring-stone-200 dark:ring-gray-700 p-6 sm:p-8 overflow-hidden">
+          {scene}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// Scene 1: encryption in browser — input fields turning into ciphertext
+function EncryptionScene() {
+  return (
+    <svg viewBox="0 0 400 260" className="w-full h-auto" aria-hidden="true">
+      {/* browser chrome */}
+      <rect
+        x="20"
+        y="20"
+        width="360"
+        height="220"
+        rx="10"
+        className="fill-stone-50 dark:fill-gray-900 stroke-stone-200 dark:stroke-gray-700"
+        strokeWidth="1"
+      />
+      <rect
+        x="20"
+        y="20"
+        width="360"
+        height="26"
+        rx="10"
+        className="fill-stone-100 dark:fill-gray-800"
+      />
+      <circle cx="34" cy="33" r="3" className="fill-rose-400" />
+      <circle cx="46" cy="33" r="3" className="fill-amber-400" />
+      <circle cx="58" cy="33" r="3" className="fill-emerald-400" />
+      <rect
+        x="80"
+        y="27"
+        width="280"
+        height="12"
+        rx="6"
+        className="fill-white dark:fill-gray-700"
+      />
+      <text
+        x="92"
+        y="36"
+        className="fill-gray-400 dark:fill-gray-500 text-[9px] font-mono"
+      >
+        handoverkey.app
+      </text>
+
+      {/* left: plaintext input */}
+      <g>
+        <text
+          x="40"
+          y="70"
+          className="fill-gray-500 dark:fill-gray-400 text-[10px] font-medium tracking-wider uppercase"
+        >
+          Your secret
+        </text>
+        <rect
+          x="40"
+          y="78"
+          width="140"
+          height="26"
+          rx="6"
+          className="fill-white dark:fill-gray-800 stroke-stone-200 dark:stroke-gray-700"
+          strokeWidth="1"
+        />
+        <text
+          x="50"
+          y="95"
+          className="fill-gray-700 dark:fill-gray-200 text-[11px] font-mono"
+        >
+          BTC seed phrase
+        </text>
+        <rect
+          x="40"
+          y="112"
+          width="140"
+          height="26"
+          rx="6"
+          className="fill-white dark:fill-gray-800 stroke-stone-200 dark:stroke-gray-700"
+          strokeWidth="1"
+        />
+        <text
+          x="50"
+          y="129"
+          className="fill-gray-700 dark:fill-gray-200 text-[11px] font-mono"
+        >
+          witch tornado…
+        </text>
+
+        {/* "encrypted in browser" label */}
+        <rect
+          x="40"
+          y="160"
+          width="140"
+          height="50"
+          rx="8"
+          className="fill-amber-50 dark:fill-amber-900/20 stroke-amber-200 dark:stroke-amber-800/40"
+          strokeWidth="1"
+        />
+        <text
+          x="50"
+          y="178"
+          className="fill-amber-700 dark:fill-amber-400 text-[10px] font-semibold tracking-wider uppercase"
+        >
+          Encrypted here
+        </text>
+        <text
+          x="50"
+          y="194"
+          className="fill-gray-600 dark:fill-gray-300 text-[10px]"
+        >
+          Argon2id → AES-256
+        </text>
+        <text
+          x="50"
+          y="206"
+          className="fill-gray-500 dark:fill-gray-400 text-[9px]"
+        >
+          Your password never leaves
+        </text>
+      </g>
+
+      {/* arrow */}
+      <motion.g
+        initial={{ opacity: 0, x: -8 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <line
+          x1="190"
+          y1="120"
+          x2="220"
+          y2="120"
+          className="stroke-gray-400 dark:stroke-gray-500"
+          strokeWidth="1.5"
+          strokeDasharray="3 3"
+        />
+        <path
+          d="M 218 116 L 222 120 L 218 124"
+          className="fill-none stroke-gray-400 dark:stroke-gray-500"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </motion.g>
+
+      {/* right: ciphertext */}
+      <g>
+        <text
+          x="232"
+          y="70"
+          className="fill-gray-500 dark:fill-gray-400 text-[10px] font-medium tracking-wider uppercase"
+        >
+          What we store
+        </text>
+        <rect
+          x="232"
+          y="78"
+          width="128"
+          height="132"
+          rx="6"
+          className="fill-gray-900 dark:fill-gray-950"
+        />
+        <text x="240" y="96" className="fill-emerald-400 text-[9px] font-mono">
+          c4f9 2e1a 8d7b
+        </text>
+        <text x="240" y="110" className="fill-emerald-400 text-[9px] font-mono">
+          5a3c 9f4e 7b21
+        </text>
+        <text x="240" y="124" className="fill-emerald-400 text-[9px] font-mono">
+          ee08 d3a7 b69c
+        </text>
+        <text x="240" y="138" className="fill-emerald-400 text-[9px] font-mono">
+          11fd 470a 8c52
+        </text>
+        <text x="240" y="152" className="fill-emerald-400 text-[9px] font-mono">
+          93ab 6e2f 04d8
+        </text>
+        <text x="240" y="166" className="fill-emerald-400 text-[9px] font-mono">
+          f5c1 a704 9e3b
+        </text>
+        <text x="240" y="180" className="fill-emerald-400 text-[9px] font-mono">
+          27bd 84f6 c0a9
+        </text>
+        <text x="240" y="194" className="fill-emerald-400 text-[9px] font-mono">
+          1e6c 32db 7740
+        </text>
+        <text x="240" y="206" className="fill-gray-500 text-[8px] font-mono">
+          ...
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+// Scene 2: countdown ring with stacked reminder emails
+function CountdownScene() {
+  return (
+    <svg viewBox="0 0 400 260" className="w-full h-auto" aria-hidden="true">
+      {/* large timer */}
+      <g transform="translate(140 130)">
+        <circle
+          r="80"
+          className="stroke-stone-200 dark:stroke-gray-700"
+          fill="none"
+          strokeWidth="2"
+        />
+        <motion.circle
+          r="80"
+          className="stroke-amber-500"
+          fill="none"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeDasharray="503"
+          initial={{ strokeDashoffset: 503 }}
+          whileInView={{ strokeDashoffset: 75 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.8, ease: "easeInOut" }}
+          transform="rotate(-90)"
+        />
+        {/* tick marks */}
+        {Array.from({ length: 12 }).map((_, i) => {
+          const a = (i * 30 * Math.PI) / 180;
+          return (
+            <line
+              key={i}
+              x1={Math.cos(a) * 64}
+              y1={Math.sin(a) * 64}
+              x2={Math.cos(a) * 70}
+              y2={Math.sin(a) * 70}
+              className="stroke-stone-300 dark:stroke-gray-600"
+              strokeWidth="1"
+              strokeLinecap="round"
+            />
+          );
+        })}
+        <text
+          textAnchor="middle"
+          y="-2"
+          className="fill-gray-900 dark:fill-gray-100 text-[24px] font-semibold"
+        >
+          82
+        </text>
+        <text
+          textAnchor="middle"
+          y="14"
+          className="fill-gray-500 dark:fill-gray-400 text-[10px] tracking-wider uppercase"
+        >
+          days left
+        </text>
+      </g>
+
+      {/* reminder envelopes stack */}
+      <g transform="translate(260 50)">
+        <text
+          x="0"
+          y="-6"
+          className="fill-gray-500 dark:fill-gray-400 text-[10px] font-medium tracking-wider uppercase"
+        >
+          Reminders
+        </text>
+        {[
+          { y: 0, pct: "75%", color: "stroke-amber-300 dark:stroke-amber-600" },
+          {
+            y: 56,
+            pct: "85%",
+            color: "stroke-amber-400 dark:stroke-amber-500",
+          },
+          {
+            y: 112,
+            pct: "95%",
+            color: "stroke-amber-500 dark:stroke-amber-400",
+          },
+        ].map((r, i) => (
+          <motion.g
+            key={i}
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.4 + i * 0.15 }}
+          >
+            <rect
+              x="0"
+              y={r.y}
+              width="110"
+              height="44"
+              rx="6"
+              className="fill-white dark:fill-gray-800 stroke-stone-200 dark:stroke-gray-700"
+              strokeWidth="1"
+            />
+            <rect
+              x="0"
+              y={r.y}
+              width="4"
+              height="44"
+              rx="2"
+              className={`fill-current ${r.color.replace("stroke-", "text-")}`}
+            />
+            {/* mini envelope icon */}
+            <rect
+              x="12"
+              y={r.y + 14}
+              width="18"
+              height="14"
+              rx="1.5"
+              className="fill-none stroke-gray-600 dark:stroke-gray-300"
+              strokeWidth="1.2"
+            />
+            <path
+              d={`M 12 ${r.y + 14} L 21 ${r.y + 23} L 30 ${r.y + 14}`}
+              className="fill-none stroke-gray-600 dark:stroke-gray-300"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <text
+              x="40"
+              y={r.y + 20}
+              className="fill-gray-900 dark:fill-gray-100 text-[10px] font-semibold"
+            >
+              Check in?
+            </text>
+            <text
+              x="40"
+              y={r.y + 32}
+              className="fill-gray-500 dark:fill-gray-400 text-[9px]"
+            >
+              Timer at {r.pct}
+            </text>
+          </motion.g>
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+// Scene 3: three key shares combining into one master key
+function ReconstructScene() {
+  const sx = (i: number) => 60 + i * 110;
+  return (
+    <svg viewBox="0 0 400 260" className="w-full h-auto" aria-hidden="true">
+      {/* three successor cards with key fragments */}
+      {[0, 1, 2].map((i) => (
+        <motion.g
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: i * 0.1 }}
+        >
+          <rect
+            x={sx(i) - 38}
+            y="30"
+            width="76"
+            height="80"
+            rx="8"
+            className="fill-white dark:fill-gray-800 stroke-stone-200 dark:stroke-gray-700"
+            strokeWidth="1"
+          />
+          {/* avatar */}
+          <circle
+            cx={sx(i)}
+            cy="52"
+            r="11"
+            className="fill-amber-100 dark:fill-amber-900/40"
+          />
+          <text
+            x={sx(i)}
+            y="56"
+            textAnchor="middle"
+            className="fill-amber-700 dark:fill-amber-300 text-[11px] font-semibold"
+          >
+            {["A", "B", "C"][i]}
+          </text>
+          {/* "share" key icon */}
+          <g transform={`translate(${sx(i) - 22} 74)`}>
+            <circle
+              cx="6"
+              cy="8"
+              r="5"
+              className="fill-none stroke-gray-700 dark:stroke-gray-200"
+              strokeWidth="1.4"
+            />
+            <line
+              x1="10"
+              y1="8"
+              x2="30"
+              y2="8"
+              className="stroke-gray-700 dark:stroke-gray-200"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+            <line
+              x1="26"
+              y1="8"
+              x2="26"
+              y2="12"
+              className="stroke-gray-700 dark:stroke-gray-200"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+            <line
+              x1="30"
+              y1="8"
+              x2="30"
+              y2="14"
+              className="stroke-gray-700 dark:stroke-gray-200"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </g>
+          <text
+            x={sx(i)}
+            y="103"
+            textAnchor="middle"
+            className="fill-gray-500 dark:fill-gray-400 text-[9px] font-mono"
+          >
+            share {i + 1}/3
+          </text>
+        </motion.g>
+      ))}
+
+      {/* converging lines */}
+      {[0, 1, 2].map((i) => (
+        <motion.line
+          key={i}
+          x1={sx(i)}
+          y1="115"
+          x2="200"
+          y2="190"
+          className="stroke-amber-400/70"
+          strokeWidth="1.2"
+          strokeDasharray="3 3"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        />
+      ))}
+
+      {/* combined vault key */}
+      <motion.g
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.9 }}
+      >
+        <circle cx="200" cy="200" r="34" className="fill-amber-500" />
+        <circle
+          cx="200"
+          cy="200"
+          r="34"
+          className="fill-none stroke-amber-600"
+          strokeWidth="1.5"
+        />
+        {/* large key */}
+        <g transform="translate(178 192)">
+          <circle
+            cx="6"
+            cy="8"
+            r="6"
+            className="fill-none stroke-white"
+            strokeWidth="2"
+          />
+          <circle cx="6" cy="8" r="2" className="fill-white" />
+          <line
+            x1="11"
+            y1="8"
+            x2="40"
+            y2="8"
+            className="stroke-white"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <line
+            x1="34"
+            y1="8"
+            x2="34"
+            y2="13"
+            className="stroke-white"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <line
+            x1="40"
+            y1="8"
+            x2="40"
+            y2="15"
+            className="stroke-white"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </g>
+      </motion.g>
+
+      <text
+        x="200"
+        y="252"
+        textAnchor="middle"
+        className="fill-gray-900 dark:fill-gray-100 text-[11px] font-semibold"
+      >
+        Vault unlocked
+      </text>
+    </svg>
   );
 }
 
@@ -1051,110 +1925,6 @@ function ClosingCTA() {
 // Footer is the shared `<Footer />` component imported at the top of the file.
 
 // ---------- Inline SVG glyphs ----------
-
-function VaultGlyph() {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      className="h-12 w-12"
-      aria-hidden="true"
-      fill="none"
-    >
-      <rect
-        x="6"
-        y="9"
-        width="36"
-        height="30"
-        rx="3"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-      />
-      <circle
-        cx="24"
-        cy="24"
-        r="9"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-      />
-      <circle cx="24" cy="24" r="2.2" className="fill-amber-500" />
-      <line
-        x1="24"
-        y1="24"
-        x2="24"
-        y2="17"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ClockGlyph() {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      className="h-12 w-12"
-      aria-hidden="true"
-      fill="none"
-    >
-      <circle
-        cx="24"
-        cy="24"
-        r="15"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M24 24V14"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M24 24l7 4"
-        className="stroke-amber-500"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function EnvelopeKeyGlyph() {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      className="h-12 w-12"
-      aria-hidden="true"
-      fill="none"
-    >
-      <rect
-        x="5"
-        y="12"
-        width="30"
-        height="22"
-        rx="2"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M5 14l15 11 15-11"
-        className="stroke-gray-700 dark:stroke-gray-200"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <circle cx="36" cy="33" r="6" className="fill-amber-500" />
-      <circle
-        cx="36"
-        cy="33"
-        r="1.8"
-        className="fill-[#FAF7F2] dark:fill-gray-900"
-      />
-      <rect x="35.2" y="33" width="1.6" height="6" className="fill-amber-500" />
-    </svg>
-  );
-}
 
 function KeyGlyph() {
   return (
