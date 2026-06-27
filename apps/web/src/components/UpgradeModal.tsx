@@ -93,14 +93,14 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
                 <div className="p-6 sm:p-8">
                   {/* Icon */}
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 mb-4">
-                    <SparklesIcon className="h-7 w-7 text-blue-600" />
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 mb-4">
+                    <SparklesIcon className="h-7 w-7 text-amber-600 dark:text-amber-400" />
                   </div>
 
                   {/* Title */}
                   <Dialog.Title
                     as="h3"
-                    className="text-xl font-bold text-gray-900 dark:text-white text-center"
+                    className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white text-center"
                   >
                     You've reached your limit
                   </Dialog.Title>
@@ -120,12 +120,12 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   </p>
 
                   {/* Upgrade card */}
-                  <div className="mt-6 rounded-xl border border-blue-200 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20 p-5">
+                  <div className="mt-6 rounded-xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 bg-amber-50/60 dark:bg-amber-900/10 p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                      <h4 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                         {tierInfo.name}
                       </h4>
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">
                         {tierInfo.price}
                       </span>
                     </div>
@@ -135,7 +135,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                           key={feature}
                           className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                         >
-                          <CheckIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <CheckIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                           {feature}
                         </li>
                       ))}
@@ -143,19 +143,21 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-6 flex flex-col gap-3">
+                  <div className="mt-6 flex flex-col gap-2">
                     <button
+                      type="button"
                       onClick={() => {
                         onClose();
                         navigate("/billing");
                       }}
-                      className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      className="btn btn-primary w-full"
                     >
                       Upgrade to {tierInfo.name}
                     </button>
                     <button
+                      type="button"
                       onClick={onClose}
-                      className="w-full rounded-lg bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                      className="btn btn-secondary w-full"
                     >
                       Maybe later
                     </button>

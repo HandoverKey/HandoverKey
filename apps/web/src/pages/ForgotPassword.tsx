@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 import Spinner from "../components/Spinner";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -30,122 +31,125 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <Link
-              to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
-            >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
-            </Link>
-          </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Reset your password
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="input"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-red-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-red-800 dark:text-red-400">
-                    {error}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {message && (
-            <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-green-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-green-800 dark:text-green-400">
-                    {message}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn btn-primary flex justify-center"
-            >
-              {loading ? (
-                <>
-                  <Spinner className="mr-2 h-5 w-5" />
-                  Sending...
-                </>
-              ) : (
-                "Send reset link"
-              )}
-            </button>
-          </div>
-
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <Link
-              to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Back to sign in
-            </Link>
+            <div className="flex justify-center mb-6">
+              <Link
+                to="/"
+                className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
+              >
+                <BrandMark className="h-10 w-10" />
+              </Link>
+            </div>
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Reset your password
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </p>
           </div>
-        </form>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div className="rounded-md shadow-sm -space-y-px">
+              <div>
+                <label htmlFor="email-address" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="input"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-medium text-red-800 dark:text-red-400">
+                      {error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {message && (
+              <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-green-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-400">
+                      {message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn btn-primary flex justify-center"
+              >
+                {loading ? (
+                  <>
+                    <Spinner className="mr-2 h-5 w-5" />
+                    Sending...
+                  </>
+                ) : (
+                  "Send reset link"
+                )}
+              </button>
+            </div>
+
+            <div className="text-center">
+              <Link
+                to="/login"
+                className="font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
+              >
+                Back to sign in
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };

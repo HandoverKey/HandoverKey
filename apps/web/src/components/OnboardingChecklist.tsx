@@ -75,18 +75,19 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
 
   return (
     <div className="card overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 flex items-start justify-between">
+      <div className="bg-gray-900 dark:bg-gray-800 px-6 py-5 flex items-start justify-between">
         <div>
           <h3 className="text-lg font-semibold text-white">
             Set up your legacy plan
           </h3>
-          <p className="text-blue-100 text-sm mt-1">
+          <p className="text-gray-300 text-sm mt-1">
             Complete these steps to fully protect your digital legacy.
           </p>
         </div>
         <button
+          type="button"
           onClick={onDismiss}
-          className="text-blue-200 hover:text-white transition-colors p-1 -mr-1 -mt-1"
+          className="text-gray-400 hover:text-white transition-colors p-1 -mr-1 -mt-1"
           aria-label="Dismiss checklist"
         >
           <XMarkIcon className="w-5 h-5" />
@@ -102,22 +103,22 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
             {Math.round(progressPercent)}%
           </span>
         </div>
-        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+        <div className="w-full bg-stone-100 dark:bg-gray-700 rounded-full h-2">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+            className="bg-amber-500 h-2 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
-      <ul className="divide-y divide-gray-100 dark:divide-gray-700 px-6">
+      <ul className="divide-y divide-stone-100 dark:divide-gray-700 px-6">
         {steps.map((step) => {
           const done = status[step.key];
           return (
             <li key={step.key} className="flex items-start gap-4 py-4">
               <div className="mt-0.5 flex-shrink-0">
                 {done ? (
-                  <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
+                  <CheckCircleSolidIcon className="w-6 h-6 text-emerald-500" />
                 ) : (
                   <CheckCircleIcon className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                 )}
@@ -135,7 +136,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
               {!done && (
                 <Link
                   to={step.href}
-                  className="flex-shrink-0 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors whitespace-nowrap"
+                  className="flex-shrink-0 text-sm font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2 transition-all whitespace-nowrap"
                 >
                   {step.cta}
                 </Link>

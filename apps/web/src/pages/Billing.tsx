@@ -116,7 +116,7 @@ const Billing: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
       </div>
     );
   }
@@ -136,24 +136,26 @@ const Billing: React.FC = () => {
       </div>
 
       {/* Current Plan */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
+      <div className="card p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Current Plan:{" "}
-              <span className="text-blue-600">{currentDetails.name}</span>
+              <span className="text-amber-700 dark:text-amber-400">
+                {currentDetails.name}
+              </span>
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {currentDetails.description}
             </p>
           </div>
           {billing?.status === "past_due" && (
-            <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-medium">
+            <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 rounded-full text-xs font-medium">
               Payment Past Due
             </span>
           )}
           {billing?.status === "active" && currentTier !== "free" && (
-            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
+            <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium">
               Active
             </span>
           )}
@@ -167,8 +169,9 @@ const Billing: React.FC = () => {
 
         {billing?.hasSubscription && (
           <button
+            type="button"
             onClick={handleManageSubscription}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium"
           >
             Manage Subscription →
           </button>
@@ -184,16 +187,22 @@ const Billing: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(["pro", "family"] as const).map((tier) => {
               const details = tierDetails[tier];
+              const featured = tier === "pro";
               return (
                 <div
                   key={tier}
-                  className={`rounded-2xl border p-6 ${
-                    tier === "pro"
-                      ? "border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/20"
-                      : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                  className={`relative rounded-2xl p-6 ring-1 ${
+                    featured
+                      ? "ring-amber-200/80 dark:ring-amber-800/40 bg-amber-50/60 dark:bg-amber-900/10"
+                      : "ring-stone-200 dark:ring-gray-700 bg-white dark:bg-gray-800/40"
                   }`}
                 >
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  {featured && (
+                    <span className="absolute top-4 right-4 text-[10px] font-medium tracking-wider uppercase text-amber-700 dark:text-amber-400">
+                      Most popular
+                    </span>
+                  )}
+                  <h3 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white mb-1">
                     {details.name}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -205,19 +214,16 @@ const Billing: React.FC = () => {
                         key={feature}
                         className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                       >
-                        <CheckIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <CheckIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                         {feature}
                       </li>
                     ))}
                   </ul>
                   <button
+                    type="button"
                     onClick={() => handleUpgrade(tier)}
                     disabled={checkoutLoading === tier}
-                    className={`w-full py-2.5 px-4 rounded-xl font-semibold transition-all ${
-                      tier === "pro"
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-gray-900 text-white hover:bg-gray-800"
-                    } disabled:opacity-50`}
+                    className="btn btn-primary w-full"
                   >
                     {checkoutLoading === tier
                       ? "Redirecting..."

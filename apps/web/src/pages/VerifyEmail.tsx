@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
 
@@ -99,180 +100,183 @@ const VerifyEmail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <Link
-              to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
-            >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
-            </Link>
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <Link
+                to="/"
+                className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
+              >
+                <BrandMark className="h-10 w-10" />
+              </Link>
+            </div>
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Email Verification
+            </h2>
           </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Email Verification
-          </h2>
-        </div>
 
-        <div className="card p-8">
-          {status === "loading" && (
-            <div className="text-center">
-              <Spinner className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">
-                Verifying your email...
-              </p>
-            </div>
-          )}
+          <div className="card p-8">
+            {status === "loading" && (
+              <div className="text-center">
+                <Spinner className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  Verifying your email...
+                </p>
+              </div>
+            )}
 
-          {status === "success" && (
-            <div className="text-center">
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
+            {status === "success" && (
+              <div className="text-center">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {message}
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Redirecting to login...
+                </p>
+              </div>
+            )}
+
+            {status === "already-verified" && (
+              <div className="text-center">
+                <div className="bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/80 dark:ring-amber-800/40 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-lg text-sm mb-4">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {message}
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Redirecting to login...
+                </p>
+              </div>
+            )}
+
+            {status === "resend" && (
+              <div>
+                <div className="bg-yellow-50 dark:bg-amber-900/20 border border-yellow-200 dark:border-amber-700 text-yellow-600 dark:text-amber-300 px-4 py-3 rounded-lg text-sm mb-6">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {message}
+                  </div>
+                </div>
+
+                <form onSubmit={handleResendVerification} className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="resendEmail"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Email Address
+                    </label>
+                    <input
+                      id="resendEmail"
+                      type="email"
+                      required
+                      value={resendEmail}
+                      onChange={(e) => setResendEmail(e.target.value)}
+                      className="input mt-1"
+                      placeholder="Enter your email address"
                     />
-                  </svg>
-                  {message}
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400">
-                Redirecting to login...
-              </p>
-            </div>
-          )}
+                  </div>
 
-          {status === "already-verified" && (
-            <div className="text-center">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 px-4 py-3 rounded-lg text-sm mb-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+                  <button
+                    type="submit"
+                    disabled={resendLoading}
+                    className="w-full btn btn-primary flex justify-center"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {message}
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400">
-                Redirecting to login...
-              </p>
-            </div>
-          )}
+                    {resendLoading ? "Sending..." : "Send Verification Email"}
+                  </button>
+                </form>
 
-          {status === "resend" && (
-            <div>
-              <div className="bg-yellow-50 dark:bg-amber-900/20 border border-yellow-200 dark:border-amber-700 text-yellow-600 dark:text-amber-300 px-4 py-3 rounded-lg text-sm mb-6">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+                <div className="mt-6 space-y-4">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full btn btn-secondary flex justify-center"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {message}
-                </div>
-              </div>
-
-              <form onSubmit={handleResendVerification} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="resendEmail"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    Go to Login
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="w-full btn btn-secondary flex justify-center"
                   >
-                    Email Address
-                  </label>
-                  <input
-                    id="resendEmail"
-                    type="email"
-                    required
-                    value={resendEmail}
-                    onChange={(e) => setResendEmail(e.target.value)}
-                    className="input mt-1"
-                    placeholder="Enter your email address"
-                  />
+                    Register Again
+                  </button>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={resendLoading}
-                  className="w-full btn btn-primary flex justify-center"
-                >
-                  {resendLoading ? "Sending..." : "Send Verification Email"}
-                </button>
-              </form>
-
-              <div className="mt-6 space-y-4">
-                <button
-                  onClick={() => navigate("/login")}
-                  className="w-full btn btn-secondary flex justify-center"
-                >
-                  Go to Login
-                </button>
-                <button
-                  onClick={() => navigate("/register")}
-                  className="w-full btn btn-secondary flex justify-center"
-                >
-                  Register Again
-                </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {status === "error" && (
-            <div className="text-center">
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+            {status === "error" && (
+              <div className="text-center">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {message}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full btn btn-primary flex justify-center"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {message}
+                    Go to Login
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="w-full btn btn-secondary flex justify-center"
+                  >
+                    Register Again
+                  </button>
                 </div>
               </div>
-              <div className="space-y-4">
-                <button
-                  onClick={() => navigate("/login")}
-                  className="w-full btn btn-primary flex justify-center"
-                >
-                  Go to Login
-                </button>
-                <button
-                  onClick={() => navigate("/register")}
-                  className="w-full btn btn-secondary flex justify-center"
-                >
-                  Register Again
-                </button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
