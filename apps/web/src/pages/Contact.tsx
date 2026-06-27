@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheckIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
 import api from "../services/api";
 
 export default function Contact() {
@@ -47,7 +48,7 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link to="/" className="flex items-center">
-              <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
+              <BrandMark className="h-8 w-8" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
                 HandoverKey
               </span>
@@ -77,18 +78,20 @@ export default function Contact() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-apple border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800/40 rounded-2xl ring-1 ring-stone-200 dark:ring-gray-700 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="p-8 bg-blue-600 text-white">
-              <h2 className="text-2xl font-bold mb-6">Get in touch</h2>
-              <p className="text-blue-100 mb-8">
+            <div className="p-8 bg-gray-900 text-white">
+              <h2 className="text-2xl font-semibold tracking-tight mb-6">
+                Get in touch
+              </h2>
+              <p className="text-gray-300 mb-8">
                 Fill out the form and our team will get back to you within 24
                 hours.
               </p>
 
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
-                  <EnvelopeIcon className="w-6 h-6 text-blue-200" />
+                  <EnvelopeIcon className="w-6 h-6 text-amber-400" />
                   <span>info@handoverkey.com</span>
                 </div>
               </div>

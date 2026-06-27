@@ -109,7 +109,7 @@ const VaultEntryModal: React.FC<VaultEntryModalProps> = ({
                 <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                   <button
                     type="button"
-                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
                     onClick={onClose}
                   >
                     <span className="sr-only">Close</span>
@@ -236,7 +236,7 @@ const VaultEntryModal: React.FC<VaultEntryModalProps> = ({
                                 <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
                                   <label
                                     htmlFor="file"
-                                    className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+                                    className="relative cursor-pointer rounded-md bg-white font-semibold text-gray-900 underline underline-offset-4 decoration-amber-500 hover:decoration-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-amber-400 focus-within:ring-offset-2"
                                   >
                                     <span>Upload a file</span>
                                     <input
@@ -282,7 +282,7 @@ const VaultEntryModal: React.FC<VaultEntryModalProps> = ({
                                   <a
                                     href={secret}
                                     download={fileName}
-                                    className="ml-4 text-sm font-medium text-blue-600 hover:text-blue-500"
+                                    className="ml-4 text-sm font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
                                   >
                                     Download
                                   </a>

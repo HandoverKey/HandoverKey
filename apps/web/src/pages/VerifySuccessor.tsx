@@ -46,8 +46,8 @@ const VerifySuccessor: React.FC = () => {
         <div className="card p-8 text-center">
           {status === "loading" && (
             <div>
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900/20 mb-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Verifying...

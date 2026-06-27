@@ -221,7 +221,7 @@ const SuccessorAccess: React.FC = () => {
       <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="flex justify-center">
           <div
-            className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+            className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"
             role="status"
             aria-label="Loading"
           ></div>
@@ -266,7 +266,7 @@ const SuccessorAccess: React.FC = () => {
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {metadata.userName}'s vault is not yet open for successors. The
               handover process status is currently:{" "}
-              <span className="font-semibold text-blue-600">
+              <span className="font-semibold text-amber-700 dark:text-amber-400">
                 {formatStatus(metadata.handoverStatus)}
               </span>
               .
@@ -290,13 +290,13 @@ const SuccessorAccess: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6 bg-blue-600">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-stone-200 dark:ring-gray-700 overflow-hidden">
+          <div className="px-4 py-5 sm:px-6 bg-gray-900">
             <h3 className="text-lg leading-6 font-medium text-white flex items-center gap-2">
               <LockOpenIcon className="h-6 w-6" />
               Secure Successor Access
             </h3>
-            <p className="mt-1 max-w-2xl text-sm text-blue-100">
+            <p className="mt-1 max-w-2xl text-sm text-gray-300">
               Unlocking {metadata.userName}'s Vault
             </p>
           </div>
@@ -403,7 +403,7 @@ const SuccessorAccess: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleAddPeerShare}
-                      className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      className="mt-3 text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium"
                     >
                       + Add another share
                     </button>
@@ -456,11 +456,11 @@ const SuccessorAccess: React.FC = () => {
                   {decryptedEntries.map((entry) => (
                     <div
                       key={entry.id}
-                      className="card p-6 border-l-4 border-blue-500"
+                      className="card p-6 border-l-4 border-amber-500"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20 uppercase">
+                          <span className="inline-flex items-center rounded-full bg-stone-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-stone-300 dark:ring-gray-700 uppercase">
                             {entry.category}
                           </span>
                           <h4 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">

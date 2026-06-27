@@ -3,10 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
-import {
-  ShieldCheckIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
 import Spinner from "../components/Spinner";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -86,7 +84,7 @@ const ResetPassword: React.FC = () => {
           </p>
           <Link
             to="/login"
-            className="mt-4 inline-block text-blue-600 hover:text-blue-500"
+            className="mt-4 inline-block text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
           >
             Back to login
           </Link>
@@ -104,7 +102,7 @@ const ResetPassword: React.FC = () => {
               to="/"
               className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+              <BrandMark className="h-10 w-10" />
             </Link>
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">

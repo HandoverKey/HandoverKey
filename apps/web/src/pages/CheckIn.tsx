@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
 import api from "../services/api";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -70,9 +70,9 @@ const CheckIn: React.FC = () => {
           <div className="flex justify-center mb-6">
             <Link
               to="/"
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm focus:outline-none"
+              className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-blue-600" />
+              <BrandMark className="h-10 w-10" />
             </Link>
           </div>
 
@@ -85,7 +85,7 @@ const CheckIn: React.FC = () => {
 
           {status === "loading" && (
             <div className="mt-6 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
             </div>
           )}
 

@@ -355,7 +355,7 @@ const Successors: React.FC = () => {
       <div className="mt-8">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
           </div>
         ) : successors.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -382,7 +382,7 @@ const Successors: React.FC = () => {
                   </span>
                 </div>
                 {successor.restrictToAssignedEntries && (
-                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
                     Access limited to assigned entries
                   </p>
                 )}
@@ -402,7 +402,7 @@ const Successors: React.FC = () => {
                   {!successor.verified && (
                     <button
                       onClick={() => handleResendVerification(successor.id)}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      className="text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium transition-colors"
                     >
                       Resend Verification
                     </button>
@@ -474,7 +474,7 @@ const Successors: React.FC = () => {
                           .then(() => success("Passphrase copied"))
                           .catch(() => showError("Failed to copy"));
                       }}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap"
+                      className="text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium whitespace-nowrap"
                     >
                       Copy
                     </button>
@@ -574,7 +574,7 @@ const Successors: React.FC = () => {
                       <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                         <button
                           type="submit"
-                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                          className="btn btn-primary w-full sm:ml-3 sm:w-auto"
                         >
                           Add Successor
                         </button>

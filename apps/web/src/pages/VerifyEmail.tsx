@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
 
@@ -107,7 +107,7 @@ const VerifyEmail: React.FC = () => {
               to="/"
               className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+              <BrandMark className="h-10 w-10" />
             </Link>
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -118,7 +118,7 @@ const VerifyEmail: React.FC = () => {
         <div className="card p-8">
           {status === "loading" && (
             <div className="text-center">
-              <Spinner className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <Spinner className="h-12 w-12 text-amber-500 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
                 Verifying your email...
               </p>
@@ -151,7 +151,7 @@ const VerifyEmail: React.FC = () => {
 
           {status === "already-verified" && (
             <div className="text-center">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/80 dark:ring-amber-800/40 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-lg text-sm mb-4">
                 <div className="flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"

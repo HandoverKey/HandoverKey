@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import BrandMark from "../components/BrandMark";
 import LoadingButton from "../components/LoadingButton";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -99,7 +99,7 @@ const Register: React.FC = () => {
               to="/"
               className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
             >
-              <ShieldCheckIcon className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+              <BrandMark className="h-10 w-10" />
             </Link>
           </div>
           <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
