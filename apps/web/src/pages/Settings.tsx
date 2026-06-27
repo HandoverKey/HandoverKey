@@ -366,7 +366,7 @@ const Settings: React.FC = () => {
               type="number"
               id="threshold"
               min="1"
-              className="input mt-1 max-w-xs"
+              className="input mt-1 w-full sm:max-w-xs"
               value={settings.thresholdDays}
               onChange={(e) =>
                 setSettings({
@@ -542,7 +542,7 @@ const Settings: React.FC = () => {
                   <img
                     src={setupQrCode}
                     alt="Two-factor QR code"
-                    className="mt-3 w-56 h-56 border rounded-md"
+                    className="mt-3 w-full max-w-[224px] h-auto border rounded-md"
                   />
                 </div>
 
@@ -583,7 +583,7 @@ const Settings: React.FC = () => {
                       onChange={(e) =>
                         setSetupToken(e.target.value.replace(/\D/g, ""))
                       }
-                      className="input mt-1 max-w-xs"
+                      className="input mt-1 w-full sm:max-w-xs"
                       placeholder="123456"
                     />
                   </div>
@@ -632,7 +632,7 @@ const Settings: React.FC = () => {
                 type="text"
                 inputMode="numeric"
                 maxLength={6}
-                className="input mt-1 max-w-xs"
+                className="input mt-1 w-full sm:max-w-xs"
                 value={disableToken}
                 onChange={(e) =>
                   setDisableToken(e.target.value.replace(/\D/g, ""))

@@ -65,20 +65,20 @@ const Sessions: React.FC = () => {
 
   return (
     <div>
-      <div className="md:flex md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:tracking-tight">
             Active Sessions
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Review and revoke browser sessions connected to your account.
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="shrink-0">
           <button
             onClick={() => setConfirmRevokeOthers(true)}
             disabled={invalidatingOthers}
-            className="btn btn-primary"
+            className="btn btn-primary w-full sm:w-auto"
           >
             {invalidatingOthers ? "Revoking..." : "Revoke Other Sessions"}
           </button>
@@ -99,33 +99,36 @@ const Sessions: React.FC = () => {
             {sessions.map((session) => (
               <li
                 key={session.id}
-                className="p-6 flex items-start justify-between"
+                className="p-4 flex items-start justify-between gap-4"
               >
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                     {session.userAgent || "Unknown device"}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    IP: {session.ipAddress || "Unknown"} | Last activity:{" "}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-all">
+                    IP: {session.ipAddress || "Unknown"} &middot; Last activity:{" "}
                     {new Date(session.lastActivity).toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Expires: {new Date(session.expiresAt).toLocaleString()}
                   </p>
                 </div>
-                {session.isCurrent ? (
-                  <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
-                    Current
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => setSessionToRevoke(session.id)}
-                    disabled={busyId === session.id}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium"
-                  >
-                    {busyId === session.id ? "Revoking..." : "Revoke"}
-                  </button>
-                )}
+                <div className="shrink-0 mt-0.5">
+                  {session.isCurrent ? (
+                    <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
+                      Current
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSessionToRevoke(session.id)}
+                      disabled={busyId === session.id}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      {busyId === session.id ? "Revoking..." : "Revoke"}
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

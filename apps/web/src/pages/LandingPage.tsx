@@ -117,7 +117,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white tracking-tight mb-6"
+              className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white tracking-tight mb-6"
             >
               Secure your digital legacy with a{" "}
               <span className="text-blue-600">Dead Man's Switch</span>
@@ -175,7 +175,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<ClockIcon className="w-8 h-8 text-blue-600" />}
               title="Dead Man's Switch"
@@ -894,7 +894,7 @@ function PricingSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 items-start">
           {tiers.map((tier) => (
             <motion.div
               key={tier.name}

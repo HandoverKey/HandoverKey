@@ -262,21 +262,24 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <div className="md:flex md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:tracking-tight truncate">
             Welcome back, {user?.name || user?.email?.split("@")[0] || "User"}
           </h2>
         </div>
-        <div className="mt-4 flex md:ml-4 md:mt-0">
+        <div className="flex gap-3">
           <button
             onClick={handleManualCheckIn}
             disabled={checkingIn}
-            className="btn btn-secondary mr-3"
+            className="btn btn-secondary flex-1 sm:flex-none"
           >
             {checkingIn ? "Checking In..." : "Check In"}
           </button>
-          <Link to="/vault" className="btn btn-primary">
+          <Link
+            to="/vault"
+            className="btn btn-primary flex-1 sm:flex-none text-center"
+          >
             Add Secret
           </Link>
         </div>
@@ -364,7 +367,7 @@ const Dashboard: React.FC = () => {
           <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
             Safety Status
           </h3>
-          <div className="mt-4 card p-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-4 card p-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Last check-in

@@ -402,13 +402,15 @@ const Layout: React.FC = () => {
                     <MoonIcon className="h-6 w-6" aria-hidden="true" />
                   )}
                 </button>
-                <div className="flex items-center gap-x-3 px-4 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+                <div className="flex items-center gap-x-2 px-2 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-white min-w-0">
                   <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 font-bold border border-blue-200 dark:border-blue-800 shrink-0">
                     {user?.name?.[0]?.toUpperCase() ||
                       user?.email?.[0]?.toUpperCase() ||
                       "U"}
                   </div>
-                  <span aria-hidden="true">{user?.name || user?.email}</span>
+                  <span aria-hidden="true" className="truncate max-w-[120px]">
+                    {user?.name || user?.email}
+                  </span>
                 </div>
               </div>
             </div>

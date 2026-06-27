@@ -72,7 +72,24 @@ const ActivityLogs: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Card layout on mobile, table on sm+ */}
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700 sm:hidden">
+              {items.map((item) => (
+                <li key={item.id} className="px-4 py-4 space-y-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {formatActivityType(item.activity_type)}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {item.client_type || "web"} &middot;{" "}
+                    {item.ip_address || "N/A"}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(item.created_at).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>

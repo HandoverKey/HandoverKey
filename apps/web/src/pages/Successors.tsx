@@ -306,7 +306,7 @@ const Successors: React.FC = () => {
 
   return (
     <div>
-      <div className="sm:flex sm:items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">
             Successors
@@ -316,8 +316,8 @@ const Successors: React.FC = () => {
             inactivity period.
           </p>
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <div className="relative group inline-block">
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
+          <div className="relative group">
             <button
               type="button"
               onClick={handleGenerateShares}
@@ -327,7 +327,7 @@ const Successors: React.FC = () => {
                   ? "generate-shares-tooltip"
                   : undefined
               }
-              className="btn btn-secondary mr-3"
+              className="btn btn-secondary"
             >
               {generatingShares ? "Generating..." : "Generate Key Shares"}
             </button>
@@ -392,8 +392,9 @@ const Successors: React.FC = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   {successor.email}
                 </p>
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <button
+                    type="button"
                     onClick={() => openAssignmentModal(successor)}
                     className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
                   >
@@ -401,6 +402,7 @@ const Successors: React.FC = () => {
                   </button>
                   {!successor.verified && (
                     <button
+                      type="button"
                       onClick={() => handleResendVerification(successor.id)}
                       className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
                     >
@@ -408,6 +410,7 @@ const Successors: React.FC = () => {
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => handleDeleteSuccessor(successor.id)}
                     className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors ml-auto"
                   >
