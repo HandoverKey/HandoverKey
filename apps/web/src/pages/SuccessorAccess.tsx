@@ -10,6 +10,7 @@ import { getApiErrorMessage } from "../services/api-error";
 import { useToast } from "../contexts/ToastContext";
 import { reconstructSecret, unwrapShare } from "@handoverkey/crypto";
 import { importRawMasterKey, decryptDataWithKey } from "../services/encryption";
+import Footer from "../components/Footer";
 
 interface VaultEntry {
   id: string;
@@ -218,306 +219,318 @@ const SuccessorAccess: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="flex justify-center">
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+        <div className="flex-1 flex justify-center items-center py-12 sm:px-6 lg:px-8">
           <div
             className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"
             role="status"
             aria-label="Loading"
           ></div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (status === "ERROR") {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500" />
-            <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-              Invalid Link
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              The access link you used is invalid or has expired.
-            </p>
-            <button
-              onClick={() => navigate("/")}
-              className="mt-6 btn btn-primary w-full"
-            >
-              Go to Homepage
-            </button>
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+        <div className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="bg-white dark:bg-gray-800/40 ring-1 ring-stone-200 dark:ring-gray-700 py-8 px-4 rounded-2xl sm:px-10 text-center">
+              <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-rose-500" />
+              <h2 className="mt-6 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                Invalid Link
+              </h2>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                The access link you used is invalid or has expired.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="mt-6 btn btn-primary w-full"
+              >
+                Go to Homepage
+              </button>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (status === "ACCESS_DENIED") {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <ShieldCheckIcon className="mx-auto h-12 w-12 text-yellow-500" />
-            <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-              Access Not Yet Available
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {metadata.userName}'s vault is not yet open for successors. The
-              handover process status is currently:{" "}
-              <span className="font-semibold text-amber-700 dark:text-amber-400">
-                {formatStatus(metadata.handoverStatus)}
-              </span>
-              .
-            </p>
-            <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
-              Access is only granted after the inactivity period and handover
-              process has started.
-            </p>
-            <button
-              onClick={() => navigate("/")}
-              className="mt-6 btn btn-primary w-full"
-            >
-              Go to Homepage
-            </button>
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+        <div className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="bg-white dark:bg-gray-800/40 ring-1 ring-stone-200 dark:ring-gray-700 py-8 px-4 rounded-2xl sm:px-10 text-center">
+              <ShieldCheckIcon className="mx-auto h-12 w-12 text-amber-500" />
+              <h2 className="mt-6 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                Access Not Yet Available
+              </h2>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                {metadata.userName}'s vault is not yet open for successors. The
+                handover process status is currently:{" "}
+                <span className="font-semibold text-amber-700 dark:text-amber-400">
+                  {formatStatus(metadata.handoverStatus)}
+                </span>
+                .
+              </p>
+              <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
+                Access is only granted after the inactivity period and handover
+                process has started.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="mt-6 btn btn-primary w-full"
+              >
+                Go to Homepage
+              </button>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-stone-200 dark:ring-gray-700 overflow-hidden">
-          <div className="px-4 py-5 sm:px-6 bg-gray-900">
-            <h3 className="text-lg leading-6 font-medium text-white flex items-center gap-2">
-              <LockOpenIcon className="h-6 w-6" />
-              Secure Successor Access
-            </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-300">
-              Unlocking {metadata.userName}'s Vault
-            </p>
-          </div>
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-stone-200 dark:ring-gray-700 overflow-hidden">
+            <div className="px-4 py-5 sm:px-6 bg-gray-900">
+              <h3 className="text-lg leading-6 font-medium text-white flex items-center gap-2">
+                <LockOpenIcon className="h-6 w-6" />
+                Secure Successor Access
+              </h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-300">
+                Unlocking {metadata.userName}'s Vault
+              </p>
+            </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-6">
-            {decryptedEntries.length === 0 ? (
-              <div className="space-y-8">
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <ExclamationTriangleIcon
-                        className="h-5 w-5 text-yellow-400"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                        First confirm you are taking over this account. Then
-                        unlock your encrypted share with the recovery passphrase
-                        the owner gave you separately, and combine it with
-                        shares from enough co-successors to meet the
-                        owner&apos;s threshold.
-                      </p>
+            <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-6">
+              {decryptedEntries.length === 0 ? (
+                <div className="space-y-8">
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <ExclamationTriangleIcon
+                          className="h-5 w-5 text-yellow-400"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                          First confirm you are taking over this account. Then
+                          unlock your encrypted share with the recovery
+                          passphrase the owner gave you separately, and combine
+                          it with shares from enough co-successors to meet the
+                          owner&apos;s threshold.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="rounded-md border border-gray-200 dark:border-gray-700 p-4">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Step 1 &mdash; Confirm the handover
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    The vault is only released once enough successors confirm.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleAcceptHandover}
-                    disabled={accepting || accepted}
-                    className="mt-3 btn btn-secondary"
-                  >
-                    {accepted
-                      ? "Handover accepted"
-                      : accepting
-                        ? "Accepting..."
-                        : "Accept handover"}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
-                  <div className="sm:col-span-2">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                      Step 2 &mdash; Unlock the vault
+                  <div className="rounded-md border border-gray-200 dark:border-gray-700 p-4">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Step 1 &mdash; Confirm the handover
                     </p>
-                    <label
-                      htmlFor="my-passphrase"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Your recovery passphrase
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        id="my-passphrase"
-                        type="text"
-                        autoComplete="off"
-                        className="input font-mono"
-                        placeholder="e.g. ABCDE-FGHJK-LMNPQ-RSTUV"
-                        value={myPassphrase}
-                        onChange={(e) => setMyPassphrase(e.target.value)}
-                      />
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      This is the passphrase the account owner gave you in
-                      person, by letter, or via a password manager &mdash; not a
-                      HandoverKey password.
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      The vault is only released once enough successors confirm.
                     </p>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Co-successor key shares (Base64)
-                    </label>
-                    <div className="space-y-4">
-                      {peerShares.map((share, index) => (
-                        <div key={index} className="flex gap-2">
-                          <label
-                            htmlFor={`peer-share-${index}`}
-                            className="sr-only"
-                          >
-                            Key share from successor #{index + 2}
-                          </label>
-                          <textarea
-                            id={`peer-share-${index}`}
-                            rows={2}
-                            className="input font-mono text-xs"
-                            placeholder={`Paste share from successor #${index + 2}...`}
-                            value={share}
-                            onChange={(e) =>
-                              handlePeerShareChange(index, e.target.value)
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
                     <button
                       type="button"
-                      onClick={handleAddPeerShare}
-                      className="mt-3 text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium"
+                      onClick={handleAcceptHandover}
+                      disabled={accepting || accepted}
+                      className="mt-3 btn btn-secondary"
                     >
-                      + Add another share
+                      {accepted
+                        ? "Handover accepted"
+                        : accepting
+                          ? "Accepting..."
+                          : "Accept handover"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+                    <div className="sm:col-span-2">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Step 2 &mdash; Unlock the vault
+                      </p>
+                      <label
+                        htmlFor="my-passphrase"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      >
+                        Your recovery passphrase
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="my-passphrase"
+                          type="text"
+                          autoComplete="off"
+                          className="input font-mono"
+                          placeholder="e.g. ABCDE-FGHJK-LMNPQ-RSTUV"
+                          value={myPassphrase}
+                          onChange={(e) => setMyPassphrase(e.target.value)}
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        This is the passphrase the account owner gave you in
+                        person, by letter, or via a password manager &mdash; not
+                        a HandoverKey password.
+                      </p>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Co-successor key shares (Base64)
+                      </label>
+                      <div className="space-y-4">
+                        {peerShares.map((share, index) => (
+                          <div key={index} className="flex gap-2">
+                            <label
+                              htmlFor={`peer-share-${index}`}
+                              className="sr-only"
+                            >
+                              Key share from successor #{index + 2}
+                            </label>
+                            <textarea
+                              id={`peer-share-${index}`}
+                              rows={2}
+                              className="input font-mono text-xs"
+                              placeholder={`Paste share from successor #${index + 2}...`}
+                              value={share}
+                              onChange={(e) =>
+                                handlePeerShareChange(index, e.target.value)
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddPeerShare}
+                        className="mt-3 text-sm text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium"
+                      >
+                        + Add another share
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-5">
+                    <button
+                      onClick={handleUnlockVault}
+                      disabled={unlocking || !myPassphrase}
+                      className="w-full btn btn-primary py-3 text-lg flex justify-center items-center gap-2"
+                    >
+                      {unlocking ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Unlocking...
+                        </>
+                      ) : (
+                        <>
+                          <LockOpenIcon className="h-6 w-6" />
+                          Unlock {metadata.userName}'s Vault
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
-
-                <div className="pt-5">
-                  <button
-                    onClick={handleUnlockVault}
-                    disabled={unlocking || !myPassphrase}
-                    className="w-full btn btn-primary py-3 text-lg flex justify-center items-center gap-2"
-                  >
-                    {unlocking ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        Unlocking...
-                      </>
-                    ) : (
-                      <>
-                        <LockOpenIcon className="h-6 w-6" />
-                        Unlock {metadata.userName}'s Vault
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-600 p-4 mb-6">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <ShieldCheckIcon
-                        className="h-5 w-5 text-green-400"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-green-700 dark:text-green-300">
-                        Vault successfully unlocked. Decrypted data is shown
-                        below.
-                        <span className="font-bold"> Important:</span> This data
-                        is only available in your browser and is not saved
-                        anywhere.
-                      </p>
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-600 p-4 mb-6">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <ShieldCheckIcon
+                          className="h-5 w-5 text-green-400"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          Vault successfully unlocked. Decrypted data is shown
+                          below.
+                          <span className="font-bold"> Important:</span> This
+                          data is only available in your browser and is not
+                          saved anywhere.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 gap-6">
-                  {decryptedEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="card p-6 border-l-4 border-amber-500"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <span className="inline-flex items-center rounded-full bg-stone-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-stone-300 dark:ring-gray-700 uppercase">
-                            {entry.category}
-                          </span>
-                          <h4 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">
-                            {entry.decryptedData.title ||
-                              entry.decryptedData.name ||
-                              "Untitled Entry"}
-                          </h4>
+                  <div className="grid grid-cols-1 gap-6">
+                    {decryptedEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="card p-6 border-l-4 border-amber-500"
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <span className="inline-flex items-center rounded-full bg-stone-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-stone-300 dark:ring-gray-700 uppercase">
+                              {entry.category}
+                            </span>
+                            <h4 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">
+                              {entry.decryptedData.title ||
+                                entry.decryptedData.name ||
+                                "Untitled Entry"}
+                            </h4>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="prose prose-sm max-w-none text-gray-600 dark:text-gray-400">
-                        {typeof entry.decryptedData === "object" ? (
-                          <dl className="divide-y divide-gray-100 dark:divide-gray-700">
-                            {Object.entries(entry.decryptedData)
-                              .filter(
-                                ([key]) => !["title", "name"].includes(key),
-                              )
-                              .map(([key, value]) => (
-                                <div
-                                  key={key}
-                                  className="py-3 sm:grid sm:grid-cols-3 sm:gap-4"
-                                >
-                                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">
-                                    {key
-                                      .replace(/([A-Z])/g, " $1")
-                                      .replace(/_/g, " ")}
-                                  </dt>
-                                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200 sm:col-span-2 sm:mt-0 break-all font-mono">
-                                    {typeof value === "string"
-                                      ? value
-                                      : JSON.stringify(value)}
-                                  </dd>
-                                </div>
-                              ))}
-                          </dl>
-                        ) : (
-                          <p>{entry.decryptedData}</p>
+                        <div className="prose prose-sm max-w-none text-gray-600 dark:text-gray-400">
+                          {typeof entry.decryptedData === "object" ? (
+                            <dl className="divide-y divide-gray-100 dark:divide-gray-700">
+                              {Object.entries(entry.decryptedData)
+                                .filter(
+                                  ([key]) => !["title", "name"].includes(key),
+                                )
+                                .map(([key, value]) => (
+                                  <div
+                                    key={key}
+                                    className="py-3 sm:grid sm:grid-cols-3 sm:gap-4"
+                                  >
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">
+                                      {key
+                                        .replace(/([A-Z])/g, " $1")
+                                        .replace(/_/g, " ")}
+                                    </dt>
+                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200 sm:col-span-2 sm:mt-0 break-all font-mono">
+                                      {typeof value === "string"
+                                        ? value
+                                        : JSON.stringify(value)}
+                                    </dd>
+                                  </div>
+                                ))}
+                            </dl>
+                          ) : (
+                            <p>{entry.decryptedData}</p>
+                          )}
+                        </div>
+
+                        {entry.tags && entry.tags.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {entry.tags.map((tag: string) => (
+                              <span key={tag} className="text-xs text-gray-400">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
-
-                      {entry.tags && entry.tags.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {entry.tags.map((tag: string) => (
-                            <span key={tag} className="text-xs text-gray-400">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

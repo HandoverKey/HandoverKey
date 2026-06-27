@@ -22,6 +22,8 @@ import { useTheme } from "../contexts/ThemeContext";
 import { realtimeClient } from "../services/realtime";
 import clsx from "clsx";
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import BrandMark from "./BrandMark";
+import Footer from "./Footer";
 import SkipLink from "./SkipLink";
 
 const baseNavigation = [
@@ -316,42 +318,17 @@ const Layout: React.FC = () => {
 
           <main
             id="main-content"
-            className="py-10 bg-[#FAF7F2] dark:bg-gray-900 min-h-screen transition-colors"
+            className="bg-[#FAF7F2] dark:bg-gray-900 min-h-screen flex flex-col transition-colors"
           >
-            <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <div className="flex-1 px-4 sm:px-6 lg:px-8 py-10 max-w-6xl w-full mx-auto">
               <Outlet />
             </div>
+            <Footer />
           </main>
         </div>
       </div>
     </>
   );
 };
-
-// Brand mark — matches the landing page so the dashboard reads as the same product
-function BrandMark({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      aria-hidden="true"
-      fill="none"
-    >
-      <path
-        d="M12 2 4 5v7c0 4.5 3 8.5 8 10 5-1.5 8-5.5 8-10V5l-8-3Z"
-        className="fill-amber-100 dark:fill-amber-900/40 stroke-amber-700 dark:stroke-amber-400"
-        strokeWidth="1.4"
-      />
-      <circle cx="12" cy="11" r="2.4" className="fill-amber-500" />
-      <rect
-        x="11.2"
-        y="11"
-        width="1.6"
-        height="3.2"
-        className="fill-amber-500"
-      />
-    </svg>
-  );
-}
 
 export default Layout;

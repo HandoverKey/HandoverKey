@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDownIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
+import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 
 // Local utility class strings — intentionally NOT in index.css.
 // The global .btn is correct for the dashboard (rounded gradient pill); on a
@@ -1046,66 +1048,9 @@ function ClosingCTA() {
 }
 
 // --- Footer ---
-
-function Footer() {
-  return (
-    <footer className="border-t border-stone-200/70 dark:border-gray-800 py-10">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2">
-          <BrandMark className="h-5 w-5" />
-          <span>Handoverkey &middot; {new Date().getFullYear()}</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link
-            to="/privacy"
-            className="hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Privacy
-          </Link>
-          <Link
-            to="/terms"
-            className="hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Terms
-          </Link>
-          <Link
-            to="/contact"
-            className="hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Contact
-          </Link>
-        </div>
-      </div>
-    </footer>
-  );
-}
+// Footer is the shared `<Footer />` component imported at the top of the file.
 
 // ---------- Inline SVG glyphs ----------
-
-function BrandMark({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      aria-hidden="true"
-      fill="none"
-    >
-      <path
-        d="M12 2 4 5v7c0 4.5 3 8.5 8 10 5-1.5 8-5.5 8-10V5l-8-3Z"
-        className="fill-amber-100 dark:fill-amber-900/40 stroke-amber-700 dark:stroke-amber-400"
-        strokeWidth="1.4"
-      />
-      <circle cx="12" cy="11" r="2.4" className="fill-amber-500" />
-      <rect
-        x="11.2"
-        y="11"
-        width="1.6"
-        height="3.2"
-        className="fill-amber-500"
-      />
-    </svg>
-  );
-}
 
 function VaultGlyph() {
   return (

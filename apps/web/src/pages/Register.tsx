@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
 import BrandMark from "../components/BrandMark";
+import Footer from "../components/Footer";
 import LoadingButton from "../components/LoadingButton";
 import { getApiErrorMessage } from "../services/api-error";
 
@@ -91,169 +92,172 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2] dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <Link
-              to="/"
-              className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
-            >
-              <BrandMark className="h-10 w-10" />
-            </Link>
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <Link
+                to="/"
+                className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-2xl ring-1 ring-amber-200/80 dark:ring-amber-800/40 focus:outline-none"
+              >
+                <BrandMark className="h-10 w-10" />
+              </Link>
+            </div>
+            <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
+              Secure your legacy
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Create your Handoverkey account
+            </p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
+              >
+                Sign in
+              </Link>
+            </p>
           </div>
-          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
-            Secure your legacy
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Create your Handoverkey account
-          </p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2"
-            >
-              Sign in
-            </Link>
-          </p>
-        </div>
 
-        <div className="card p-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-rose-50 dark:bg-rose-900/20 ring-1 ring-rose-200 dark:ring-rose-800/40 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200 dark:ring-emerald-800/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg text-sm">
-                {success}
-              </div>
-            )}
-
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Full Name
-              </label>
-              <div className="mt-1">
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="input"
-                  placeholder="John Doe"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input"
-                  placeholder="Min 12 chars, uppercase, lowercase, number, special"
-                />
-              </div>
-              {password && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${passwordStrength.color}`}
-                        style={{
-                          width: `${(passwordStrength.score / 5) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-20 text-right">
-                      {passwordStrength.label}
-                    </span>
-                  </div>
+          <div className="card p-8">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-rose-50 dark:bg-rose-900/20 ring-1 ring-rose-200 dark:ring-rose-800/40 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
+                  {error}
                 </div>
               )}
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Must be at least 12 characters with uppercase, lowercase,
-                number, and special character.
-              </p>
-            </div>
 
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Confirm Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input"
-                  placeholder="Confirm your password"
-                />
+              {success && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200 dark:ring-emerald-800/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg text-sm">
+                  {success}
+                </div>
+              )}
+
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Full Name
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="input"
+                    placeholder="John Doe"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <LoadingButton
-                type="submit"
-                loading={loading}
-                className="w-full btn btn-primary flex justify-center"
-              >
-                Create Account
-              </LoadingButton>
-            </div>
-          </form>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Email address
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input"
+                    placeholder="Min 12 chars, uppercase, lowercase, number, special"
+                  />
+                </div>
+                {password && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${passwordStrength.color}`}
+                          style={{
+                            width: `${(passwordStrength.score / 5) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-20 text-right">
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Must be at least 12 characters with uppercase, lowercase,
+                  number, and special character.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Confirm Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input"
+                    placeholder="Confirm your password"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <LoadingButton
+                  type="submit"
+                  loading={loading}
+                  className="w-full btn btn-primary flex justify-center"
+                >
+                  Create Account
+                </LoadingButton>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
