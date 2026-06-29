@@ -19,7 +19,7 @@
     "@vercel/analytics": "^2.0.1",
     "axios": "^1.16.0",
     "clsx": "^2.1.0",
-    "date-fns": "^4.1.0",
+    "date-fns": "^4.4.0",
     "framer-motion": "^12.35.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
