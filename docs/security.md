@@ -43,13 +43,18 @@ not presented as active behavior.
   recovery codes if they lose the authenticator device.
 - The default issuer label is configurable through `TWO_FACTOR_ISSUER`.
 
-### Account Lockout
+### Login Throttling (per account)
 
-- Failed login attempts are tracked.
-- After 5 failed attempts inside a 15-minute window, the account is locked for 15
-  minutes.
-- Lockout state is stored in Redis and mirrored to the user record.
-- Admin users can inspect and unlock locked accounts.
+- Failed login attempts are tracked per account in Redis over a 15-minute window.
+- Instead of locking the account, repeated failures add a short, exponentially
+  increasing delay to each subsequent attempt (capped at ~5 seconds). A correct
+  password is never blocked — only briefly delayed.
+- This throttles online brute-force guessing without creating a denial-of-service
+  vector: because the account is never locked, a third party who knows a user's
+  email cannot lock them out of their own dead-man's-switch.
+- A successful login resets the counter. Admins can also reset an account's
+  throttle (and clear any legacy lock fields) via the admin API.
+- Complemented by per-IP auth rate limiting and slow bcrypt password hashing.
 
 ### Rate Limiting
 
@@ -129,7 +134,7 @@ Likely future improvements include:
 Do not open public issues for security problems.
 
 Please follow [`../SECURITY.md`](../SECURITY.md) and email
-`security@handoverkey.com`.
+`security@handoverkey.app`.
 
 ---
 

@@ -108,31 +108,20 @@ export class AuthController {
         recoveryCode,
       };
 
-      // First, check if user exists to get userId for lockout check
+      // Per-account brute-force throttle. We deliberately do NOT lock the
+      // account (that would let anyone who knows the email deny the owner
+      // access). Instead, repeated failures add a short, capped delay before
+      // the attempt is processed -- a correct password always gets through.
       const existingUser = await UserService.findUserByEmail(email);
 
       if (existingUser) {
-        // Check if account is locked
         const { AccountLockoutService } =
           await import("../services/account-lockout-service");
-        const lockStatus = await AccountLockoutService.isLocked(
+        const delayMs = await AccountLockoutService.getThrottleDelayMs(
           existingUser.id,
         );
-
-        if (lockStatus.isLocked) {
-          const timeRemaining = await AccountLockoutService.getTimeUntilUnlock(
-            existingUser.id,
-          );
-
-          await UserService.logActivity(
-            existingUser.id,
-            "LOGIN_FAILED_ACCOUNT_LOCKED",
-            req.ip,
-          );
-
-          throw new AuthenticationError(
-            `Account is locked due to too many failed login attempts. Please try again in ${Math.ceil((timeRemaining || 0) / 60)} minutes.`,
-          );
+        if (delayMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
         }
       }
 
@@ -210,8 +199,11 @@ export class AuthController {
         },
       });
     } catch (error) {
-      // Record failed login attempt and check for lockout
-      // Skip failed login recording for email verification required errors
+      // Record the failed attempt so the per-account throttle escalates the
+      // delay on the next try. Skip email-verification errors (not a real
+      // credential failure). The client-facing message stays generic ("Invalid
+      // email or password") so wrong-password on an existing account is
+      // indistinguishable from an unknown email -- no enumeration, no lockout.
       if (
         req.body.email &&
         error instanceof AuthenticationError &&
@@ -222,40 +214,20 @@ export class AuthController {
             req.body.email,
           );
           if (existingUser) {
-            // Record failed attempt
             const { AccountLockoutService } =
               await import("../services/account-lockout-service");
-            const lockStatus = await AccountLockoutService.recordFailedAttempt(
+            await AccountLockoutService.recordFailedAttempt(
               existingUser.id,
               req.ip,
             );
-
-            // Log the failed attempt
             await UserService.logActivity(
               existingUser.id,
-              lockStatus.isLocked
-                ? "LOGIN_FAILED_ACCOUNT_LOCKED"
-                : "LOGIN_FAILED_INVALID_CREDENTIALS",
+              "LOGIN_FAILED_INVALID_CREDENTIALS",
               req.ip,
             );
-
-            // If account was just locked, update the error message
-            if (lockStatus.isLocked) {
-              throw new AuthenticationError(
-                `Account locked due to too many failed login attempts. Please try again in ${Math.ceil((lockStatus.lockedUntil!.getTime() - Date.now()) / 60000)} minutes.`,
-              );
-            } else if (lockStatus.attemptsRemaining !== undefined) {
-              // Add attempts remaining to error message
-              throw new AuthenticationError(
-                `Invalid credentials. ${lockStatus.attemptsRemaining} attempt(s) remaining before account lockout.`,
-              );
-            }
           }
-        } catch (logError) {
-          // If it's an AuthenticationError from lockout, re-throw it
-          if (logError instanceof AuthenticationError) {
-            throw logError;
-          }
+        } catch {
+          // Never let throttle/logging bookkeeping mask the original auth error.
         }
       }
 

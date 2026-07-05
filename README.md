@@ -85,7 +85,7 @@ potential future enhancement.
   with configurable threshold, and optional per-successor vault entry restrictions.
 - **Strong account security**: httpOnly cookie auth, server-side session validation,
   TOTP 2FA with collapsible login UI, recovery codes, password strength enforcement,
-  lockout protection, and request validation.
+  brute-force login throttling, and request validation.
 - **Guided onboarding**: first-time users see a checklist tracking vault setup,
   successor designation, key share generation, and inactivity configuration.
 - **Operational visibility**: role-gated admin dashboard, activity logs, health checks,
@@ -338,7 +338,7 @@ Pre-commit hooks run Prettier and ESLint on staged files.
 Security issues should not be reported through public GitHub issues.
 
 Please read [`SECURITY.md`](SECURITY.md) and report vulnerabilities to
-`security@handoverkey.com`.
+`security@handoverkey.app`.
 
 ## Contributing
 

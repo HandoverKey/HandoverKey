@@ -9,7 +9,11 @@ import api from "../services/api";
 import { getApiErrorMessage } from "../services/api-error";
 import { useToast } from "../contexts/ToastContext";
 import { reconstructSecret, unwrapShare } from "@handoverkey/crypto";
-import { importRawMasterKey, decryptDataWithKey } from "../services/encryption";
+import {
+  importRawMasterKey,
+  decryptDataWithKey,
+  arrayBufferToBase64,
+} from "../services/encryption";
 import Footer from "../components/Footer";
 
 interface VaultEntry {
@@ -57,6 +61,9 @@ const SuccessorAccess: React.FC = () => {
   const [peerShares, setPeerShares] = useState<string[]>([""]);
   const [accepting, setAccepting] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  const [myShareB64, setMyShareB64] = useState<string | null>(null);
+  const [revealingShare, setRevealingShare] = useState(false);
+  const [threshold, setThreshold] = useState<number | null>(null);
   const [decryptedEntries, setDecryptedEntries] = useState<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Array<VaultEntry & { decryptedData: any }>
@@ -148,6 +155,60 @@ const SuccessorAccess: React.FC = () => {
     }
   };
 
+  /**
+   * Unwraps THIS successor's own share with their recovery passphrase and
+   * displays it as Base64 so they can hand it to co-successors out-of-band.
+   * Reconstruction needs K shares total, and each browser only ever holds one
+   * unwrapped share -- so successors must exchange their raw shares to combine
+   * them. This step makes that possible.
+   */
+  const handleRevealMyShare = async () => {
+    if (!myPassphrase) {
+      showError("Please enter your recovery passphrase first.");
+      return;
+    }
+
+    setRevealingShare(true);
+    try {
+      const response = await api.get(`/vault/successor-access?token=${token}`);
+      const wrappedShare: string | null = response.data.wrappedShare;
+      if (typeof response.data.threshold === "number") {
+        setThreshold(response.data.threshold);
+      }
+
+      if (!wrappedShare) {
+        showError(
+          "No key share is on file for you. Ask the account owner to (re)generate and distribute shares.",
+        );
+        return;
+      }
+
+      let myShareBytes: Uint8Array;
+      try {
+        myShareBytes = await unwrapShare(wrappedShare, myPassphrase.trim());
+      } catch {
+        showError(
+          "Could not unlock your share. Double-check the recovery passphrase the owner gave you.",
+        );
+        return;
+      }
+
+      setMyShareB64(arrayBufferToBase64(myShareBytes));
+      success(
+        "Your share is revealed below. Send it to your co-successors through a secure channel.",
+      );
+    } catch (err) {
+      showError(
+        getApiErrorMessage(
+          err,
+          "Could not retrieve your share yet. Make sure enough co-successors have accepted the handover.",
+        ),
+      );
+    } finally {
+      setRevealingShare(false);
+    }
+  };
+
   const handleUnlockVault = async () => {
     if (!myPassphrase) {
       showError("Please enter your recovery passphrase.");
@@ -163,6 +224,10 @@ const SuccessorAccess: React.FC = () => {
       const response = await api.get(`/vault/successor-access?token=${token}`);
       const encryptedEntries: VaultEntry[] = response.data.entries;
       const wrappedShare: string | null = response.data.wrappedShare;
+      const requiredShares: number | null =
+        typeof response.data.threshold === "number"
+          ? response.data.threshold
+          : threshold;
 
       if (!wrappedShare) {
         showError(
@@ -188,21 +253,52 @@ const SuccessorAccess: React.FC = () => {
         .filter((s) => s.trim() !== "")
         .map((s) => base64ToBytes(s));
 
-      const rawMasterKey = reconstructSecret([myShareBytes, ...peerBytes]);
+      const allShares = [myShareBytes, ...peerBytes];
+
+      // Fail early with a clear message when there aren't enough shares to meet
+      // the owner's threshold. Without this, Shamir would silently return a
+      // WRONG key, decryption would fail, and the UI would misleadingly report
+      // success with an empty vault.
+      if (requiredShares && allShares.length < requiredShares) {
+        showError(
+          `Not enough shares to unlock: this vault needs ${requiredShares} shares total, but you provided ${allShares.length} (yours plus ${peerBytes.length} co-successor share(s)). Collect more shares from co-successors.`,
+        );
+        return;
+      }
+
+      const rawMasterKey = reconstructSecret(
+        allShares,
+        requiredShares && requiredShares >= 2 ? requiredShares : undefined,
+      );
 
       // 4. Import key + decrypt entries locally.
       const masterKey = await importRawMasterKey(rawMasterKey);
+      let anyDecrypted = false;
       const decrypted = await Promise.all(
         encryptedEntries.map(async (entry) => {
           const data = await decryptDataWithKey(
             { encryptedData: entry.encryptedData, iv: entry.iv },
             masterKey,
           );
+          if (data !== null) {
+            anyDecrypted = true;
+          }
           return { ...entry, decryptedData: data };
         }),
       );
 
-      setDecryptedEntries(decrypted.filter((d) => d.decryptedData !== null));
+      const usable = decrypted.filter((d) => d.decryptedData !== null);
+
+      // A reconstructed-but-wrong key (e.g. mismatched/insufficient shares)
+      // decrypts nothing. Surface that instead of a false "unlocked" state.
+      if (encryptedEntries.length > 0 && !anyDecrypted) {
+        showError(
+          "Vault could not be decrypted. Double-check that every share is correct and that you have enough of them to meet the threshold.",
+        );
+        return;
+      }
+
+      setDecryptedEntries(usable);
       success("Vault unlocked successfully!");
     } catch (err) {
       console.error("Unlock failed", err);
@@ -383,6 +479,64 @@ const SuccessorAccess: React.FC = () => {
                         person, by letter, or via a password manager &mdash; not
                         a HandoverKey password.
                       </p>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Share your key with co-successors
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        {threshold && threshold > 1
+                          ? `This vault needs ${threshold} shares to unlock. Reveal your share and send it to your co-successors, and collect theirs below.`
+                          : "If the owner requires multiple successors, reveal your share and exchange it with the others out-of-band."}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRevealMyShare}
+                        disabled={revealingShare || !myPassphrase}
+                        className="btn btn-secondary"
+                      >
+                        {revealingShare
+                          ? "Revealing..."
+                          : myShareB64
+                            ? "Re-reveal my share"
+                            : "Reveal my share"}
+                      </button>
+                      {myShareB64 && (
+                        <div className="mt-3">
+                          <textarea
+                            readOnly
+                            rows={2}
+                            aria-label="Your key share (Base64)"
+                            className="input font-mono text-xs"
+                            value={myShareB64}
+                            onFocus={(e) => e.currentTarget.select()}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard
+                                ?.writeText(myShareB64)
+                                .then(() =>
+                                  success("Share copied to clipboard."),
+                                )
+                                .catch(() =>
+                                  showError(
+                                    "Could not copy. Copy it manually.",
+                                  ),
+                                );
+                            }}
+                            className="mt-2 text-sm text-gray-900 dark:text-white underline underline-offset-4 decoration-amber-500 hover:decoration-2 font-medium"
+                          >
+                            Copy my share
+                          </button>
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Deliver this to your co-successors through a secure
+                            channel. Anyone who gathers enough shares can unlock
+                            the vault.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="sm:col-span-2">

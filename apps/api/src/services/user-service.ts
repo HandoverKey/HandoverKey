@@ -258,6 +258,9 @@ export class UserService {
       two_factor_enabled: false,
       two_factor_secret: setup.secret,
       two_factor_recovery_codes: hashedRecoveryCodes,
+      // Reset any previously-recorded step so codes from the new secret are
+      // not rejected as replays.
+      two_factor_last_used_step: null,
     });
 
     return setup;
@@ -285,6 +288,11 @@ export class UserService {
       throw new AuthenticationError("Invalid two-factor code");
     }
 
+    // Enable is a one-time setup performed inside an already-authenticated
+    // session, so we do NOT consume the time-step here. Consuming it would
+    // reject a legitimate login made with the same code seconds later. Replay
+    // protection is enforced on the authentication path (login / disable) via
+    // verifyTwoFactorChallenge.
     await userRepo.update(userId, {
       two_factor_enabled: true,
     });
@@ -325,6 +333,7 @@ export class UserService {
       two_factor_enabled: false,
       two_factor_secret: null,
       two_factor_recovery_codes: null,
+      two_factor_last_used_step: null,
     });
   }
 
@@ -350,13 +359,29 @@ export class UserService {
       if (!twoFactorSecret) {
         throw new AuthenticationError("Two-factor secret is not configured");
       }
-      const isValidCode = TwoFactorService.verifyTotpCode(
+      const usedStep = TwoFactorService.getMatchingTotpStep(
         twoFactorSecret,
         twoFactorCode,
       );
-      if (!isValidCode) {
+      if (usedStep === null) {
         throw new AuthenticationError("Invalid two-factor code");
       }
+
+      // Replay protection: reject a code whose time-step was already consumed.
+      // TOTP codes stay valid for ~90s (±1 window); without this a captured
+      // code could be reused multiple times inside that window.
+      const userRepo = this.getUserRepository();
+      const dbUser = await userRepo.findById(input.userId);
+      const lastUsedStep = dbUser?.two_factor_last_used_step ?? null;
+      if (lastUsedStep !== null && usedStep <= lastUsedStep) {
+        throw new AuthenticationError(
+          "This two-factor code was already used. Please wait for a new code.",
+        );
+      }
+
+      await userRepo.update(input.userId, {
+        two_factor_last_used_step: usedStep,
+      });
       return;
     }
 
@@ -684,9 +709,19 @@ export class UserService {
     email: string,
   ): Promise<{ success: boolean; message: string; alreadyVerified?: boolean }> {
     logger.info(`[UserService] Resending verification email for: ${email}`);
+
+    // Message returned for both unknown and unverified emails so this endpoint
+    // cannot be used to enumerate which addresses have accounts (mirrors the
+    // no-leak behaviour of the forgot-password flow).
+    const SENT_MESSAGE =
+      "Verification email sent successfully. Please check your email.";
+
     const user = await this.findUserByEmail(email);
     if (!user) {
-      throw new NotFoundError("User not found");
+      logger.info(
+        "[UserService] resend-verification requested for an unknown email; returning generic response",
+      );
+      return { success: true, message: SENT_MESSAGE };
     }
 
     if (user.emailVerified) {
@@ -714,7 +749,7 @@ export class UserService {
 
     return {
       success: true,
-      message: "Verification email sent successfully. Please check your email.",
+      message: SENT_MESSAGE,
     };
   }
 }

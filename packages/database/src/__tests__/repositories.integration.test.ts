@@ -509,14 +509,17 @@ describe("Database repositories integration", () => {
       metadata: { source: "manual-trigger" },
     });
 
-    const expiredUppercaseProcess = await handoverProcessRepository.create({
+    // Expired grace period uses the real lowercase status the app writes
+    // (HandoverProcessStatus.GRACE_PERIOD === "grace_period"). findExpiredGracePeriods
+    // must match this exact value -- an uppercase "GRACE_PERIOD" would never match.
+    const expiredProcess = await handoverProcessRepository.create({
       user_id: owner.id,
-      status: "GRACE_PERIOD",
+      status: "grace_period",
       grace_period_ends: new Date(Date.now() - 24 * 60 * 60 * 1000),
       completed_at: null,
       cancelled_at: null,
       cancellation_reason: null,
-      metadata: { source: "legacy-status" },
+      metadata: { source: "expired-grace-period" },
     });
 
     expect(
@@ -538,7 +541,7 @@ describe("Database repositories integration", () => {
     const expiredGracePeriods =
       await handoverProcessRepository.findExpiredGracePeriods();
     expect(expiredGracePeriods.map((process) => process.id)).toContain(
-      expiredUppercaseProcess.id,
+      expiredProcess.id,
     );
 
     const completedProcess = await handoverProcessRepository.update(
@@ -551,7 +554,7 @@ describe("Database repositories integration", () => {
     expect(completedProcess.status).toBe("completed");
 
     const successorNotification = await successorNotificationRepository.create({
-      handover_process_id: expiredUppercaseProcess.id,
+      handover_process_id: expiredProcess.id,
       successor_id: successor.id,
       response_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
       verification_status: "PENDING",
@@ -562,7 +565,7 @@ describe("Database repositories integration", () => {
 
     const notificationsByProcess =
       await successorNotificationRepository.findByHandoverProcess(
-        expiredUppercaseProcess.id,
+        expiredProcess.id,
       );
     expect(notificationsByProcess).toHaveLength(1);
 
@@ -573,7 +576,7 @@ describe("Database repositories integration", () => {
     ).toContain(successorNotification.id);
 
     const verifiedNotification = await successorNotificationRepository.update(
-      expiredUppercaseProcess.id,
+      expiredProcess.id,
       successor.id,
       {
         verification_status: "VERIFIED",
@@ -584,7 +587,7 @@ describe("Database repositories integration", () => {
 
     const sentDelivery = await notificationDeliveryRepository.create({
       user_id: owner.id,
-      handover_process_id: expiredUppercaseProcess.id,
+      handover_process_id: expiredProcess.id,
       notification_type: "first_reminder",
       method: "email",
       recipient: owner.email,
@@ -597,7 +600,7 @@ describe("Database repositories integration", () => {
 
     await notificationDeliveryRepository.create({
       user_id: owner.id,
-      handover_process_id: expiredUppercaseProcess.id,
+      handover_process_id: expiredProcess.id,
       notification_type: "second_reminder",
       method: "email",
       recipient: owner.email,

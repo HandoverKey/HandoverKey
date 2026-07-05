@@ -30,9 +30,19 @@ export class TwoFactorService {
   }
 
   static verifyTotpCode(secret: string, token: string): boolean {
+    return this.getMatchingTotpStep(secret, token) !== null;
+  }
+
+  /**
+   * Returns the TOTP time-step (floor(unixSeconds / 30)) that the supplied code
+   * matches, searching the allowed window, or null if it matches none. Callers
+   * persist this step and reject any future code whose step is <= the last one
+   * used, which makes each code single-use (prevents replay within its window).
+   */
+  static getMatchingTotpStep(secret: string, token: string): number | null {
     const normalizedToken = token.replace(/\s+/g, "");
     if (!/^\d{6}$/.test(normalizedToken)) {
-      return false;
+      return null;
     }
 
     const secretBytes = this.base32Decode(secret);
@@ -40,13 +50,14 @@ export class TwoFactorService {
     const currentCounter = Math.floor(now / TOTP_STEP_SECONDS);
 
     for (let delta = -TOTP_WINDOW; delta <= TOTP_WINDOW; delta++) {
-      const candidate = this.generateTotp(secretBytes, currentCounter + delta);
+      const step = currentCounter + delta;
+      const candidate = this.generateTotp(secretBytes, step);
       if (candidate === normalizedToken) {
-        return true;
+        return step;
       }
     }
 
-    return false;
+    return null;
   }
 
   static generateRecoveryCodes(count = 8): string[] {

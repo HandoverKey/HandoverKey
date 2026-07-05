@@ -83,6 +83,15 @@ export const PasswordResetConfirmSchema = z
     // Removed complexity regex because we are now sending a hashed Auth Key (hex string)
     confirmPassword: z.string(),
     salt: z.string().optional(), // Added salt field for Zero-Knowledge password reset
+    // Email is validated against the reset token server-side (defense in depth).
+    // It MUST be part of the schema, otherwise Zod strips it and the match check
+    // silently never runs.
+    email: z
+      .string()
+      .email("Please provide a valid email address")
+      .toLowerCase()
+      .trim()
+      .optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Password confirmation does not match password",

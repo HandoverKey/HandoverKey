@@ -52,27 +52,4 @@ export class SimpleActivityMiddleware {
       }
     };
   }
-
-  /**
-   * Manual check-in endpoint handler
-   */
-  static async handleManualCheckIn(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.user?.userId) {
-        return res.status(401).json({ error: "Not authenticated" });
-      }
-
-      await UserService.logActivity(req.user.userId, "MANUAL_CHECKIN", req.ip);
-
-      res.json({
-        success: true,
-        message: "Check-in recorded successfully",
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV !== "test") {
-        logger.error({ err: error }, "Manual check-in error");
-      }
-      res.status(500).json({ error: "Failed to record check-in" });
-    }
-  }
 }

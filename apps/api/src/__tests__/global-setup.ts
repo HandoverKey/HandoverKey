@@ -26,6 +26,7 @@ const MIGRATION_FILES = [
   "create_waitlist_table.sql",
   "hard_delete_cascades.sql",
   "create_refresh_tokens.sql",
+  "add_two_factor_last_used_step.sql",
 ];
 
 export default async function globalSetup() {

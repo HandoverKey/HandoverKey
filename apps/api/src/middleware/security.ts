@@ -53,7 +53,13 @@ export function createRateLimiter(
 
 export const rateLimiter = createRateLimiter(
   parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"),
-  parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
+  // Explicit override always wins. Otherwise use a strict default in production
+  // and a high ceiling elsewhere, matching the auth/register/contact limiters
+  // so local dev and large integration test suites aren't throttled.
+  parseInt(
+    process.env.RATE_LIMIT_MAX_REQUESTS ||
+      (process.env.NODE_ENV === "production" ? "100" : "100000"),
+  ),
   "Too many requests from this IP, please try again later.",
   "rl:global:",
 ) as unknown as (req: Request, res: Response, next: NextFunction) => void;

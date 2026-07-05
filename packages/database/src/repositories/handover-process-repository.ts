@@ -159,7 +159,9 @@ export class HandoverProcessRepository {
       const processes = await this.db
         .selectFrom("handover_processes")
         .selectAll()
-        .where("status", "=", "GRACE_PERIOD")
+        // Status is persisted lowercase (see HandoverProcessStatus enum), so
+        // this must match "grace_period" -- "GRACE_PERIOD" would never match.
+        .where("status", "=", "grace_period")
         .where("grace_period_ends", "<", new Date())
         .execute();
 

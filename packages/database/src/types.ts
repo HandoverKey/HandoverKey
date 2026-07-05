@@ -18,6 +18,11 @@ export interface UsersTable {
   two_factor_enabled: ColumnType<boolean, boolean | undefined, boolean>;
   two_factor_secret: string | null;
   two_factor_recovery_codes: string[] | null;
+  two_factor_last_used_step: ColumnType<
+    number | null,
+    number | null | undefined,
+    number | null
+  >;
   last_login: ColumnType<
     Date | null,
     Date | string | null,

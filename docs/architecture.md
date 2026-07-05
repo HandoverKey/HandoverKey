@@ -150,7 +150,7 @@ Primary persistent store for:
 Used for:
 
 - BullMQ queues and workers
-- account lockout counters
+- login throttle counters
 - low-latency operational state
 
 ### Background Jobs

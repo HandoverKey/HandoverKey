@@ -134,7 +134,10 @@ export class InactivityMonitorService implements InactivityMonitor {
       const inactivitySettings = await this.getInactivitySettings(userId);
 
       // Adjust for system downtime
-      const adjustedStatus = await this.adjustForSystemDowntime(activityStatus);
+      const adjustedStatus = await this.adjustForSystemDowntime(
+        activityStatus,
+        inactivitySettings.thresholdDays,
+      );
 
       await this.processUserInactivity(
         userId,
@@ -382,6 +385,7 @@ export class InactivityMonitorService implements InactivityMonitor {
 
   private async adjustForSystemDowntime(
     _activityStatus: ActivityStatus,
+    thresholdDays: number,
   ): Promise<ActivityStatus> {
     // Get total system downtime since user's last activity
     const downtimeMs = await this.getSystemDowntimeSince(
@@ -398,9 +402,12 @@ export class InactivityMonitorService implements InactivityMonitor {
       _activityStatus.inactivityDuration - downtimeMs,
     );
 
-    // Recalculate other fields based on adjusted duration
-    const thresholdMs =
-      _activityStatus.timeRemaining + _activityStatus.inactivityDuration;
+    // Derive the real threshold from configured days. Do NOT reconstruct it
+    // from timeRemaining + inactivityDuration: those values are clamped
+    // upstream (timeRemaining floored at 0, percentage capped at 100), so once
+    // the user passes 100% the reconstruction collapses to inactivityDuration
+    // and yields a wrong percentage.
+    const thresholdMs = thresholdDays * 24 * 60 * 60 * 1000;
     const adjustedThresholdPercentage = Math.min(
       (adjustedInactivityDuration / thresholdMs) * 100,
       100,
