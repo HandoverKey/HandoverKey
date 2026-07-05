@@ -6,7 +6,7 @@ This document describes the current `v1.2.0` API surface implemented in
 ## Base URLs
 
 - Local development: `http://localhost:3001/api/v1`
-- Production example: `https://api.handoverkey.com/api/v1`
+- Production example: `https://api.handoverkey.app/api/v1`
 
 The web app uses `VITE_API_URL` in production. In local development, the Vite dev
 server proxies `/api` to the API server.
@@ -225,7 +225,7 @@ Public:
 The API exposes an authenticated WebSocket endpoint at:
 
 - `ws://localhost:3001/ws` (local)
-- `wss://api.handoverkey.com/ws` (production example)
+- `wss://api.handoverkey.app/ws` (production example)
 
 Browser clients usually connect via:
 

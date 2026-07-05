@@ -32,7 +32,7 @@ async function seedDatabase(): Promise<void> {
     }
 
     // Create a test user for development
-    const testEmail = "test@handoverkey.com";
+    const testEmail = "test@handoverkey.app";
     const testPassword = "TestPassword123!";
 
     // Check if test user already exists
@@ -74,7 +74,7 @@ async function seedDatabase(): Promise<void> {
         .insertInto("successors")
         .values({
           user_id: userId,
-          email: "successor@handoverkey.com",
+          email: "successor@handoverkey.app",
           name: "Test Successor",
           verified: true,
           handover_delay_days: 90,

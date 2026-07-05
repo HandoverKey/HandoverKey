@@ -15,17 +15,17 @@ describe("CORS", () => {
   });
 
   it("allows the www variant for apex domains", () => {
-    const origins = buildAllowedOrigins("https://handoverkey.com");
+    const origins = buildAllowedOrigins("https://handoverkey.app");
 
-    expect(origins.has("https://handoverkey.com")).toBe(true);
-    expect(origins.has("https://www.handoverkey.com")).toBe(true);
+    expect(origins.has("https://handoverkey.app")).toBe(true);
+    expect(origins.has("https://www.handoverkey.app")).toBe(true);
   });
 
   it("strips www for www-prefixed apex domains", () => {
-    const origins = buildAllowedOrigins("https://www.handoverkey.com");
+    const origins = buildAllowedOrigins("https://www.handoverkey.app");
 
-    expect(origins.has("https://www.handoverkey.com")).toBe(true);
-    expect(origins.has("https://handoverkey.com")).toBe(true);
+    expect(origins.has("https://www.handoverkey.app")).toBe(true);
+    expect(origins.has("https://handoverkey.app")).toBe(true);
   });
 
   it("does not add www variant for subdomains", () => {

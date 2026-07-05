@@ -30,7 +30,7 @@ Example:
 
 ```typescript
 const html = this.templateEngine.render("user-verification", {
-  verificationLink: "https://handoverkey.com/verify?token=abc123",
+  verificationLink: "https://handoverkey.app/verify?token=abc123",
   year: "2025",
 });
 ```

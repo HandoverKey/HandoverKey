@@ -110,8 +110,8 @@ app.use(
 
 // Build the CORS allowlist. For each configured origin we also allow the
 // www / non-www counterpart (apex domains only) so that
-// FRONTEND_URL=https://handoverkey.com automatically permits
-// https://www.handoverkey.com and vice-versa.
+// FRONTEND_URL=https://handoverkey.app automatically permits
+// https://www.handoverkey.app and vice-versa.
 export function buildAllowedOrigins(raw: string): Set<string> {
   const origins = new Set<string>();
 

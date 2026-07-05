@@ -39,8 +39,8 @@ VITE_WS_URL=
 Hosted example:
 
 ```bash
-VITE_API_URL=https://api.handoverkey.com/api/v1
-VITE_WS_URL=wss://api.handoverkey.com/ws
+VITE_API_URL=https://api.handoverkey.app/api/v1
+VITE_WS_URL=wss://api.handoverkey.app/ws
 ```
 
 ## Build And Test

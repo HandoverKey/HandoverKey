@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/handoverkey/handoverkey/issues"
   },
-  "homepage": "https://handoverkey.com",
+  "homepage": "https://handoverkey.app",
   "scripts": {
     "build": "tsc",
     "build:standalone": "npx esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js --format=cjs --external:pg-native --alias:@handoverkey/shared=../../packages/shared/src/index.ts --alias:@handoverkey/shared/src=../../packages/shared/src --alias:@handoverkey/database=../../packages/database/src/index.ts --alias:@handoverkey/database/src=../../packages/database/src --alias:@handoverkey/crypto=../../packages/crypto/src/index.ts --alias:@handoverkey/crypto/src=../../packages/crypto/src",

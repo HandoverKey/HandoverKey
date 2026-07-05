@@ -16,7 +16,7 @@ We take the security of HandoverKey seriously. If you believe you have found a s
 
 ### How to Report
 
-Please send an email to **security@handoverkey.com**.
+Please send an email to **security@handoverkey.app**.
 
 In your email, please include:
 

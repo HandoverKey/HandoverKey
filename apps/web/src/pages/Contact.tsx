@@ -93,7 +93,7 @@ export default function Contact() {
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <EnvelopeIcon className="w-6 h-6 text-amber-400" />
-                  <span>info@handoverkey.com</span>
+                  <span>info@handoverkey.app</span>
                 </div>
               </div>
             </div>

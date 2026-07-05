@@ -146,7 +146,7 @@ Start with `docs/README.md` if you are not sure where an update belongs.
 Do not open public GitHub issues for vulnerabilities.
 
 Please follow [`SECURITY.md`](SECURITY.md) and report them privately to
-`security@handoverkey.com`.
+`security@handoverkey.app`.
 
 ## License
 

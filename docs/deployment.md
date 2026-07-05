@@ -154,8 +154,8 @@ Typical values:
 
 - local with Vite proxy: leave `VITE_API_URL` empty
 - hosted split frontend/API:
-  - `VITE_API_URL=https://api.handoverkey.com/api/v1`
-  - `VITE_WS_URL=wss://api.handoverkey.com/ws`
+  - `VITE_API_URL=https://api.handoverkey.app/api/v1`
+  - `VITE_WS_URL=wss://api.handoverkey.app/ws`
 
 ## Frontend Hosting Notes
 

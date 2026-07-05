@@ -52,8 +52,8 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
       # Web URL
-      FRONTEND_URL: ${FRONTEND_URL:-https://handoverkey.com}
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://handoverkey.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://handoverkey.app}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://handoverkey.app}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       JOB_CONCURRENCY: ${JOB_CONCURRENCY:-5}
@@ -80,8 +80,8 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         # Pass API and WebSocket URLs to build time
-        VITE_API_URL: ${VITE_API_URL:-https://api.handoverkey.com/api/v1}
-        VITE_WS_URL: ${VITE_WS_URL:-wss://api.handoverkey.com/ws}
+        VITE_API_URL: ${VITE_API_URL:-https://api.handoverkey.app/api/v1}
+        VITE_WS_URL: ${VITE_WS_URL:-wss://api.handoverkey.app/ws}
     ports:
       - "3010:3000"
     networks:

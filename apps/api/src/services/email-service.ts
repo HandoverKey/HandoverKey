@@ -265,7 +265,7 @@ export class EmailService {
 
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: "info@handoverkey.com",
+      to: "info@handoverkey.app",
       subject: `Contact Form: Message from ${name}`,
       html,
       replyTo: fromEmail,
@@ -274,7 +274,7 @@ export class EmailService {
     try {
       await this.transporter.sendMail(mailOptions);
       logger.info(
-        `Contact form email sent from ${fromEmail} to info@handoverkey.com`,
+        `Contact form email sent from ${fromEmail} to info@handoverkey.app`,
       );
     } catch (error) {
       logger.error({ err: error }, "Failed to send contact form email");

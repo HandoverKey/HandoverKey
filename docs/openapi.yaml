@@ -11,7 +11,7 @@ info:
     url: https://opensource.org/licenses/MIT
   contact:
     name: HandoverKey
-    url: https://handoverkey.com
+    url: https://handoverkey.app
 
 servers:
   - url: /api/v1

@@ -11,7 +11,7 @@ export class ContactController {
     try {
       const { name, email, message } = req.body;
 
-      // Send email to info@handoverkey.com
+      // Send email to info@handoverkey.app
       await emailService.sendContactFormEmail(email, name, message);
 
       logger.info({ email, name }, "Contact form submitted successfully");
