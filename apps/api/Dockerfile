@@ -50,5 +50,8 @@ ENV NODE_ENV=production
 ENV API_PORT=3001
 EXPOSE 3001
 
-# Start the API server (run migrations via a separate one-shot task)
-CMD ["npm", "run", "start:prod"]
+# Apply any pending database migrations, then start the API server. This keeps
+# a single-container deploy self-sufficient (no separate migrate step needed).
+# NOTE: if you scale the API to multiple replicas, run migrations as a single
+# pre-deploy task instead so instances don't migrate concurrently on boot.
+CMD ["npm", "run", "start:prod:migrate-and-start"]
