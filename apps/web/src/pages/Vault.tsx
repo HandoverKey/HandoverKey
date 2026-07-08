@@ -221,8 +221,7 @@ const Vault: React.FC = () => {
     try {
       const fileContent = await file.text();
       const parsed = JSON.parse(fileContent) as
-        | { entries?: unknown; mode?: "merge" | "replace" }
-        | unknown[];
+        { entries?: unknown; mode?: "merge" | "replace" } | unknown[];
 
       const entries = Array.isArray(parsed)
         ? parsed

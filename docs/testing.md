@@ -101,9 +101,7 @@ import { initializeRedis, closeRedis } from "../../config/redis";
 describe("Feature Integration", () => {
   beforeAll(async () => {
     const dbClient = getDatabaseClient();
-    await dbClient.initialize({
-      /* test DB config */
-    });
+    await dbClient.initialize({/* test DB config */});
     SessionService.initialize(dbClient);
     await initializeRedis();
     await appInit;

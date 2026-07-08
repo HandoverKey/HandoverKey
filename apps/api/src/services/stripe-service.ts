@@ -174,8 +174,7 @@ export class StripeService {
         const status = mapSubscriptionStatus(subscription.status as string);
 
         const currentPeriodEnd = subscription.current_period_end as
-          | number
-          | undefined;
+          number | undefined;
         await userRepo.update(user.id, {
           subscription_tier: tier,
           subscription_status: status,

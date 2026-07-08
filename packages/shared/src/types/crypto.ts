@@ -47,9 +47,7 @@ export interface HandoverEvent {
   id: string;
   userId: string;
   eventType:
-    | "INACTIVITY_DETECTED"
-    | "HANDOVER_TRIGGERED"
-    | "SUCCESSOR_NOTIFIED";
+    "INACTIVITY_DETECTED" | "HANDOVER_TRIGGERED" | "SUCCESSOR_NOTIFIED";
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
   triggeredAt?: Date;
   completedAt?: Date;
