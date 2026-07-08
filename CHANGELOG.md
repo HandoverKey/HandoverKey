@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3](https://github.com/HandoverKey/HandoverKey/compare/v1.4.2...v1.4.3) (2026-07-08)
+
+
+### Bug Fixes
+
+* **ci:** sync lock file and fix prettier formatting ([90cd643](https://github.com/HandoverKey/HandoverKey/commit/90cd64320c7baa487625899c67b52a8c82f8e2bf))
+
 ## [1.4.2](https://github.com/HandoverKey/HandoverKey/compare/v1.4.1...v1.4.2) (2026-07-08)
 
 
