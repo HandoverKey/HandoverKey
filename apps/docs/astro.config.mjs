@@ -7,6 +7,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "HandoverKey",
+      favicon: "/favicon.svg",
       description:
         "Open-source zero-knowledge digital legacy platform with a dead man's switch.",
       social: {
