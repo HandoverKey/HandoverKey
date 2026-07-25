@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "npm run build --workspace=@handoverkey/docs",
+  "outputDirectory": "apps/docs/dist",
   "installCommand": "npm install"
 }
