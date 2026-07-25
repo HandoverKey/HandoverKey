@@ -30,7 +30,7 @@ You store secrets. You pick successors. If you go quiet long enough, the vault h
 
 ## Project Status
 
-`v1.4.3` is the current release. <!-- x-release-please-version -->
+`v1.5.0` is the current release. <!-- x-release-please-version -->
 
 HandoverKey is beyond a prototype but is **not yet a hardened, audited production service** — treat it as an advanced beta and review the [security docs](docs/security.md) before trusting it with irreplaceable secrets. The current build includes:
 
