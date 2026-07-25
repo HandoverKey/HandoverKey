@@ -19,6 +19,9 @@ export default defineConfig({
       },
       customCss: ["./src/styles/custom.css"],
       plugins: [starlightClientMermaid()],
+      components: {
+        Head: "./src/components/Head.astro",
+      },
       defaultLocale: "en",
       lastUpdated: true,
       pagination: true,
