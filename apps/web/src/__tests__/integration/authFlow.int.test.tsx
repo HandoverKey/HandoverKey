@@ -146,7 +146,7 @@ describe("Auth flows", () => {
 
     await act(async () => {
       await user.type(screen.getByLabelText(/email/i), "test@example.com");
-      await user.type(screen.getByLabelText(/password/i), "Password123!");
+      await user.type(screen.getByPlaceholderText("••••••••"), "Password123!");
       await user.click(screen.getByRole("button", { name: /sign in/i }));
     });
 
@@ -185,6 +185,7 @@ describe("Auth flows", () => {
         screen.getByLabelText(/confirm password/i),
         "Password123!",
       );
+      await user.click(screen.getByLabelText(/i agree to the/i));
       await user.click(screen.getByRole("button", { name: /create account/i }));
     });
 
