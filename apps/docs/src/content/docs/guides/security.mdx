@@ -1,0 +1,126 @@
+---
+title: Security Model
+description: Implemented security controls, known limitations, and future hardening plans.
+head: []
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Advanced beta">
+  HandoverKey is not yet a hardened, audited production service. Read this page before trusting it with irreplaceable secrets.
+</Aside>
+
+## Principles
+
+- Keep vault plaintext on the client whenever possible
+- Separate authentication concerns from vault encryption concerns
+- Fail fast on missing critical secrets at startup
+- Validate and sanitize all incoming data
+- Keep auth, inactivity, and handover actions auditable
+
+## Implemented controls
+
+### Client-side vault encryption
+
+- Vault entries are encrypted in the browser before being sent to the API
+- AES-256-GCM via the Web Crypto API
+- Key derivation: PBKDF2 with SHA-256, 100,000 iterations
+- The server stores encrypted payloads, IVs, salts, and metadata only — never plaintext
+
+### Password and auth handling
+
+- Client derives an **auth key** from password + email via PBKDF2 before sending — the raw password never leaves the browser
+- Server stores bcrypt hash of the auth key (rounds = 12)
+- Browser auth uses httpOnly, Secure JWT cookies
+- API clients may also authenticate with `Authorization: Bearer <token>`
+- Protected routes validate both the JWT and the backing session record
+- Refresh tokens are path-scoped to `/api/v1/auth/refresh`
+
+### Session management
+
+- Every login creates a tracked server-side session
+- Users can view active sessions, revoke one, or invalidate all others
+- Session cleanup runs as a scheduled maintenance task
+
+### Two-factor authentication
+
+- TOTP 2FA with configurable issuer label
+- Recovery codes for lost authenticator access
+- 2FA is validated as part of the login flow, not as a separate step that can be bypassed
+
+### Login throttling
+
+- Failed attempts tracked per account in Redis over a 15-minute window
+- Instead of locking the account, repeated failures add an exponentially increasing delay (capped at ~5 seconds)
+- A correct password is never blocked — only briefly slowed
+- This prevents brute-force guessing without creating a denial-of-service vector on a dead man's switch account (a locked account could prevent the owner from cancelling an active handover)
+- Complemented by per-IP rate limiting and slow bcrypt hashing
+
+### Rate limiting
+
+- General API limiter, stricter auth limiter, registration limiter, contact form limiter
+- Implemented with `express-rate-limit`
+
+<Aside type="note" title="Multi-instance deployments">
+  The current rate limiter uses in-process memory, not a distributed Redis-backed store. For multi-instance deployments, pair this with an edge/WAF rate limiter or upgrade to a shared store.
+</Aside>
+
+### Input validation and sanitization
+
+- All request schemas validated with Zod
+- Content-Type checked on JSON mutation routes
+- Input sanitization removes dangerous HTML/script patterns and suspicious protocols
+- Prototype-pollution keys (`__proto__`, `constructor`, `prototype`) are explicitly rejected
+
+### Transport and browser security
+
+- Production cookies are Secure and configured for browser usage
+- CORS uses an explicit allowlist via `CORS_ORIGINS`
+- Helmet.js sets security headers including `frameAncestors: none`
+
+### Auditability
+
+- Structured Pino logging throughout the API
+- Activity records are HMAC-signed with `ACTIVITY_HMAC_SECRET` for integrity verification
+- Activity history is queryable through authenticated endpoints
+
+### Inactivity and handover protections
+
+- User activity comes from both authenticated actions and explicit check-ins
+- Manual check-in, secure emailed check-in links, and logins all reset the inactivity state
+- Active grace-period handovers are cancelled when the user checks in
+- Successors must verify their email identity before accessing successor flows
+- Owners can restrict each successor to assigned vault entries only
+
+## Known limitations
+
+| Limitation | Notes |
+| --- | --- |
+| Rate limiting not Redis-backed | Not safe for multi-instance deployments without an external limiter |
+| Admin authorization is allowlist-based | No full role model yet |
+| No WebAuthn / passkeys | TOTP only |
+| No external security audit | The codebase has not been professionally penetration-tested |
+| CSP / HSTS | Expected to be enforced by the frontend host or reverse proxy |
+
+## Operational secrets
+
+The following must be set before the API starts:
+
+- `JWT_SECRET` — signs access and refresh tokens
+- `ACTIVITY_HMAC_SECRET` — signs activity log records
+
+Generate both with `openssl rand -base64 64`.
+
+## Reporting vulnerabilities
+
+Please **do not** open public GitHub issues for security problems.
+
+Email `security@handoverkey.app` — see [SECURITY.md](https://github.com/handoverkey/handoverkey/blob/main/SECURITY.md) for the full disclosure process.
+
+## Future hardening
+
+- WebAuthn / passkey support
+- Redis-backed distributed rate limiting
+- Richer role-based authorization
+- External security review and penetration testing
+- Stronger deployment-level security header baselines

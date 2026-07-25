@@ -1,0 +1,76 @@
+---
+title: Quick Start
+description: Get HandoverKey running locally in minutes.
+head: []
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Get the full stack running locally in under five minutes.
+
+## Prerequisites
+
+- **Node.js** 22+
+- **npm** 9+
+- **Docker** (for PostgreSQL and Redis)
+
+## Setup
+
+<Steps>
+
+1. **Clone and install**
+
+   ```bash
+   git clone https://github.com/HandoverKey/HandoverKey.git
+   cd HandoverKey
+   npm install
+   ```
+
+2. **Copy env files**
+
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   cp apps/web/.env.example apps/web/.env
+   ```
+
+3. **Generate required secrets**
+
+   Open `apps/api/.env` and fill in the two required secrets:
+
+   ```bash
+   JWT_SECRET=$(openssl rand -base64 64)
+   ACTIVITY_HMAC_SECRET=$(openssl rand -base64 64)
+   ```
+
+4. **Start infrastructure and run migrations**
+
+   ```bash
+   npm run docker:up
+   npm run db:migrate
+   ```
+
+5. **Start the dev servers**
+
+   ```bash
+   npm run dev
+   ```
+
+</Steps>
+
+## Local URLs
+
+| Service | URL |
+| ------- | --- |
+| Web app | `http://localhost:5173` |
+| API | `http://localhost:3001/api/v1` |
+| WebSocket | `ws://localhost:3001/ws` |
+
+## What's next?
+
+- Set up [SMTP](/guides/deployment/#smtp) so email reminders and handover notifications work
+- Review the [Security Model](/guides/security/) before storing real secrets
+- Read the full [Deployment Guide](/guides/deployment/) for production setup
+
+<Aside type="caution" title="Before storing real secrets">
+  HandoverKey is an advanced beta — not yet a hardened, audited production service. Read the [security docs](/guides/security/) and understand the known limitations before trusting it with irreplaceable data.
+</Aside>

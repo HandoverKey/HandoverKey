@@ -28,6 +28,12 @@ const Footer: React.FC = () => (
           Terms
         </Link>
         <Link
+          to="/cookies"
+          className="hover:text-gray-900 dark:hover:text-white transition"
+        >
+          Cookies
+        </Link>
+        <Link
           to="/contact"
           className="hover:text-gray-900 dark:hover:text-white transition"
         >
