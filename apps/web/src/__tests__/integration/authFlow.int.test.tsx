@@ -42,6 +42,8 @@ vi.mock("@heroicons/react/24/outline", () => ({
   SparklesIcon: () => <div data-testid="sparkles-icon" />,
   CheckIcon: () => <div data-testid="check-icon-outline" />,
   CreditCardIcon: () => <div data-testid="credit-card-icon" />,
+  EyeIcon: () => <div data-testid="eye-icon" />,
+  EyeSlashIcon: () => <div data-testid="eye-slash-icon" />,
 }));
 
 vi.mock("@heroicons/react/24/solid", () => ({
