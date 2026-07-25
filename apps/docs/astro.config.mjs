@@ -50,6 +50,11 @@ export default defineConfig({
             { label: "Contributing", slug: "contributing" },
             { label: "Troubleshooting", slug: "troubleshooting" },
             { label: "Changelog", slug: "changelog" },
+            {
+              label: "← handoverkey.app",
+              link: "https://handoverkey.app",
+              attrs: { target: "_blank", rel: "noopener noreferrer" },
+            },
           ],
         },
       ],
