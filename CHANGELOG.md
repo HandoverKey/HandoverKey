@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/HandoverKey/HandoverKey/compare/v1.4.3...v1.5.0) (2026-07-25)
+
+
+### Features
+
+* docs site, legal pages, password visibility, and pre-launch polish ([7eac992](https://github.com/HandoverKey/HandoverKey/commit/7eac9922958935780400ce61f5eadd4fa2b238b7))
+* **docs:** add shared favicon from main app ([b9075a0](https://github.com/HandoverKey/HandoverKey/commit/b9075a03d8d1b23dd5e3e34e6d614f51f51daaea))
+* link docs and main app to each other ([23d1434](https://github.com/HandoverKey/HandoverKey/commit/23d143485c6efd1f6f4b103ef3274cea07eb4f44))
+
+
+### Bug Fixes
+
+* **docs:** favicon expects string path not object in Starlight 0.32 ([f0ef03f](https://github.com/HandoverKey/HandoverKey/commit/f0ef03f007546ad1e39b0528ecea3a19a0bfe1ea))
+* **docs:** scope Vercel build to docs workspace from monorepo root ([f385345](https://github.com/HandoverKey/HandoverKey/commit/f385345345528c0afe3d96e039a33437d54b1cc7))
+* **docs:** set Vercel output directory and build command for Astro ([b9552e1](https://github.com/HandoverKey/HandoverKey/commit/b9552e1288c46f21977d186440a2d59ef6046108))
+* **docs:** simplify Vercel config — Root Directory must be apps/docs ([e2e08ab](https://github.com/HandoverKey/HandoverKey/commit/e2e08abacaba55ba3fb52453061ee8090b8749ae))
+* **web:** add EyeIcon and EyeSlashIcon to heroicons test mocks ([67cad0a](https://github.com/HandoverKey/HandoverKey/commit/67cad0acd973e7820c4fcccf1b6d67d7ffd22f94))
+* **web:** update auth tests for password visibility toggle and T&C checkbox ([c531905](https://github.com/HandoverKey/HandoverKey/commit/c53190525c85e750d19cba2fe51db915efb8ca41))
+
 ## [1.4.3](https://github.com/HandoverKey/HandoverKey/compare/v1.4.2...v1.4.3) (2026-07-08)
 
 
