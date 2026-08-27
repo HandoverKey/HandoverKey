@@ -138,5 +138,5 @@ Please follow [`../SECURITY.md`](../SECURITY.md) and email
 
 ---
 
-**Last Updated**: 2026-03-18
-**Version**: 1.2.0
+**Last Updated**: 2026-07-25
+**Version**: 1.4.3

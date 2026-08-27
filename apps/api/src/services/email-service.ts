@@ -78,9 +78,6 @@ export class EmailService {
               pass,
             }
           : undefined,
-      tls: {
-        rejectUnauthorized: false,
-      },
     };
 
     this.transporter = nodemailer.createTransport(smtpConfig);

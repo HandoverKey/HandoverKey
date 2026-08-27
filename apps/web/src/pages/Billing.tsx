@@ -31,10 +31,8 @@ const tierDetails: Record<
     features: [
       "Unlimited vault entries",
       "Up to 5 successors",
-      "Shamir's Secret Sharing",
-      "Priority reminders",
-      "Activity audit logs",
-      "Vault export & import",
+      "Everything in Free",
+      "Priority support",
     ],
   },
   family: {
@@ -43,9 +41,6 @@ const tierDetails: Record<
     features: [
       "Everything in Pro",
       "Unlimited successors",
-      "Per-entry access controls",
-      "Custom inactivity thresholds",
-      "Webhook notifications",
       "Dedicated support",
     ],
   },
@@ -238,10 +233,13 @@ const Billing: React.FC = () => {
 
       {/* Billing not configured message */}
       {!billing?.stripeEnabled && currentTier === "free" && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
-            Paid plans are coming soon. Join the waitlist on our homepage to be
-            notified when they launch!
+        <div className="bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200/80 dark:border-amber-800/40 p-8 text-center">
+          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+            Paid plans coming soon
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Pro and Family plans are launching shortly. You'll be notified at
+            your account email when they go live.
           </p>
         </div>
       )}
