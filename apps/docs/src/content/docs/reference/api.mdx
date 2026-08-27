@@ -1,0 +1,292 @@
+---
+title: API Reference
+description: HTTP endpoints, authentication model, and request/response conventions.
+head: []
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Base URLs
+
+| Environment | URL |
+| --- | --- |
+| Local development | `http://localhost:3001/api/v1` |
+| Production | `https://api.handoverkey.app/api/v1` |
+
+## Authentication
+
+HandoverKey supports two auth patterns:
+
+- **Browser clients** — httpOnly cookies set by the API (`accessToken`, `refreshToken`)
+- **Programmatic clients** — `Authorization: Bearer <token>` header
+
+Every protected endpoint validates both the JWT and the backing server-side session record.
+
+### Cookie details
+
+| Cookie | Scope | Lifetime |
+| --- | --- | --- |
+| `accessToken` | All protected routes | 1 hour |
+| `refreshToken` | `/api/v1/auth/refresh` only | 7 days |
+
+Production cookies are `Secure` and `SameSite=None`.
+
+### Auth flow
+
+1. `POST /auth/register`
+2. `GET /auth/verify-email?token=...`
+3. `POST /auth/login` → API sets cookies and returns user payload
+4. `GET /auth/profile` → hydrate session state in the browser
+
+If TOTP is enabled, login accepts `twoFactorCode` or `recoveryCode`.
+
+## Response conventions
+
+| Status | Meaning |
+| --- | --- |
+| `200` / `201` | Success |
+| `400` | Validation error |
+| `401` | Missing or invalid auth |
+| `403` | Authenticated but not authorized (e.g. tier limit) |
+| `404` | Resource not found |
+| `429` | Rate limited |
+
+## Endpoints
+
+### Auth
+
+**Public**
+
+```
+POST   /auth/register
+POST   /auth/login
+POST   /auth/forgot-password
+POST   /auth/reset-password
+GET    /auth/verify-email?token=
+POST   /auth/resend-verification
+POST   /auth/refresh
+```
+
+**Authenticated**
+
+```
+POST   /auth/logout
+GET    /auth/profile
+PUT    /auth/profile
+PUT    /auth/change-password
+POST   /auth/2fa/setup
+POST   /auth/2fa/enable
+POST   /auth/2fa/disable
+DELETE /auth/delete-account
+```
+
+**Login request**
+```json
+{
+  "email": "user@example.com",
+  "password": "<pbkdf2-derived-auth-key>",
+  "twoFactorCode": "123456"
+}
+```
+
+**Login response**
+```json
+{
+  "message": "Login successful",
+  "user": {
+    "id": "user-id",
+    "email": "user@example.com",
+    "name": "Alice",
+    "twoFactorEnabled": true,
+    "salt": "base64-salt"
+  }
+}
+```
+
+<Aside type="note">
+  The `password` field sent to the server is a PBKDF2-derived auth key computed in the browser, not the raw password.
+</Aside>
+
+---
+
+### Vault
+
+**Authenticated**
+
+```
+POST   /vault/entries
+GET    /vault/entries
+GET    /vault/entries/:id
+PUT    /vault/entries/:id
+DELETE /vault/entries/:id
+GET    /vault/export
+POST   /vault/import
+```
+
+**Public**
+
+```
+GET    /vault/successor-access?token=
+```
+
+Import supports `merge` (default) and `replace` modes. All payloads are pre-encrypted by the client — the server never receives plaintext vault content.
+
+**Import request**
+```json
+{
+  "mode": "merge",
+  "entries": [
+    {
+      "encryptedData": "base64-ciphertext",
+      "iv": "base64-iv",
+      "salt": "base64-salt",
+      "algorithm": "AES-GCM",
+      "category": "finance",
+      "tags": []
+    }
+  ]
+}
+```
+
+---
+
+### Activity and check-in
+
+**Authenticated**
+
+```
+GET    /activity
+POST   /activity/check-in
+```
+
+**Public**
+
+```
+GET    /activity/check-in-link?token=
+POST   /activity/check-in-link
+```
+
+---
+
+### Inactivity settings
+
+**Authenticated**
+
+```
+GET    /inactivity/settings
+PUT    /inactivity/settings
+POST   /inactivity/pause
+POST   /inactivity/resume
+```
+
+---
+
+### Sessions
+
+**Authenticated**
+
+```
+GET    /sessions
+DELETE /sessions/:sessionId
+POST   /sessions/invalidate-others
+```
+
+---
+
+### Successors
+
+**Public**
+
+```
+GET    /successors/verify?token=
+```
+
+**Authenticated**
+
+```
+PUT    /successors/shares
+POST   /successors
+GET    /successors
+GET    /successors/:id
+PUT    /successors/:id
+DELETE /successors/:id
+POST   /successors/:id/resend-verification
+POST   /successors/:id/verify
+GET    /successors/:id/assigned-entries
+PUT    /successors/:id/assigned-entries
+```
+
+---
+
+### Handover
+
+**Public**
+
+```
+POST   /handover/respond
+```
+
+**Authenticated**
+
+```
+GET    /handover/status
+POST   /handover/cancel
+```
+
+---
+
+### Billing
+
+**Authenticated**
+
+```
+GET    /billing/status
+POST   /billing/checkout
+POST   /billing/portal
+```
+
+**Public (Stripe webhook)**
+
+```
+POST   /billing/webhook
+```
+
+---
+
+### Admin
+
+**Authenticated admin-only**
+
+```
+GET    /admin/dashboard
+GET    /admin/users
+POST   /admin/users/:userId/unlock
+GET    /admin/users/:userId/lockout-status
+```
+
+Admin access is controlled by the `ADMIN_EMAILS` env var allowlist.
+
+---
+
+### Operational
+
+**Public**
+
+```
+GET    /health
+GET    /metrics
+```
+
+`/health` returns status for database, Redis, job queues, and the realtime service.
+
+---
+
+## Realtime (WebSocket)
+
+Connect to `/ws` with valid auth cookies. The server pushes:
+
+- Inactivity reminder notifications
+- Handover state change events
+
+Local: `ws://localhost:3001/ws`  
+Production: `wss://api.handoverkey.app/ws`

@@ -1,0 +1,52 @@
+---
+title: HandoverKey Docs
+description: Open-source zero-knowledge digital legacy platform with a built-in dead man's switch.
+template: splash
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://docs.handoverkey.app/og.png
+  - tag: meta
+    attrs:
+      property: og:description
+      content: Open-source zero-knowledge digital legacy platform with a built-in dead man's switch.
+  - tag: meta
+    attrs:
+      name: twitter:card
+      content: summary_large_image
+hero:
+  tagline: Your secrets, quietly handed over — only if you go silent.
+  actions:
+    - text: Quick Start
+      link: /guides/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/handoverkey/handoverkey
+      icon: external
+      variant: minimal
+---
+
+## What is HandoverKey?
+
+HandoverKey is a self-hostable, open-source **digital legacy platform**. You store encrypted secrets in a zero-knowledge vault. If you stop checking in, a dead man's switch kicks off a handover flow — delivering cryptographic key shares to the trusted successors you chose. Decryption happens in their browser. The server never sees plaintext.
+
+<div class="feature-list">
+  <div class="feature-row">
+    <div class="feature-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg></div>
+    <div><strong>Zero-Knowledge Vault</strong> — Every secret is encrypted with AES-256-GCM in your browser before it leaves your device. We store only ciphertext.</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg></div>
+    <div><strong>Dead Man's Switch</strong> — Configurable inactivity timer (30–365 days) with graduated email reminders and a 48-hour grace period.</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <div><strong>Shamir's Secret Sharing</strong> — The master key is split into N shares. Only a quorum of your chosen successors can reconstruct it together.</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+    <div><strong>Self-Hostable</strong> — Docker Compose included. Run it on your own infrastructure — you own your data.</div>
+  </div>
+</div>

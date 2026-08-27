@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
 import BrandMark from "../components/BrandMark";
@@ -27,10 +28,15 @@ function getPasswordStrength(pw: string): {
 }
 
 const Register: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get("plan");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +62,11 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (!agreedToTerms) {
+      setError("You must agree to the Terms of Service and Privacy Policy");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -73,7 +84,7 @@ const Register: React.FC = () => {
         email,
         password: authKey,
         confirmPassword: authKey,
-        salt: encryptionSalt, // We need to update backend to accept this
+        salt: encryptionSalt,
       });
 
       // 4. Show success message and redirect to login
@@ -122,6 +133,13 @@ const Register: React.FC = () => {
           </div>
 
           <div className="card p-8">
+            {plan && (
+              <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/80 dark:ring-amber-800/40 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-lg text-sm text-center">
+                You're signing up for the{" "}
+                <strong className="capitalize">{plan}</strong> plan — you can
+                upgrade after confirming your email.
+              </div>
+            )}
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error && (
                 <div className="bg-rose-50 dark:bg-rose-900/20 ring-1 ring-rose-200 dark:ring-rose-800/40 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
@@ -186,18 +204,32 @@ const Register: React.FC = () => {
                 >
                   Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input"
+                    className="input pr-10"
                     placeholder="Min 12 chars, uppercase, lowercase, number, special"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
                 </div>
                 {password && (
                   <div className="mt-2">
@@ -229,26 +261,72 @@ const Register: React.FC = () => {
                 >
                   Confirm Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="input"
+                    className="input pr-10"
                     placeholder="Confirm your password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
                 </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  id="agreedToTerms"
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                />
+                <label
+                  htmlFor="agreedToTerms"
+                  className="text-sm text-gray-600 dark:text-gray-400"
+                >
+                  I agree to the{" "}
+                  <Link
+                    to="/terms"
+                    target="_blank"
+                    className="underline underline-offset-4 decoration-amber-500 text-gray-900 dark:text-white hover:decoration-2"
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    to="/privacy"
+                    target="_blank"
+                    className="underline underline-offset-4 decoration-amber-500 text-gray-900 dark:text-white hover:decoration-2"
+                  >
+                    Privacy Policy
+                  </Link>
+                </label>
               </div>
 
               <div>
                 <LoadingButton
                   type="submit"
                   loading={loading}
-                  className="w-full btn btn-primary flex justify-center"
+                  disabled={!agreedToTerms}
+                  className="w-full btn btn-primary flex justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Create Account
                 </LoadingButton>
