@@ -156,11 +156,8 @@ const Vault: React.FC = () => {
       return;
     }
 
-    console.log("Deleting entry:", selectedEntry.id);
-
     try {
       await api.delete(`/vault/entries/${selectedEntry.id}`);
-      console.log("Delete successful");
       success("Secret deleted successfully!");
       setIsModalOpen(false);
       setIsDeleteModalOpen(false);
@@ -420,7 +417,6 @@ const Vault: React.FC = () => {
         onDelete={
           selectedEntry
             ? () => {
-                console.log("Delete button clicked in modal");
                 setIsModalOpen(false);
                 setTimeout(() => setIsDeleteModalOpen(true), 100);
               }

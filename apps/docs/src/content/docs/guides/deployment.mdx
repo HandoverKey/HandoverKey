@@ -1,0 +1,139 @@
+---
+title: Deployment
+description: Deploy HandoverKey with Docker Compose or on your own infrastructure.
+head: []
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Supported deployment shapes
+
+1. **Local development** — Node.js + Docker for PostgreSQL and Redis
+2. **Self-hosted** — Docker Compose on any Linux host
+3. **Split deployment** — Static frontend (Vercel) + containerized API
+
+## Docker Compose (self-hosted)
+
+The repository ships two Compose files:
+
+| File | Purpose |
+| ---- | ------- |
+| `docker-compose.yml` | Full local stack (PostgreSQL, Redis, API, web) |
+| `docker-compose.prod.yaml` | Production-oriented — bring your own DB and secrets |
+
+### Production deploy
+
+```bash
+# Copy and fill in your production secrets
+cp apps/api/.env.example apps/api/.env
+
+docker compose -f docker-compose.prod.yaml --env-file apps/api/.env up --build -d
+```
+
+<Aside type="note">
+  Migrations run automatically via an `api-migrate` service that gates API startup on `service_completed_successfully`.
+</Aside>
+
+## Environment variables
+
+### API (required)
+
+```bash
+# Generate with: openssl rand -base64 64
+JWT_SECRET=
+ACTIVITY_HMAC_SECRET=
+
+# Database
+DB_HOST=
+DB_PORT=5432
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+
+# Redis
+REDIS_HOST=
+REDIS_PORT=6379
+
+# Origins
+FRONTEND_URL=https://handoverkey.app
+CORS_ORIGINS=https://handoverkey.app
+```
+
+### API (optional)
+
+```bash
+API_PORT=3001
+REDIS_PASSWORD=
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+COOKIE_DOMAIN=
+ADMIN_EMAILS=admin@example.com
+GRACE_PERIOD_HOURS=48
+TWO_FACTOR_ISSUER=HandoverKey
+```
+
+### SMTP
+
+SMTP is strongly recommended. Without it, email verification, inactivity reminders, handover notifications, and password resets won't work.
+
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your@email.com
+SMTP_PASS=your-app-password
+SMTP_FROM=noreply@handoverkey.app
+```
+
+### Stripe (optional billing)
+
+```bash
+# Leave blank to disable paid plans
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
+STRIPE_FAMILY_PRICE_ID=
+```
+
+Register your webhook at `https://yourdomain.com/api/v1/billing/webhook` and subscribe to:
+`checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
+
+### Web (build-time)
+
+```bash
+VITE_API_URL=https://api.handoverkey.app/api/v1
+VITE_WS_URL=wss://api.handoverkey.app/ws
+```
+
+Leave both empty in local development — the Vite proxy handles it.
+
+## Frontend hosting
+
+The web app is a Vite SPA. Any host must rewrite all non-asset routes to `index.html`.
+
+A Vercel config is included at `apps/web/vercel.json`.
+
+## Reverse proxy notes
+
+- Forward WebSocket upgrade requests for `/ws`
+- Enable TLS for both origins in production
+- Set `FRONTEND_URL` and `CORS_ORIGINS` to match your actual web origin
+
+## Health and monitoring
+
+| Endpoint | Purpose |
+| -------- | ------- |
+| `GET /health` | Service health (DB, Redis, queues, realtime) |
+| `GET /metrics` | Prometheus-compatible metrics |
+
+## Production checklist
+
+- [ ] TLS on both web and API origins
+- [ ] Strong `JWT_SECRET` and `ACTIVITY_HMAC_SECRET` (64+ bytes)
+- [ ] PostgreSQL backups and restore tested
+- [ ] Redis persistence or managed Redis configured
+- [ ] SMTP credentials configured and tested
+- [ ] `FRONTEND_URL` and `CORS_ORIGINS` verified
+- [ ] `VITE_API_URL` and `VITE_WS_URL` set
+- [ ] `/health` endpoint wired into monitoring
+- [ ] SPA rewrites confirmed on web host

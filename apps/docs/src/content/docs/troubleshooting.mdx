@@ -1,0 +1,123 @@
+---
+title: Troubleshooting
+description: Common problems and how to fix them.
+head: []
+---
+
+## Local setup
+
+### Docker services fail to start
+
+Check that Docker Desktop is running, then:
+
+```bash
+npm run docker:down
+npm run docker:up
+```
+
+If ports 5432 or 6379 are already in use, stop whatever is holding them or change the ports in `docker-compose.yml`.
+
+### API fails to start — "missing required environment variable"
+
+`JWT_SECRET` and `ACTIVITY_HMAC_SECRET` are required. Generate them:
+
+```bash
+echo "JWT_SECRET=$(openssl rand -base64 64)" >> apps/api/.env
+echo "ACTIVITY_HMAC_SECRET=$(openssl rand -base64 64)" >> apps/api/.env
+```
+
+Then verify `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, and `REDIS_PORT` are all set.
+
+### Migrations fail
+
+Make sure the database container is healthy before running migrations:
+
+```bash
+npm run docker:up
+# wait a few seconds for Postgres to initialise
+npm run db:migrate
+```
+
+### Web app can't reach the API
+
+In local development the Vite proxy handles `/api` routing automatically — leave `VITE_API_URL` empty.
+
+In a hosted split deployment, set both:
+
+```bash
+VITE_API_URL=https://api.yourdomain.com/api/v1
+VITE_WS_URL=wss://api.yourdomain.com/ws
+```
+
+Rebuild the web app after changing Vite env vars — they are baked in at build time.
+
+### SPA routes return 404 on reload
+
+Your web host must rewrite all non-asset paths to `index.html`. A Vercel config is included at `apps/web/vercel.json`. For other hosts, configure equivalent rewrite rules.
+
+---
+
+## Authentication
+
+### "Invalid or expired token" on every request
+
+Your `JWT_SECRET` may have changed since the token was issued. Log out, log back in, and the new token will be signed with the current secret.
+
+### Emails not arriving (verification, reminders, password reset)
+
+Check your SMTP configuration:
+
+```bash
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+```
+
+Run with `NODE_ENV=test` locally — this activates a JSON email transport so you can see email payloads in the API logs without needing real SMTP.
+
+### 2FA locked out
+
+Use a recovery code from the set generated when 2FA was enabled. If you've lost both the authenticator and recovery codes, an admin can reset the account via:
+
+```
+POST /api/v1/admin/users/:userId/unlock
+```
+
+---
+
+## Production
+
+### Cookie / CORS errors in the browser
+
+If the web app and API are on different origins:
+
+1. Set `FRONTEND_URL` to the exact web origin (including protocol, no trailing slash)
+2. Set `CORS_ORIGINS` to the same value
+3. Enable TLS on both origins — `Secure` cookies require HTTPS
+
+### WebSocket connection fails
+
+Ensure your reverse proxy forwards WebSocket upgrade requests for `/ws`. In Nginx:
+
+```nginx
+location /ws {
+    proxy_pass http://api:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+
+### Rate limiting not working across multiple API instances
+
+The default rate limiter uses in-process memory. For multi-instance deployments, add a Redis-backed rate limiter or use an edge/WAF rate limiter in front of your API.
+
+---
+
+## Still stuck?
+
+- Open an issue: [github.com/HandoverKey/HandoverKey/issues](https://github.com/HandoverKey/HandoverKey/issues)
+- Email: [info@handoverkey.app](mailto:info@handoverkey.app)

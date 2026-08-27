@@ -1,33 +1,23 @@
 # Documentation Index
 
-This folder contains the maintained technical and operational documentation for
-HandoverKey `v1.2.0`.
+This folder contains the source markdown files for HandoverKey's documentation,
+published at **[docs.handoverkey.app](https://docs.handoverkey.app)** via the
+`apps/docs` Starlight site.
 
-## Start Here
+## Contents
 
-- [`../README.md`](../README.md): project overview, quick start, and contributor links
-- [`api.md`](api.md): current HTTP API and authentication model
-- [`architecture.md`](architecture.md): runtime topology, package boundaries, and data flow
-- [`deployment.md`](deployment.md): local development, containerized deployment, and hosted setup guidance
-- [`security.md`](security.md): implemented security model, controls, and limitations
-- [`testing.md`](testing.md): test strategy, commands, and workspace-level expectations
+- [`api.md`](api.md) — HTTP API contract and authentication model
+- [`architecture.md`](architecture.md) — runtime topology and package boundaries
+- [`deployment.md`](deployment.md) — local, container, and hosted deployment
+- [`security.md`](security.md) — implemented security model and limitations
+- [`testing.md`](testing.md) — test strategy and coverage expectations
+- [`openapi.yaml`](openapi.yaml) — OpenAPI spec
 
-## How To Use These Docs
+## Contributing to docs
 
-- Treat the route files in `apps/api/src/routes/` and the changelog as the source of truth
-  for shipped behavior.
-- If you change an endpoint, auth behavior, deployment requirement, or environment
-  variable, update the matching document in this directory in the same pull request.
-- If something is not implemented yet, label it as roadmap or future work instead of
-  documenting it as an active feature.
+If you change an endpoint, auth behaviour, deployment requirement, or environment
+variable, update the matching document here in the same pull request.
 
-## Documentation Scope
-
-These docs describe the system that is currently in this repository:
-
-- React 19 SPA in `apps/web`
-- Express 5 API in `apps/api`
-- PostgreSQL + Kysely data layer
-- Redis-backed sessions, lockout state, and job queues
-- WebSocket realtime notifications
-- Shared crypto, database, and utility packages
+The `apps/docs` Starlight site pulls its content from
+`apps/docs/src/content/docs/` — edit those files directly for the published site.
+The markdown files in this folder serve as the canonical source of truth for contributors.

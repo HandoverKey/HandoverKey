@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 import { setMasterKey, deriveAuthKey } from "../services/encryption";
@@ -15,6 +16,7 @@ const Login: React.FC = () => {
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
   const [useRecoveryCode, setUseRecoveryCode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -176,18 +178,32 @@ const Login: React.FC = () => {
                     </Link>
                   </div>
                 </div>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input"
+                    className="input pr-10"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 

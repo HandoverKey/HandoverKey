@@ -1,0 +1,107 @@
+---
+title: Contributing
+description: How to contribute to HandoverKey — bugs, tests, docs, and code.
+head: []
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Thanks for contributing. Bug reports, tests, docs fixes, design feedback, and code contributions are all welcome.
+
+## Before you open an issue
+
+- Search existing issues first
+- Use the provided issue templates when they fit
+- Report security vulnerabilities privately — see [Security Policy](https://github.com/HandoverKey/HandoverKey/blob/main/SECURITY.md)
+
+## Ways to contribute
+
+### Report bugs
+
+Please include:
+
+- A clear description of the problem
+- Reproduction steps
+- Expected vs actual behaviour
+- Screenshots, logs, or error output when relevant
+- Your OS, browser, and app version if the issue is user-facing
+
+### Suggest enhancements
+
+High-quality feature requests explain:
+
+- The user or operator problem
+- The proposed behaviour
+- Why the change matters
+- Alternative approaches already considered
+
+### Pick up existing work
+
+Look for issues tagged `good first issue` or documentation/testing improvements.
+
+## Development setup
+
+```bash
+git clone https://github.com/HandoverKey/HandoverKey.git
+cd HandoverKey
+npm install
+
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+npm run docker:up
+npm run db:migrate
+npm run dev
+```
+
+## Quality bar
+
+Before opening a PR:
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
+| Workspace | Tooling |
+| --- | --- |
+| `apps/api` | Jest integration tests (real PostgreSQL + Redis) |
+| `apps/web` | Vitest + Testing Library |
+| `packages/crypto` | Jest — 80% coverage threshold |
+| `packages/database` | Jest |
+| `packages/shared` | Jest |
+
+## Pull request guidelines
+
+1. Branch from `main`
+2. Keep the scope focused
+3. Add or update tests for behaviour changes
+4. Update docs when the API, UI, env contract, or deployment flow changes
+5. Use [conventional commit](https://www.conventionalcommits.org/) prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `build:`
+6. Make sure CI is green before requesting review
+
+## Coding conventions
+
+- Follow the existing TypeScript, ESLint, and Prettier setup
+- Prefer small, reviewable changes over large mixed refactors
+- Keep dependency directions between apps/packages intact
+- Do not commit secrets, credentials, or `.env` files
+
+## Documentation expectations
+
+If your change affects any of the following, update the matching doc in the same PR:
+
+- API routes or auth behaviour
+- Environment variables
+- Deployment requirements
+- Security guarantees or limitations
+- User-facing flows
+
+## Security reporting
+
+Do not open public GitHub issues for vulnerabilities. Email `security@handoverkey.app` — see [SECURITY.md](https://github.com/HandoverKey/HandoverKey/blob/main/SECURITY.md).
+
+## License
+
+By contributing, you agree your contributions will be licensed under the MIT licence used by this repository.
