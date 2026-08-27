@@ -3,7 +3,11 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import api from "../services/api";
 import { deriveAuthKey, generateEncryptionSalt } from "../services/encryption";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  ExclamationTriangleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 import BrandMark from "../components/BrandMark";
 import Footer from "../components/Footer";
 import Spinner from "../components/Spinner";
@@ -16,6 +20,8 @@ const ResetPassword: React.FC = () => {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [email, setEmail] = useState(""); // We need email to derive Auth Key
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -145,35 +151,61 @@ const ResetPassword: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label htmlFor="password" className="sr-only">
                   New Password
                 </label>
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
-                  className="input"
+                  className="input pr-10"
                   placeholder="New Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
               </div>
-              <div>
+              <div className="relative">
                 <label htmlFor="confirm-password" className="sr-only">
                   Confirm Password
                 </label>
                 <input
                   id="confirm-password"
                   name="confirm-password"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   required
-                  className="input"
+                  className="input pr-10"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 

@@ -15,6 +15,14 @@ const Footer: React.FC = () => (
         <span>Handoverkey &middot; {new Date().getFullYear()}</span>
       </div>
       <div className="flex items-center gap-6">
+        <a
+          href="https://docs.handoverkey.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-900 dark:hover:text-white transition"
+        >
+          Docs
+        </a>
         <Link
           to="/privacy"
           className="hover:text-gray-900 dark:hover:text-white transition"
@@ -26,6 +34,12 @@ const Footer: React.FC = () => (
           className="hover:text-gray-900 dark:hover:text-white transition"
         >
           Terms
+        </Link>
+        <Link
+          to="/cookies"
+          className="hover:text-gray-900 dark:hover:text-white transition"
+        >
+          Cookies
         </Link>
         <Link
           to="/contact"

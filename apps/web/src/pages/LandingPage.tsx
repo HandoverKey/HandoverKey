@@ -640,7 +640,7 @@ function HowItWorks() {
             ]}
             scene={<EncryptionScene />}
             highlight={[
-              "Argon2id key derivation",
+              "PBKDF2 key derivation",
               "AES-256-GCM",
               "No plaintext leaves your device",
             ]}
@@ -856,7 +856,7 @@ function EncryptionScene() {
           y="194"
           className="fill-gray-600 dark:fill-gray-300 text-[10px]"
         >
-          Argon2id → AES-256
+          PBKDF2 → AES-256
         </text>
         <text
           x="50"
@@ -1569,8 +1569,7 @@ const tiers = [
     features: [
       "Unlimited entries",
       "Up to 5 successors",
-      "Shamir's Secret Sharing",
-      "Audit logs & export",
+      "Everything in Free",
       "Priority support",
     ],
     cta: "Start Pro",
@@ -1585,9 +1584,7 @@ const tiers = [
     features: [
       "Everything in Pro",
       "Unlimited successors",
-      "Per-entry access",
-      "Custom thresholds",
-      "Webhooks",
+      "Dedicated support",
     ],
     cta: "Start Family",
     ctaLink: "/register?plan=family",

@@ -1,0 +1,116 @@
+---
+title: Architecture
+description: Runtime topology, monorepo structure, and core data flows.
+head: []
+---
+
+## Overview
+
+HandoverKey is a **Turbo monorepo** with two deployable apps and three shared packages.
+
+```
+apps/
+  api/       Express 5 REST API
+  web/       React 19 SPA
+  docs/      Starlight docs site (this site)
+packages/
+  crypto/    AES-256-GCM, PBKDF2, Shamir's Secret Sharing
+  database/  Kysely client, repository layer, schema types
+  shared/    Cross-package types, constants, validation utilities
+```
+
+## Runtime topology
+
+```mermaid
+graph TD
+    Browser["React SPA<br/>(apps/web)"] -->|"HTTPS + httpOnly cookies"| API["Express API<br/>(apps/api)"]
+    Browser -->|WSS /ws| WS["Realtime service"]
+    API --> WS
+    API -->|SQL via Kysely| DB[("PostgreSQL")]
+    API -->|"Queues / sessions / lockout"| Redis[("Redis")]
+    API -->|Transactional email| SMTP["SMTP provider"]
+    API --> Crypto["packages/crypto"]
+    API --> Database["packages/database"]
+    API --> Shared["packages/shared"]
+    Browser --> Shared
+```
+
+## Package dependency direction
+
+```mermaid
+graph LR
+    api["apps/api"] --> database["packages/database"]
+    api --> crypto["packages/crypto"]
+    api --> shared["packages/shared"]
+    web["apps/web"] --> shared
+    shared --> crypto
+```
+
+Circular dependencies are intentionally avoided.
+
+## Core data flows
+
+### Encrypted vault
+
+1. The browser derives a master key from the user's password via PBKDF2 (100,000 iterations, SHA-256).
+2. Each vault entry is encrypted with AES-256-GCM entirely in the browser before being sent.
+3. The API stores encrypted blobs, IVs, salts, and metadata — never plaintext.
+4. On read, the browser decrypts locally with the in-memory master key.
+
+### Authentication
+
+1. Browser derives an auth key from password + email via PBKDF2 — the raw password never leaves the device.
+2. Server stores bcrypt hash of the auth key (rounds = 12).
+3. Login sets `accessToken` (1h) and `refreshToken` (7d) as httpOnly cookies.
+4. Every protected route validates both the JWT and the backing server-side session record.
+5. Optional TOTP 2FA adds a second factor.
+
+### Inactivity and handover state machine
+
+```mermaid
+flowchart TD
+    Active["Active\n(user is checking in)"]
+    Reminders["Reminders\n(75% / 85% / 95%)"]
+    Grace["Grace period\n(48 hours)"]
+    Awaiting["Awaiting successors"]
+    Completed["Completed"]
+    Cancelled["Cancelled"]
+
+    Active -->|"inactivity reaches 75%"| Reminders
+    Reminders -->|"user checks in"| Active
+    Reminders -->|"100% reached"| Grace
+    Grace -->|"user checks in or logs in"| Cancelled
+    Grace -->|"48 hours elapse"| Awaiting
+    Awaiting -->|"all successors respond"| Completed
+    Cancelled -->|"timer resets"| Active
+```
+
+### Shamir's Secret Sharing
+
+The master encryption key is split into N shares with threshold K. Any K shares reconstruct the key; fewer than K reveals nothing.
+
+| `requireMajority` | Threshold K |
+| --- | --- |
+| off | `min(2, N)` |
+| on  | `floor(N / 2) + 1` |
+
+Reconstruction happens entirely in the successor's browser — the server never handles plaintext.
+
+## Persistence
+
+### PostgreSQL
+
+Stores: users, sessions, vault entries, successors, inactivity settings, activity logs, notification deliveries, handover processes.
+
+### Redis
+
+Used for: BullMQ job queues, login throttle counters, low-latency operational state.
+
+## Observability
+
+| Endpoint | Output |
+| --- | --- |
+| `GET /health` | JSON: DB, Redis, queues, realtime status |
+| `GET /metrics` | Prometheus-compatible metrics |
+
+Structured logging via **Pino** throughout the API. Activity records are HMAC-signed for integrity.

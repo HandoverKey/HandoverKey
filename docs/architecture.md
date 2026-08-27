@@ -203,5 +203,5 @@ Those may be future directions, but they are not part of the implemented runtime
 
 ---
 
-**Last Updated**: 2026-03-18
-**Version**: 1.2.0
+**Last Updated**: 2026-07-25
+**Version**: 1.4.3
