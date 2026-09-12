@@ -41,6 +41,11 @@
     "node": ">=22.0.0",
     "npm": ">=9.0.0"
   },
+  "overrides": {
+    "@pasqal-io/starlight-client-mermaid": {
+      "@astrojs/markdown-remark": "^7.3.0"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/handoverkey/handoverkey.git"

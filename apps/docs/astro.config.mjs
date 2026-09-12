@@ -10,9 +10,13 @@ export default defineConfig({
       favicon: "/favicon.svg",
       description:
         "Open-source zero-knowledge digital legacy platform with a dead man's switch.",
-      social: {
-        github: "https://github.com/handoverkey/handoverkey",
-      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/handoverkey/handoverkey",
+        },
+      ],
       editLink: {
         baseUrl:
           "https://github.com/handoverkey/handoverkey/edit/main/apps/docs/",
