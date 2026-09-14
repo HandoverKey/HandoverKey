@@ -21,6 +21,22 @@ jobs:
       # Only patch/minor updates are auto-merged. Major version bumps
       # can include breaking changes (e.g. config/API changes) and are
       # left for manual review.
+      #
+      # main's ruleset requires an approving code-owner review before
+      # merging, and the built-in GITHUB_TOKEN (github-actions[bot]) is
+      # not a code owner and cannot be added as a ruleset bypass actor.
+      # DEPENDABOT_AUTOMERGE_TOKEN is a fine-grained PAT scoped to this
+      # repo (contents + pull-requests: write) belonging to the code
+      # owner, used here only to approve/merge eligible Dependabot PRs.
+      - name: Approve patch/minor updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr review --approve "$PR_URL" --body "Auto-approved: patch/minor Dependabot update, merges once CI is green."
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
+
       - name: Enable auto-merge for patch/minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
@@ -28,4 +44,5 @@ jobs:
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
+
