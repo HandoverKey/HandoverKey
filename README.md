@@ -263,3 +263,5 @@ Bug fixes, docs updates, tests, and new features are all welcome.
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
+
+<!-- automerge-pat-validation-test -->
